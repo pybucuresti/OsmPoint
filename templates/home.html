@@ -1,11 +1,29 @@
-<html><body>
+<html>
+<head>
+  <style>
+    div#poi-form {
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      right: 0;
+      background: white;
+      border: 1px solid black;
+    }
+    div#poi-form form {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
   <div id="demoMap">Loading coordinates...</div>
   <script src="static/js/jquery-1.5.2.js"></script>
   <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
   <script>
     window.navigator.geolocation.getCurrentPosition(function(position){
         $('#demoMap').empty();
-        show_map_at_coordinates(position.coords)
+        show_map_at_coordinates(position.coords);
+        $('#poi-form form input[name=lat]').val(position.coords.latitude);
+        $('#poi-form form input[name=lon]').val(position.coords.longitude);
     });
 
     function show_map_at_coordinates(coords) {
@@ -18,4 +36,12 @@
         map.setCenter(center, 15);
     }
   </script>
+  <div id="poi-form">
+    <form method="post" action="/save_poi">
+      <input name="lat" size="5">
+      <input name="lon" size="5"><br>
+      <input name="name"><br>
+      <input type="submit" value="save">
+    </form>
+  </div>
 </body></html>
