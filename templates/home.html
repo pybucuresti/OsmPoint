@@ -1,0 +1,15 @@
+<html><body>
+  <div id="demoMap"></div>
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script>
+    var center = new OpenLayers.LonLat(26.10, 44.43) // Center of the map
+          .transform(
+            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+            new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
+          );
+
+    var map = new OpenLayers.Map("demoMap");
+    map.addLayer(new OpenLayers.Layer.OSM());
+    map.setCenter(center, 15);
+  </script>
+</body></html>
