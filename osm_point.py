@@ -23,6 +23,12 @@ class Point(db.Model):
     def __repr__(self):
         return "<%s(%s)>" % (self.__class__.__name__, self.name)
 
+db.create_all()
+
+def add_point(latitude, longitude, name):
+    point = Point(latitude, longitude, name)
+    db.session.add(point)
+    db.session.commit()
 
 @app.route("/")
 def hello():
@@ -30,10 +36,9 @@ def hello():
 
 @app.route("/save_poi", methods=['POST'])
 def save_poi():
-    app.logger.debug('something happened')
-    app.logger.debug("%r", flask.request)
-    print flask.request.form["name"]
-    return "whatever"
+    form = flask.request.form
+    add_point(form['lat'], form['lon'], form['name'])
+    return 'ok'
 
 def main():
     app.run(host='0.0.0.0')
