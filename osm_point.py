@@ -92,15 +92,19 @@ def create_or_login(resp):
     return flask.redirect('/')
 
 @app.route("/")
-def hello():
-    app.logger.debug('user: %r', flask.g.user)
-    return flask.render_template('home.html')
+def homepage():
+    logged_in = bool(flask.g.user is not None)
+    return flask.render_template('home.html', logged_in=logged_in)
 
 @app.route("/save_poi", methods=['POST'])
 def save_poi():
     form = flask.request.form
     add_point(form['lat'], form['lon'], form['name'])
-    return 'ok'
+    return flask.redirect('/thank_you')
+
+@app.route("/thank_you")
+def thank_you():
+    return flask.render_template('thank_you.html')
 
 def main():
     import sys

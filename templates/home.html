@@ -1,17 +1,28 @@
 <html>
 <head>
   <style>
-    div#poi-form {
-      position: fixed;
+    div.overlay {
       z-index: 1000;
+      position: fixed;
       top: 0;
       right: 0;
       background: white;
       border: 1px solid black;
     }
+    div#login {
+      display: none;
+    }
+    div#poi-form {
+      display: none;
+    }
     div#poi-form form {
       margin: 0;
     }
+  {% if logged_in %}
+    div#poi-form { display: block; }
+  {% else %}
+    div#login { display: block; }
+  {% endif %}
   </style>
 </head>
 <body>
@@ -33,10 +44,13 @@
         center = center.transform(proj_wgs1984, proj_mercator);
         var map = new OpenLayers.Map("demoMap");
         map.addLayer(new OpenLayers.Layer.OSM());
-        map.setCenter(center, 15);
+        map.setCenter(center, 16);
     }
   </script>
-  <div id="poi-form">
+  <div id="login" class="overlay">
+    <a href="/login">login</a>
+  </div>
+  <div id="poi-form" class="overlay">
     <form method="post" action="/save_poi">
       <input name="lat" size="5">
       <input name="lon" size="5"><br>
