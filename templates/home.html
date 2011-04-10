@@ -1,15 +1,21 @@
 <html><body>
-  <div id="demoMap"></div>
+  <div id="demoMap">Loading coordinates...</div>
+  <script src="static/js/jquery-1.5.2.js"></script>
   <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
   <script>
-    var center = new OpenLayers.LonLat(26.10, 44.43) // Center of the map
-          .transform(
-            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-            new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
-          );
+    window.navigator.geolocation.getCurrentPosition(function(position){
+        $('#demoMap').empty();
+        show_map_at_coordinates(position.coords)
+    });
 
-    var map = new OpenLayers.Map("demoMap");
-    map.addLayer(new OpenLayers.Layer.OSM());
-    map.setCenter(center, 15);
+    function show_map_at_coordinates(coords) {
+        var proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
+        var proj_mercator = new OpenLayers.Projection("EPSG:900913");
+        var center = new OpenLayers.LonLat(coords.longitude, coords.latitude);
+        center = center.transform(proj_wgs1984, proj_mercator);
+        var map = new OpenLayers.Map("demoMap");
+        map.addLayer(new OpenLayers.Layer.OSM());
+        map.setCenter(center, 15);
+    }
   </script>
 </body></html>
