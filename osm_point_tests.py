@@ -36,21 +36,28 @@ class UserPageTest(unittest2.TestCase):
         app = osm_point.app.test_client()
         app_server = osm_point.app
         app_server.config['SECRET_KEY'] = 'my-secret-key'
+        point_data = {'lat': 46.06, 'lon': 24.10, 'name': 'bau'}
 
         @app_server.route('/test_login')
         def test_login():
             flask.session['openid'] = 'my-open-id'
 
+        response = app.post('/save_poi', data=dict(point_data))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'],
+                         'http://localhost/login')
+
         app.get('/test_login')
 
-        response = app.post('/save_poi', data={
-            'lat': 46.06, 'lon': 24.10,
-            'name': 'bau'})
+        response = app.post('/save_poi', data=dict(point_data))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'],
+                         'http://localhost/thank_you')
 
         point = osm_point.Point.query.all()[0]
-        self.assertEquals(point.latitude, 46.06)
-        self.assertEquals(point.longitude, 24.10)
-        self.assertEquals(point.name, 'bau')
+        self.assertEquals(point.latitude, point_data['lat'])
+        self.assertEquals(point.longitude, point_data['lon'])
+        self.assertEquals(point.name, point_data['name'])
         self.assertEquals(point.user_open_id, 'my-open-id')
 
     @patch('osm_point.osm')
