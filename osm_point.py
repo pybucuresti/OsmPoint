@@ -2,12 +2,16 @@ import flask
 
 from flaskext.sqlalchemy import SQLAlchemy
 
-DEBUG = True
-SQLALCHEMY_DB = "sqlite:///:memory:"
-
 app = flask.Flask(__name__)
-app.config.from_object(__name__)
 db = SQLAlchemy(app)
+
+def configure_app(workdir):
+    app.config['DEBUG'] = True
+
+    import os.path
+    db_path = os.path.join(os.path.abspath(workdir), 'db.sqlite3')
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///%s" % db_path
+    db.create_all()
 
 class Point(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,8 +26,6 @@ class Point(db.Model):
 
     def __repr__(self):
         return "<%s(%s)>" % (self.__class__.__name__, self.name)
-
-db.create_all()
 
 def add_point(latitude, longitude, name):
     point = Point(latitude, longitude, name)
@@ -41,6 +43,8 @@ def save_poi():
     return 'ok'
 
 def main():
+    import sys
+    configure_app(sys.argv[1])
     app.run(host='0.0.0.0')
 
 if __name__ == "__main__":
