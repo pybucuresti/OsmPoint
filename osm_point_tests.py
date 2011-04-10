@@ -1,5 +1,6 @@
 import unittest2
 import osm_point
+from mock import patch
 
 
 class UserPageTest(unittest2.TestCase):
@@ -42,3 +43,23 @@ class UserPageTest(unittest2.TestCase):
         self.assertEquals(point.longitude, 24.10)
         self.assertEquals(point.name, 'bau')
 
+    @patch("osm_point.osm")
+    def test_submit_points_to_osm(self, mock_osm):
+        app = osm_point.app.test_client()
+        p1 = osm_point.Point(46.06, 24.10, "Eau de Web")
+        p2 = osm_point.Point(46.07, 24.11, "blabla")
+        self._db.session.commit()
+        values = [13, 45]
+        mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
+
+        osm_point.submit_points_to_osm([p1, p2])
+
+        self.assertEquals(p1.osm_id, 13)
+        self.assertEquals(p2.osm_id, 45)
+        self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
+        self.assertEquals(mock_osm.NodeCreate.call_args_list, [
+            (({u'lat': 46.06, u'lon': 24.1, u'tag': {'name': 'Eau de Web'}},),
+             {}),
+            (({u'lat': 46.07, u'lon': 24.11, u'tag': {'name': 'blabla'}},),
+             {})])
+        self.assertEquals(mock_osm.ChangesetClose.call_count, 1)

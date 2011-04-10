@@ -2,10 +2,12 @@ import flask
 
 from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
+import OsmApi
 
 app = flask.Flask(__name__)
 db = SQLAlchemy(app)
 oid = OpenID(app)
+osm = None
 
 def configure_app(workdir):
     import os.path
@@ -24,11 +26,15 @@ def configure_app(workdir):
     openid_path = os.path.join(workdir, 'openid_store')
     app.config['OPENID_FS_STORE_PATH'] = openid_path
 
+    global osm
+    osm = OsmApi.OsmApi(passwordfile=os.path.join(workdir,'osm-login.txt'))
+
 class Point(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     name = db.Column(db.String(200))
+    osm_id = db.Column(db.Integer)
 
     def __init__(self, latitude, longitude, name):
         self.latitude = latitude
@@ -41,6 +47,17 @@ class Point(db.Model):
 def add_point(latitude, longitude, name):
     point = Point(latitude, longitude, name)
     db.session.add(point)
+    db.session.commit()
+
+def submit_points_to_osm(point_to_submit):
+    osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
+    for p in point_to_submit:
+        node_dict = osm.NodeCreate({u"lon": p.longitude,
+                                    u"lat": p.latitude,
+                                    u"tag": {'name': p.name}})
+        p.osm_id = node_dict['id']
+        db.session.add(p)
+    osm.ChangesetClose()
     db.session.commit()
 
 @app.before_request
