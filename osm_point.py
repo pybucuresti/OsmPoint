@@ -1,17 +1,28 @@
 import flask
 
 from flaskext.sqlalchemy import SQLAlchemy
+from flaskext.openid import OpenID
 
 app = flask.Flask(__name__)
 db = SQLAlchemy(app)
+oid = OpenID(app)
 
 def configure_app(workdir):
+    import os.path
+    workdir = os.path.abspath(workdir)
+
     app.config['DEBUG'] = True
 
-    import os.path
-    db_path = os.path.join(os.path.abspath(workdir), 'db.sqlite3')
+    db_path = os.path.join(workdir, 'db.sqlite3')
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///%s" % db_path
     db.create_all()
+
+    with open(os.path.join(workdir, 'secret'), 'rb') as f:
+        app.config['SECRET_KEY'] = f.read()
+
+    global oid
+    openid_path = os.path.join(workdir, 'openid_store')
+    app.config['OPENID_FS_STORE_PATH'] = openid_path
 
 class Point(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,8 +43,40 @@ def add_point(latitude, longitude, name):
     db.session.add(point)
     db.session.commit()
 
+@app.before_request
+def lookup_current_user():
+    flask.g.user = None
+    if 'openid' in flask.session:
+        flask.g.user = "[openid %s]" % flask.session['openid']
+
+@app.route('/login', methods=['GET', 'POST'])
+@oid.loginhandler
+def login():
+    if flask.g.user is not None:
+        return flask.redirect(oid.get_next_url())
+    if flask.request.method == 'POST':
+        openid = flask.request.form.get('openid')
+        if openid:
+            return oid.try_login(openid, ask_for=['email', 'fullname',
+                                                  'nickname'])
+    return flask.render_template('login.html',
+                                 next=oid.get_next_url(),
+                                 error=oid.fetch_error())
+
+@app.route('/logout')
+def logout():
+    del flask.session['openid']
+    return flask.redirect('/')
+
+@oid.after_login
+def create_or_login(resp):
+    flask.session['openid'] = resp.identity_url
+    #flask.g.user = "[openid %s]" % flask.session['openid']
+    return flask.redirect('/')
+
 @app.route("/")
 def hello():
+    app.logger.debug('user: %r', flask.g.user)
     return flask.render_template('home.html')
 
 @app.route("/save_poi", methods=['POST'])
