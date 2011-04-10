@@ -35,17 +35,19 @@ class Point(db.Model):
     longitude = db.Column(db.Float)
     name = db.Column(db.String(200))
     osm_id = db.Column(db.Integer)
+    user_open_id = db.Column(db.Text)
 
-    def __init__(self, latitude, longitude, name):
+    def __init__(self, latitude, longitude, name, user_open_id):
         self.latitude = latitude
         self.longitude = longitude
         self.name = name
+        self.user_open_id = user_open_id
 
     def __repr__(self):
         return "<%s(%s)>" % (self.__class__.__name__, self.name)
 
-def add_point(latitude, longitude, name):
-    point = Point(latitude, longitude, name)
+def add_point(latitude, longitude, name, user_open_id):
+    point = Point(latitude, longitude, name, user_open_id)
     db.session.add(point)
     db.session.commit()
 
@@ -64,7 +66,7 @@ def submit_points_to_osm(point_to_submit):
 def lookup_current_user():
     flask.g.user = None
     if 'openid' in flask.session:
-        flask.g.user = "[openid %s]" % flask.session['openid']
+        flask.g.user = flask.session['openid']
 
 @app.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
@@ -88,7 +90,6 @@ def logout():
 @oid.after_login
 def create_or_login(resp):
     flask.session['openid'] = resp.identity_url
-    #flask.g.user = "[openid %s]" % flask.session['openid']
     return flask.redirect('/')
 
 @app.route("/")
@@ -98,8 +99,12 @@ def homepage():
 
 @app.route("/save_poi", methods=['POST'])
 def save_poi():
+    logged_in = bool(flask.g.user is not None)
+    if not logged_in:
+        return flask.redirect('/login')
+
     form = flask.request.form
-    add_point(form['lat'], form['lon'], form['name'])
+    add_point(form['lat'], form['lon'], form['name'], flask.g.user)
     return flask.redirect('/thank_you')
 
 @app.route("/thank_you")

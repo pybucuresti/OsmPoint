@@ -1,5 +1,7 @@
+import flask
 import unittest2
 import osm_point
+
 from mock import patch
 
 
@@ -17,7 +19,7 @@ class UserPageTest(unittest2.TestCase):
         self.assertEqual(app.get('/').status_code, 200)
 
     def test_point_is_stored(self):
-        point = osm_point.Point(46.06, 24.10, "Eau de Web")
+        point = osm_point.Point(46.06, 24.10, 'Eau de Web', 'my-open-id')
         self._db.session.add(point)
         self._db.session.commit()
 
@@ -27,27 +29,35 @@ class UserPageTest(unittest2.TestCase):
         point = points[0]
         self.assertEquals(point.latitude, 46.06)
         self.assertEquals(point.longitude, 24.10)
-        self.assertEquals(point.name, "Eau de Web")
+        self.assertEquals(point.name, 'Eau de Web')
+        self.assertEquals(point.user_open_id, 'my-open-id')
 
     def test_save_poi(self):
         app = osm_point.app.test_client()
+        app_server = osm_point.app
+        app_server.config['SECRET_KEY'] = 'my-secret-key'
+
+        @app_server.route('/test_login')
+        def test_login():
+            flask.session['openid'] = 'my-open-id'
+
+        app.get('/test_login')
 
         response = app.post('/save_poi', data={
             'lat': 46.06, 'lon': 24.10,
             'name': 'bau'})
 
-        self.assertEquals(response.data, 'ok')
-
         point = osm_point.Point.query.all()[0]
         self.assertEquals(point.latitude, 46.06)
         self.assertEquals(point.longitude, 24.10)
         self.assertEquals(point.name, 'bau')
+        self.assertEquals(point.user_open_id, 'my-open-id')
 
-    @patch("osm_point.osm")
+    @patch('osm_point.osm')
     def test_submit_points_to_osm(self, mock_osm):
         app = osm_point.app.test_client()
-        p1 = osm_point.Point(46.06, 24.10, "Eau de Web")
-        p2 = osm_point.Point(46.07, 24.11, "blabla")
+        p1 = osm_point.Point(46.06, 24.10, 'Eau de Web', 'my-open-id')
+        p2 = osm_point.Point(46.07, 24.11, 'blabla', 'my-open-id')
         self._db.session.commit()
         values = [13, 45]
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
