@@ -27,7 +27,9 @@ def configure_app(workdir):
     app.config['OPENID_FS_STORE_PATH'] = openid_path
 
     global osm
-    osm = OsmApi.OsmApi(passwordfile=os.path.join(workdir,'osm-login.txt'))
+    osm_password_path = os.path.join(workdir,'osm-login.txt')
+    if os.path.isfile(osm_password_path):
+        osm = OsmApi.OsmApi(passwordfile=osm_password_path)
 
 class Point(db.Model):
     id = db.Column(db.Integer, primary_key=True)
