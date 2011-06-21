@@ -119,8 +119,20 @@ def thank_you():
 
 @app.route("/points")
 def show_points():
+    import sys
+    import os.path
+
+    workdir = os.path.abspath(sys.argv[1])
+    with open(os.path.join(workdir, 'admins'), 'r') as f:
+        admins = f.read()
+
+    try:
+        is_admin = admins.index(flask.g.user) + 1 
+    except ValueError:
+        is_admin = 0
+
     points = Point.query.all()
-    return flask.render_template('points.html', Points=points)
+    return flask.render_template('points.html', Points=points, is_admin=is_admin)
 
 @app.route("/deleted", methods=['POST', 'GET'])
 def delete_point():
