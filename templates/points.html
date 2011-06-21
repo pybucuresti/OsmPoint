@@ -1,0 +1,13 @@
+<html>
+<body>
+  <h2>Submitted points:</h2>
+  <ul>
+  {% for p in Points %}
+    <li>
+    <a href="/points/{{p.id}}">{{ p.name }}</a> added by {{ p.user_open_id }}
+    </li>
+  {% endfor %}
+  </ul>
+  <a href="/">Home</a>
+</body>
+</html>
