@@ -113,6 +113,11 @@ def save_poi():
 def thank_you():
     return flask.render_template('thank_you.html')
 
+@app.route("/points")
+def show_points():
+    points = Point.query.all()
+    return flask.render_template('points.html', Points=points)
+
 def main():
     import sys
     configure_app(sys.argv[1])

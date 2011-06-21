@@ -80,3 +80,4 @@ class UserPageTest(unittest2.TestCase):
             (({u'lat': 46.07, u'lon': 24.11, u'tag': {'name': 'blabla'}},),
              {})])
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
+
