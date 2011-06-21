@@ -81,3 +81,12 @@ class UserPageTest(unittest2.TestCase):
              {})])
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
 
+    def test_del_point(self):
+        point = osm_point.Point(1, 2, 'X', 'Y')
+        self._db.session.add(point)
+        self._db.session.commit()
+        
+        osm_point.del_point(point)
+        
+        points = osm_point.Point.query.all()
+        self.assertEquals(len(points), 0)

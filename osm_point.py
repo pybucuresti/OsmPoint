@@ -53,6 +53,10 @@ def add_point(latitude, longitude, name, user_open_id):
     db.session.add(point)
     db.session.commit()
 
+def del_point(point):
+    db.session.delete(point)
+    db.session.commit()
+
 def submit_points_to_osm(point_to_submit):
     osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
     for p in point_to_submit:
@@ -117,6 +121,13 @@ def thank_you():
 def show_points():
     points = Point.query.all()
     return flask.render_template('points.html', Points=points)
+
+@app.route("/deleted", methods=['POST', 'GET'])
+def delete_point():
+    form = flask.request.form
+    point = Point.query.filter(Point.id==form['id']).first()
+    del_point(point)
+    return flask.render_template('deleted.html')
 
 def main():
     import sys

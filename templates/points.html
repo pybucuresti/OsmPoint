@@ -5,7 +5,13 @@
   {% for p in Points %}
     <li>
     <a href="/points/{{p.id}}">{{ p.name }}</a> added by {{ p.user_open_id }}
+    <form action="/deleted" method="post">
+      <input type="submit" value="delete">
+      <input type="hidden" name="id" value = {{ p.id }} >
+    </form>
     </li>
+  {% else %}
+    <p>The database is currently empty</p>
   {% endfor %}
   </ul>
   <a href="/">Home</a>
