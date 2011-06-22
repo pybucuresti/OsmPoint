@@ -4,13 +4,11 @@
   <ul>
   {% for p in Points %}
     <li>
-    <a href="/points/{{ p.id }}">{{ p.name }}</a> added by {{ p.user_open_id }}
-    {% if is_admin %}
-    <form action="/deleted" method="post">
-      <input type="submit" value="delete">
+    {{ p.name }} added by {{ p.user_open_id }}
+    <form action="/view" method="post">
+      <input type="submit" value="view">
       <input type="hidden" name="id" value = {{ p.id }} >
     </form>
-    {% endif %}
     </li>
   {% else %}
     <p>The database is currently empty</p>
