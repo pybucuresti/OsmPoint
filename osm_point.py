@@ -134,6 +134,20 @@ def delete_point():
     del_point(point)
     return flask.render_template('deleted.html')
 
+@app.route("/view", methods=['POST', 'GET'])
+def show_map():
+    is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
+    form = flask.request.form
+    point = Point.query.filter(Point.id==form['id']).first()
+    return flask.render_template('view.html', point=point, is_admin=is_admin)
+
+@app.route("/sent", methods=['POST', 'GET'])
+def send_point():
+    form = flask.request.form
+    point = Point.query.filter(Point.id==form['id']).first()
+    submit_points_to_osm(point)
+    return flask.render_template('sent.html')
+
 def main():
     import sys
     configure_app(sys.argv[1])
