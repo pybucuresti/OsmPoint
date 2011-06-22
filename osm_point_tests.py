@@ -11,6 +11,12 @@ class UserPageTest(unittest2.TestCase):
         self._db = osm_point.db
         self._db.create_all()
 
+        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
+        @osm_point.app.route('/test_login', methods=['POST'])
+        def test_login():
+            flask.session['openid'] = flask.request.form['user_id']
+            return "ok"
+
     def tearDown(self):
         self._db.drop_all()
 
@@ -34,20 +40,14 @@ class UserPageTest(unittest2.TestCase):
 
     def test_save_poi(self):
         app = osm_point.app.test_client()
-        app_server = osm_point.app
-        app_server.config['SECRET_KEY'] = 'my-secret-key'
         point_data = {'lat': 46.06, 'lon': 24.10, 'name': 'bau'}
-
-        @app_server.route('/test_login')
-        def test_login():
-            flask.session['openid'] = 'my-open-id'
 
         response = app.post('/save_poi', data=dict(point_data))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'],
                          'http://localhost/login')
 
-        app.get('/test_login')
+        app.post('/test_login', data={'user_id': 'my-open-id'})
 
         response = app.post('/save_poi', data=dict(point_data))
         self.assertEqual(response.status_code, 302)
