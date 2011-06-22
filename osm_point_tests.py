@@ -90,3 +90,16 @@ class UserPageTest(unittest2.TestCase):
         
         points = osm_point.Point.query.all()
         self.assertEquals(len(points), 0)
+
+    def test_show_points(self):
+        point = osm_point.Point(1, 2, 'location_name', 'Y')
+        self._db.session.add(point)
+        self._db.session.commit()
+
+        response = osm_point.app.get('/points')
+        self.assertIn('location_name', response.data)
+
+        osm_point.del_point(point)
+        
+        response = osm_point.app.get('/points')
+        self.assertNotIn('location_name', response.data)
