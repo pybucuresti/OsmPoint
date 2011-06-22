@@ -22,6 +22,9 @@ def configure_app(workdir):
     with open(os.path.join(workdir, 'secret'), 'rb') as f:
         app.config['SECRET_KEY'] = f.read()
 
+    with open(os.path.join(workdir, 'admins'), 'r') as f:
+        app.config['OSMPOINT_ADMINS'] = f.read()
+
     global oid
     openid_path = os.path.join(workdir, 'openid_store')
     app.config['OPENID_FS_STORE_PATH'] = openid_path
@@ -119,17 +122,7 @@ def thank_you():
 
 @app.route("/points")
 def show_points():
-    import sys
-    import os.path
-
-    workdir = os.path.abspath(sys.argv[1])
-    with open(os.path.join(workdir, 'admins'), 'r') as f:
-        admins = f.read()
-
-    try:
-        is_admin = admins.index(flask.g.user) + 1 
-    except ValueError:
-        is_admin = 0
+    is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
 
     points = Point.query.all()
     return flask.render_template('points.html', Points=points, is_admin=is_admin)
