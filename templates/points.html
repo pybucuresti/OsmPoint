@@ -1,8 +1,9 @@
 <html>
 <body>
-  <h2>Submitted points:</h2>
+  <h2>Submitted points</h2>
+  <p>Points that need to be checked:</p>
   <ul>
-  {% for p in Points %}
+  {% for p in local_points %}
     <li>
     {{ p.name }} added by {{ p.user_open_id }}
     <form action="/view" method="post">
@@ -11,9 +12,23 @@
     </form>
     </li>
   {% else %}
-    <p>The database is currently empty</p>
+    <p>All submitted points have been checked</p>
   {% endfor %}
   </ul>
+  <p>Points sent to OSM database:</p>
+  <ul>
+  {% for p in sent_points %}
+    <li>
+    {{ p.name }} added by {{ p.user_open_id }}
+    <form action="/view" method="post">
+      <input type="submit" value="view">
+      <input type="hidden" name="id" value = {{ p.id }} >
+    </form>
+    </li>
+  {% else %}
+    <p>No points have been sent yet</p>
+  {% endfor %}
+  </ul> 
   <a href="/">Home</a>
 </body>
 </html>
