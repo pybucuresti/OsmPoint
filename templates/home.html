@@ -68,6 +68,17 @@ $(function() {
   }));
   M.map.addLayer(new OpenLayers.Layer.OSM());
   M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
+
+  var points_layer = new OpenLayers.Layer.Vector("Points");
+  M.map.addLayer(points_layer);
+
+  var draw_control = new OpenLayers.Control.DrawFeature(
+    points_layer,
+    OpenLayers.Handler.Point,
+    {'featureAdded': function() { console.log(arguments); }}
+  );
+  M.map.addControl(draw_control);
+  draw_control.activate();
 });
 
 $(function() {
