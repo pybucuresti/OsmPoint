@@ -13,7 +13,7 @@
     div.overlay_admin {
        z-index: 1000;
        position: fixed;
-       top: 28;
+       top: 0;
        right: 0;
        background: white;
        border: 1px solid black;
@@ -25,15 +25,17 @@
     div#admin-form form {
       margin: 0;
     }
-    div#coord-form {
-      display: block;
+    div#coord {
+      display: none;
     }
-    div#coord-form form {
+    div#coord form {
       margin: 0;
     }
     
     {% if is_admin %}
       div#admin-form { display: block; }
+    {% else %}
+      div#coord { display: block; }
     {% endif %}
   </style>
 </head>
@@ -46,7 +48,7 @@
      $('#demoMap').empty();
      var proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
      var proj_mercator = new OpenLayers.Projection("EPSG:900913");
-     var center = new OpenLayers.LonLat({{point.longitude}},{{point.latitude}});
+     var center = new OpenLayers.LonLat({{point.longitude}}, {{point.latitude}});
      center = center.transform(proj_wgs1984, proj_mercator);
      var map = new OpenLayers.Map("demoMap");
      map.addLayer(new OpenLayers.Layer.OSM());
@@ -61,20 +63,28 @@
  
   </script>
   <div id="admin-form" class="overlay_admin">
-    <form action="/deleted" method="post">
-      <input type="submit" value="delete">
-      <input type="hidden" name="id" value={{ point.id }} >
-    </form>
-    <form action="/sent" method="post">
-      <input type="submit" value="submit">
-      <input type="hidden" name="id" value={{ point.id }} >
-    </form> 
+    <div align="center">
+      <form action="/sent" method="post" >
+        <input name="name" size="14" value={{ point.name }}>
+        <br>
+        <input name="lat" size="5" value={{ point.latitude }}>
+        <input name="lon" size="5" value={{ point.longitude }}>
+        <br>
+        <input type="submit" value="submit">
+        <input type="hidden" name="id" value={{ point.id }} >
+      </form>
+      <form action="/deleted" method="post">
+        <input type="submit" value="delete">
+        <input type="hidden" name="id" value={{ point.id }} >
+      </form>
+    </div>
   </div>
-  <div id="coord-form" class="overlay_coord">
+  <div id="coord" class="overlay_coord">
+    <div align="center">
+    {{ point.name }} 
     <form>
-      <input name="name" value={{ point.name }}>
-      <input name="lat" size="5" value={{ point.latitude }}>
-      <input name="lon" size="5" value={{ point.longitude }}>
+      <input name="lat" size=5 value={{ point.latitude }}>
+      <input name="lon" size=5 value={{ point.longitude }}>
     </form>
   </div>
 </body>

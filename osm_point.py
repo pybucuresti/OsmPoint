@@ -147,6 +147,11 @@ def show_map():
 def send_point():
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
+    point.latitude = form['lat']
+    point.longitude = form['lon']
+    point.name = form['name']
+    db.session.add(point)
+    db.session.commit()
     submit_points_to_osm(point)
     return flask.render_template('sent.html')
 
