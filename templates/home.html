@@ -45,7 +45,7 @@
 <div id="map">Loading map...</div>
 
 <script src="static/js/jquery-1.5.2.js"></script>
-<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+<script src="http://openlayers.org/dev/OpenLayers.js"></script>
 <script>
 
 $(function() {
@@ -63,6 +63,9 @@ $(function() {
       new OpenLayers.Control.ZoomPanel(),
       new OpenLayers.Control.Attribution()
     ]});
+  M.map.addControl(new OpenLayers.Control.TouchNavigation({
+    'dragPanOptions': {'enableKinetic': true}
+  }));
   M.map.addLayer(new OpenLayers.Layer.OSM());
   M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
 });
