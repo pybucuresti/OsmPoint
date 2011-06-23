@@ -59,7 +59,7 @@ class UserPageTest(unittest2.TestCase):
         self.assertEquals(point.longitude, point_data['lon'])
         self.assertEquals(point.name, point_data['name'])
         self.assertEquals(point.user_open_id, 'my-open-id')
-
+ 
     @patch('osm_point.osm')
     def test_submit_points_to_osm(self, mock_osm):
         app = osm_point.app.test_client()
@@ -92,14 +92,17 @@ class UserPageTest(unittest2.TestCase):
         self.assertEquals(len(points), 0)
 
     def test_show_points(self):
-        point = osm_point.Point(1, 2, 'location_name', 'Y')
+        point = osm_point.Point(1, 2, 'location_name', 'user_name')
         self._db.session.add(point)
         self._db.session.commit()
-
-        response = osm_point.app.get('/points')
+        
+        app = osm_point.app.test_client()
+        
+        response = app.get('/points')
+        self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
         osm_point.del_point(point)
         
-        response = osm_point.app.get('/points')
+        response = app.get('/points')
         self.assertNotIn('location_name', response.data)
