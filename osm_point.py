@@ -122,15 +122,12 @@ def thank_you():
 
 @app.route("/points")
 def show_points():
-    is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
-
     local_points = Point.query.filter(Point.osm_id==None).all()
     sent_points = Point.query.filter(Point.osm_id!=None).all()
 
     return flask.render_template('points.html',
                                  local_points=local_points,
-                                 sent_points=sent_points,
-                                 is_admin=is_admin)
+                                 sent_points=sent_points)
 
 @app.route("/deleted", methods=['POST', 'GET'])
 def delete_point():
