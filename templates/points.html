@@ -6,10 +6,7 @@
   {% for p in local_points %}
     <li>
     {{ p.name }} added by {{ p.user_open_id }}
-    <form action="/view" method="post">
-      <input type="submit" value="view">
-      <input type="hidden" name="id" value = {{ p.id }} >
-    </form>
+    <a href="/view?id={{ p.id }}">view</a>
     </li>
   {% else %}
     <p>All submitted points have been checked</p>
@@ -20,10 +17,7 @@
   {% for p in sent_points %}
     <li>
     {{ p.name }} added by {{ p.user_open_id }}
-    <form action="/view" method="post">
-      <input type="submit" value="view">
-      <input type="hidden" name="id" value = {{ p.id }} >
-    </form>
+    <a href="/view?id={{ p.id }}">view</a>
     </li>
   {% else %}
     <p>No points have been sent yet</p>
