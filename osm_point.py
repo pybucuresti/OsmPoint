@@ -140,6 +140,8 @@ def delete_point():
 def show_map():
     is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
     point = Point.query.filter(Point.id==flask.request.args['id']).first()
+    if point is None:
+        flask.abort(404)
     return flask.render_template('view.html', point=point, is_admin=is_admin)
 
 @app.route("/sent", methods=['POST'])
