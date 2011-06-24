@@ -49,7 +49,7 @@ class Point(db.Model):
         self.user_open_id = user_open_id
 
     def __repr__(self):
-        return "<%s(%s)>" % (self.__class__.__name__, self.name)
+        return "<%s %r>" % (self.__class__.__name__, self.name)
 
 def add_point(latitude, longitude, name, user_open_id):
     point = Point(latitude, longitude, name, user_open_id)
