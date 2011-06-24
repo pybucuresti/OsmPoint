@@ -4,7 +4,7 @@ from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
 import OsmApi
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__) # TODO split away a module with the views
 db = SQLAlchemy(app)
 oid = OpenID(app)
 osm = None
@@ -113,6 +113,7 @@ def save_poi():
         return flask.redirect('/login')
 
     form = flask.request.form
+    # TODO if lat/lon are beyond limits then send error
     add_point(form['lat'], form['lon'], form['name'], flask.g.user)
     return flask.redirect('/thank_you')
 
@@ -131,21 +132,26 @@ def show_points():
 
 @app.route("/deleted", methods=['POST'])
 def delete_point():
+    # TODO test that non-admins can't delete points
+    # TODO test deleting of non-existent point
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
     del_point(point)
     return flask.render_template('deleted.html')
 
+# TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
 @app.route("/view")
 def show_map():
     is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
     point = Point.query.filter(Point.id==flask.request.args['id']).first()
     if point is None:
-        flask.abort(404)
+        flask.abort(404) # TODO test me
     return flask.render_template('view.html', point=point, is_admin=is_admin)
 
 @app.route("/sent", methods=['POST'])
 def send_point():
+    # TODO test me
+    # TODO if lat/lon are beyond limits then send error
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
     point.latitude = form['lat']
