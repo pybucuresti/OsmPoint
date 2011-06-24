@@ -129,7 +129,7 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@app.route("/deleted", methods=['POST', 'GET'])
+@app.route("/deleted", methods=['POST'])
 def delete_point():
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
@@ -142,7 +142,7 @@ def show_map():
     point = Point.query.filter(Point.id==flask.request.args['id']).first()
     return flask.render_template('view.html', point=point, is_admin=is_admin)
 
-@app.route("/sent", methods=['POST', 'GET'])
+@app.route("/sent", methods=['POST'])
 def send_point():
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
