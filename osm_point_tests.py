@@ -85,9 +85,9 @@ class UserPageTest(unittest2.TestCase):
         point = osm_point.Point(1, 2, 'X', 'Y')
         self._db.session.add(point)
         self._db.session.commit()
-        
+
         osm_point.del_point(point)
-        
+
         points = osm_point.Point.query.all()
         self.assertEquals(len(points), 0)
 
@@ -95,14 +95,14 @@ class UserPageTest(unittest2.TestCase):
         point = osm_point.Point(1, 2, 'location_name', 'user_name')
         self._db.session.add(point)
         self._db.session.commit()
-        
+
         app = osm_point.app.test_client()
-        
+
         response = app.get('/points')
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
         osm_point.del_point(point)
-        
+
         response = app.get('/points')
         self.assertNotIn('location_name', response.data)

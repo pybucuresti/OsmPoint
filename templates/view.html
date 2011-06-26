@@ -31,7 +31,7 @@
     div#coord form {
       margin: 0;
     }
-    
+
     {% if is_admin %}
       div#admin-form { display: block; }
     {% else %}
@@ -44,7 +44,7 @@
   <script src="static/js/jquery-1.5.2.js"></script>
   <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
   <script>
-   
+
      $('#demoMap').empty();
      var proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
      var proj_mercator = new OpenLayers.Projection("EPSG:900913");
@@ -53,14 +53,14 @@
      var map = new OpenLayers.Map("demoMap");
      map.addLayer(new OpenLayers.Layer.OSM());
      map.setCenter(center, 16);
-   
+
      var marker = new OpenLayers.Layer.Markers();
      map.addLayer(marker);
      var size = new OpenLayers.Size(21,25);
      var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
      var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
      marker.addMarker(new OpenLayers.Marker(center ,icon));
- 
+
   </script>
   <div id="admin-form" class="overlay_admin">
     <div align="center">

@@ -4,7 +4,7 @@ from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
 import OsmApi
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__) # TODO split away a module with the views
 db = SQLAlchemy(app)
 oid = OpenID(app)
 osm = None
@@ -49,7 +49,7 @@ class Point(db.Model):
         self.user_open_id = user_open_id
 
     def __repr__(self):
-        return "<%s(%s)>" % (self.__class__.__name__, self.name)
+        return "<%s %r>" % (self.__class__.__name__, self.name)
 
 def add_point(latitude, longitude, name, user_open_id):
     point = Point(latitude, longitude, name, user_open_id)
@@ -113,6 +113,7 @@ def save_poi():
         return flask.redirect('/login')
 
     form = flask.request.form
+    # TODO if lat/lon are beyond limits then send error
     add_point(form['lat'], form['lon'], form['name'], flask.g.user)
     return flask.redirect('/thank_you')
 
@@ -129,22 +130,28 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@app.route("/deleted", methods=['POST', 'GET'])
+@app.route("/deleted", methods=['POST'])
 def delete_point():
+    # TODO test that non-admins can't delete points
+    # TODO test deleting of non-existent point
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
     del_point(point)
     return flask.render_template('deleted.html')
 
-@app.route("/view", methods=['POST', 'GET'])
+# TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
+@app.route("/view")
 def show_map():
     is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
-    form = flask.request.form
-    point = Point.query.filter(Point.id==form['id']).first()
+    point = Point.query.filter(Point.id==flask.request.args['id']).first()
+    if point is None:
+        flask.abort(404) # TODO test me
     return flask.render_template('view.html', point=point, is_admin=is_admin)
 
-@app.route("/sent", methods=['POST', 'GET'])
+@app.route("/sent", methods=['POST'])
 def send_point():
+    # TODO test me
+    # TODO if lat/lon are beyond limits then send error
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
     point.latitude = form['lat']
