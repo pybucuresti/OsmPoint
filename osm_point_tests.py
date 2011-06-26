@@ -59,7 +59,7 @@ class UserPageTest(unittest2.TestCase):
         self.assertEquals(point.longitude, point_data['lon'])
         self.assertEquals(point.name, point_data['name'])
         self.assertEquals(point.user_open_id, 'my-open-id')
- 
+
     @patch('osm_point.osm')
     def test_submit_points_to_osm(self, mock_osm):
         app = osm_point.app.test_client()

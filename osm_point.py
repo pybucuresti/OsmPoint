@@ -22,8 +22,11 @@ def configure_app(workdir):
     with open(os.path.join(workdir, 'secret'), 'rb') as f:
         app.config['SECRET_KEY'] = f.read()
 
-    with open(os.path.join(workdir, 'admins'), 'r') as f:
-        app.config['OSMPOINT_ADMINS'] = f.read()
+    try:
+       with open(os.path.join(workdir, 'admins'), 'r') as f:
+           app.config['OSMPOINT_ADMINS'] = f.read().split()
+    except IOError:
+       app.config['OSMPOINT_ADMINS'] = None
 
     global oid
     openid_path = os.path.join(workdir, 'openid_store')
@@ -142,7 +145,11 @@ def delete_point():
 # TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
 @app.route("/view")
 def show_map():
-    is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
+    try:
+        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
+    except TypeError:
+        is_admin = False
+
     point = Point.query.filter(Point.id==flask.request.args['id']).first()
     if point is None:
         flask.abort(404) # TODO test me
