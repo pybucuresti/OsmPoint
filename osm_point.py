@@ -116,9 +116,13 @@ def save_poi():
         return flask.redirect('/login')
 
     form = flask.request.form
-    # TODO if lat/lon are beyond limits then send error
-    add_point(form['lat'], form['lon'], form['name'], flask.g.user)
-    return flask.redirect('/thank_you')
+
+    if ((form['lat'] >= -90 and form['lat'] <= 90) and
+       (form['lon'] >= -180 and form['lon'] <= 180)):
+        add_point(form['lat'], form['lon'], form['name'], flask.g.user)
+        return flask.redirect('/thank_you')
+    else:
+        return flask.redirect('/')
 
 @app.route("/thank_you")
 def thank_you():
@@ -135,10 +139,17 @@ def show_points():
 
 @app.route("/deleted", methods=['POST'])
 def delete_point():
-    # TODO test that non-admins can't delete points
-    # TODO test deleting of non-existent point
+    try:
+        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
+    except TypeError:
+        is_admin = False
+
     form = flask.request.form
-    point = Point.query.filter(Point.id==form['id']).first()
+
+    point = Point.query.get_or_404(form['id'])
+    if point is 404 or is_admin is False:
+        flask.abort(404)
+
     del_point(point)
     return flask.render_template('deleted.html')
 
@@ -150,19 +161,34 @@ def show_map():
     except TypeError:
         is_admin = False
 
-    point = Point.query.filter(Point.id==flask.request.args['id']).first()
-    if point is None:
+    point = Point.query.get_or_404(flask.request.args['id'])
+
+    if point is 404:
         flask.abort(404) # TODO test me
     return flask.render_template('view.html', point=point, is_admin=is_admin)
 
 @app.route("/sent", methods=['POST'])
 def send_point():
     # TODO test me
-    # TODO if lat/lon are beyond limits then send error
+    try:
+        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
+    except TypeError:
+        is_admin = False
+
+    if is_admin is False:
+        flask.abort(404)
+
     form = flask.request.form
     point = Point.query.filter(Point.id==form['id']).first()
-    point.latitude = form['lat']
-    point.longitude = form['lon']
+
+    if point.osm_id is not None:
+        flask.abort(404)
+
+    if ((form['lat'] >= -90 and form['lat'] <= 90) and
+       (form['lon'] >= -180 and form['lon'] <= 180)):
+        point.latitude = form['lat']
+        point.longitude = form['lon']
+
     point.name = form['name']
     db.session.add(point)
     db.session.commit()
