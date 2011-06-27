@@ -133,16 +133,39 @@ class UserPageTest(unittest2.TestCase):
         app = osm_point.app.test_client()
 
         app.post('/test_login', data={'user_id': 'non-admin'})
-        point = {'lat': 45, 'lon': 25, 'name': 'name'}
-        app.post('/save_poi', data=dict(point))
 
-        response = app.post('/delete', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 1)
+        point = osm_point.Point(45, 25, 'name', 'non-admin')
+        self._db.session.add(point)
+        self._db.session.commit()
+        point_id = {'id': point.id}
+        points = osm_point.Point.query.all()
+
+        response = app.post('/delete', data=dict(point_id))
+        self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 404)
 
         osm_point.app.config['OSMPOINT_ADMINS'] = None
 
-        response = app.post('/send', data=dict(point))
-        point = osm_point.Point.query.all()[0]
-        self.assertEqual(point.osm_id, None)
+        response = app.post('/send', data=dict(point_id))
+        self.assertEqual(points[0].osm_id, None)
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_point(self):
+        app = osm_point.app.test_client()
+        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        app.post('/test_login', data={'user_id': 'admin-user'})
+
+        point = osm_point.Point(45, 25, 'name', 'non-admin')
+        self._db.session.add(point)
+        self._db.session.commit()
+        point_id = {'id': point.id}
+
+        response = app.post('/delete', data=dict(point_id))
+        self.assertEqual(response.status_code, 200)
+        points = osm_point.Point.query.all()
+        self.assertEqual(len(points), 0)
+
+        fake_point = {'id': 10}
+        response = app.post('/delete', data=dict(fake_point))
+        self.assertEqual(response.status_code, 404)
+

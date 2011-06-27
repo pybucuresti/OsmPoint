@@ -64,7 +64,7 @@
   </script>
   <div id="admin-form" class="overlay_admin">
     <div align="center">
-      <form action="/sent" method="post" >
+      <form action="/send" method="post" >
         <input name="name" size="14" value="{{ point.name }}">
         <br>
         <input name="lat" size="5" value={{ point.latitude }}>
@@ -73,7 +73,7 @@
         <input type="submit" value="submit">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
-      <form action="/deleted" method="post">
+      <form action="/delete" method="post">
         <input type="submit" value="delete">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
