@@ -169,3 +169,20 @@ class UserPageTest(unittest2.TestCase):
         response = app.post('/delete', data=dict(fake_point))
         self.assertEqual(response.status_code, 404)
 
+    def test_send_point(self):
+        app = osm_point.app.test_client()
+        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        app.post('/test_login', data={'user_id': 'admin-user'})
+
+        point = osm_point.Point(45, 25, 'name', 'non-admin')
+        point.osm_id = 100
+        self._db.session.add(point)
+        self._db.session.commit()
+
+        point_data = {'lat': 45, 'lon': 25, 'name': 'name', 'id': point.id}
+        response = app.post('/send', data=dict(point_data))
+        self.assertEqual(response.status_code, 404)
+
+        fake_point = {'lat': 45, 'lon': 25, 'name': 'name', 'id': 500}
+        response = app.post('/send', data=dict(fake_point))
+        self.assertEqual(response.status_code, 404)

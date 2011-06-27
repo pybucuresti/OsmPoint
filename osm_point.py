@@ -175,7 +175,6 @@ def show_map():
 
 @app.route("/send", methods=['POST'])
 def send_point():
-    # TODO test me
     if is_admin() is False:
         flask.abort(404)
 
