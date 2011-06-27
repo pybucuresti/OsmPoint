@@ -169,7 +169,7 @@ def show_map():
     point = Point.query.get_or_404(flask.request.args['id'])
 
     if point is 404:
-        flask.abort(404) # TODO test me
+        flask.abort(404)
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
 

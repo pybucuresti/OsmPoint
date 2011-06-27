@@ -186,3 +186,19 @@ class UserPageTest(unittest2.TestCase):
         fake_point = {'lat': 45, 'lon': 25, 'name': 'name', 'id': 500}
         response = app.post('/send', data=dict(fake_point))
         self.assertEqual(response.status_code, 404)
+
+    def test_show_map(self):
+        app = osm_point.app.test_client()
+        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        app.post('/test_login', data={'user_id': 'admin-user'})
+
+        response = app.get('/view?id=500')
+        self.assertEqual(response.status_code, 404)
+
+        point = osm_point.Point(45, 25, 'name', 'non-admin')
+        self._db.session.add(point)
+        self._db.session.commit()
+
+        response = app.get('/view?id=1')
+        self.assertEqual(response.status_code, 200)
+
