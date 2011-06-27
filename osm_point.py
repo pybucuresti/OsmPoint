@@ -74,6 +74,15 @@ def submit_points_to_osm(point_to_submit):
     osm.ChangesetClose()
     db.session.commit()
 
+def coords(lat, lon):
+    lat = float(lat)
+    lon = float(lon)
+    if (lat < -90 or lat > 90):
+        return False
+    if (lon < -180 or lon > 180):
+        return False
+    return True
+
 @app.before_request
 def lookup_current_user():
     flask.g.user = None
@@ -117,12 +126,12 @@ def save_poi():
 
     form = flask.request.form
 
-    if ((form['lat'] >= -90 and form['lat'] <= 90) and
-       (form['lon'] >= -180 and form['lon'] <= 180)):
+    if coords(form['lat'], form['lon']):
         add_point(form['lat'], form['lon'], form['name'], flask.g.user)
         return flask.redirect('/thank_you')
-    else:
-        return flask.redirect('/')
+
+    return flask.redirect('/')
+
 
 @app.route("/thank_you")
 def thank_you():
@@ -184,8 +193,7 @@ def send_point():
     if point.osm_id is not None:
         flask.abort(404)
 
-    if ((form['lat'] >= -90 and form['lat'] <= 90) and
-       (form['lon'] >= -180 and form['lon'] <= 180)):
+    if coords(form['lat'], form['lon']):
         point.latitude = form['lat']
         point.longitude = form['lon']
 

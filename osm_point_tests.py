@@ -106,3 +106,24 @@ class UserPageTest(unittest2.TestCase):
 
         response = app.get('/points')
         self.assertNotIn('location_name', response.data)
+
+    def test_coords(self):
+        app = osm_point.app.test_client()
+        app.post('/test_login', data={'user_id': 'my-open-id'})
+
+        point = {'lat': -91, 'lon': 181, 'name': 'wrong'}
+        response = app.post('/save_poi', data=dict(point))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], 'http://localhost/')
+
+        point = {'lat': 45, 'lon': 181, 'name': 'wrong'}
+        response = app.post('/save_poi', data=dict(point))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], 'http://localhost/')
+
+        point = {'lat': -91, 'lon': 20, 'name': 'wrong'}
+        response = app.post('/save_poi', data=dict(point))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], 'http://localhost/')
+
+        self.assertEqual(len(osm_point.Point.query.all()), 0)
