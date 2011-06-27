@@ -83,6 +83,12 @@ def coords(lat, lon):
         return False
     return True
 
+def is_admin():
+    try:
+        return  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
+    except TypeError:
+        return False
+
 @app.before_request
 def lookup_current_user():
     flask.g.user = None
@@ -146,17 +152,12 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@app.route("/deleted", methods=['POST'])
+@app.route("/delete", methods=['POST'])
 def delete_point():
-    try:
-        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
-    except TypeError:
-        is_admin = False
-
     form = flask.request.form
-
     point = Point.query.get_or_404(form['id'])
-    if point is 404 or is_admin is False:
+
+    if point is 404 or is_admin() is False:
         flask.abort(404)
 
     del_point(point)
@@ -165,30 +166,24 @@ def delete_point():
 # TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
 @app.route("/view")
 def show_map():
-    try:
-        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
-    except TypeError:
-        is_admin = False
-
     point = Point.query.get_or_404(flask.request.args['id'])
 
     if point is 404:
         flask.abort(404) # TODO test me
-    return flask.render_template('view.html', point=point, is_admin=is_admin)
+    return flask.render_template('view.html', point=point,
+                                  is_admin=is_admin())
 
-@app.route("/sent", methods=['POST'])
+@app.route("/send", methods=['POST'])
 def send_point():
     # TODO test me
-    try:
-        is_admin =  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
-    except TypeError:
-        is_admin = False
-
-    if is_admin is False:
+    if is_admin() is False:
         flask.abort(404)
 
     form = flask.request.form
-    point = Point.query.filter(Point.id==form['id']).first()
+    point = Point.query.get_or_404(form['id'])
+
+    if point is 404:
+       flask.abort(404)
 
     if point.osm_id is not None:
         flask.abort(404)

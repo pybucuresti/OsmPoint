@@ -127,3 +127,22 @@ class UserPageTest(unittest2.TestCase):
         self.assertEqual(response.headers['Location'], 'http://localhost/')
 
         self.assertEqual(len(osm_point.Point.query.all()), 0)
+
+    def test_is_admin(self):
+        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        app = osm_point.app.test_client()
+
+        app.post('/test_login', data={'user_id': 'non-admin'})
+        point = {'lat': 45, 'lon': 25, 'name': 'name'}
+        app.post('/save_poi', data=dict(point))
+
+        response = app.post('/delete', data=dict(point))
+        self.assertEqual(len(osm_point.Point.query.all()), 1)
+        self.assertEqual(response.status_code, 404)
+
+        osm_point.app.config['OSMPOINT_ADMINS'] = None
+
+        response = app.post('/send', data=dict(point))
+        point = osm_point.Point.query.all()[0]
+        self.assertEqual(point.osm_id, None)
+        self.assertEqual(response.status_code, 404)
