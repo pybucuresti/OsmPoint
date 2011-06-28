@@ -1,0 +1,13 @@
+<html>
+  <body>
+    {% if ok %}
+      <h2>Point data edited successfully</h2>
+    {% else %}
+      <h2>Error encountered while saving data</h2>
+      <p>Coordinates are out of range</p>
+    {% endif %}
+    <a href="/points">Points</a>
+    <br>
+    <a href="/">Home</a>
+  </body>
+</html>

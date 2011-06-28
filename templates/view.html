@@ -64,12 +64,16 @@
   </script>
   <div id="admin-form" class="overlay_admin">
     <div align="center">
-      <form action="/send" method="post" >
+      <form action="/save" method="post" >
         <input name="name" size="14" value="{{ point.name }}">
         <br>
         <input name="lat" size="5" value={{ point.latitude }}>
         <input name="lon" size="5" value={{ point.longitude }}>
         <br>
+        <input type="submit" value="save changes">
+        <input type="hidden" name="id" value={{ point.id }} >
+      </form>
+      <form action="/send" method="post">
         <input type="submit" value="submit">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>

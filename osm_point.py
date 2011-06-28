@@ -136,7 +136,7 @@ def save_poi():
         add_point(form['lat'], form['lon'], form['name'], flask.g.user)
         return flask.redirect('/thank_you')
 
-    return flask.redirect('/')
+    return flask.render_template('edit.html', ok=0)
 
 
 @app.route("/thank_you")
@@ -173,6 +173,26 @@ def show_map():
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
 
+@app.route("/save", methods=['POST'])
+def edit_point():
+    form = flask.request.form
+    point = Point.query.get_or_404(form['id'])
+
+    if point is 404 or is_admin() is False:
+        flask.abort(404)
+
+    ok = 0
+
+    if coords(form['lat'], form['lon']):
+        ok = 1
+        point.latitude = form['lat']
+        point.longitude = form['lon']
+        point.name = form['name']
+        db.session.add(point)
+        db.session.commit()
+
+    return flask.render_template('edit.html', ok=ok)
+
 @app.route("/send", methods=['POST'])
 def send_point():
     if is_admin() is False:
@@ -187,13 +207,6 @@ def send_point():
     if point.osm_id is not None:
         flask.abort(404)
 
-    if coords(form['lat'], form['lon']):
-        point.latitude = form['lat']
-        point.longitude = form['lon']
-
-    point.name = form['name']
-    db.session.add(point)
-    db.session.commit()
     submit_points_to_osm(point)
     return flask.render_template('sent.html')
 
