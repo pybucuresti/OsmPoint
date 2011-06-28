@@ -32,7 +32,7 @@
       margin: 0;
     }
 
-    {% if is_admin %}
+    {% if is_admin and (point.osm_id is none) %}
       div#admin-form { display: block; }
     {% else %}
       div#coord { display: block; }
