@@ -96,11 +96,21 @@
   </div>
   <div id="coord" class="overlay_coord">
     <div align="center">
-    {{ point.name }} 
     <form>
       <input name="lat" size=5 value={{ point.latitude }}>
       <input name="lon" size=5 value={{ point.longitude }}>
     </form>
+    </div>
+    Name:<br>
+    {{ point.name }}<br>
+    Type:<br>
+    {{ point.amenity }}<br>
+    URL:<br>
+    {% if point.url != "" %}
+      {{ point.url }}<br>
+    {% else %}
+      ---<br>
+    {% endif %}
   </div>
 </body>
 </html>
