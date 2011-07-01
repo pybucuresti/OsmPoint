@@ -42,20 +42,24 @@ class Point(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     name = db.Column(db.String(200))
+    url = db.Column(db.String(50))
+    amenity = db.Column(db.String(50))
     osm_id = db.Column(db.Integer)
     user_open_id = db.Column(db.Text)
 
-    def __init__(self, latitude, longitude, name, user_open_id):
+    def __init__(self, latitude, longitude, name, url, amenity, user_open_id):
         self.latitude = latitude
         self.longitude = longitude
         self.name = name
+        self.url = url
+        self.amenity = amenity
         self.user_open_id = user_open_id
 
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
-def add_point(latitude, longitude, name, user_open_id):
-    point = Point(latitude, longitude, name, user_open_id)
+def add_point(latitude, longitude, name, url, amenity, user_open_id):
+    point = Point(latitude, longitude, name, url, amenity, user_open_id)
     db.session.add(point)
     db.session.commit()
 
@@ -68,7 +72,9 @@ def submit_points_to_osm(point_to_submit):
     for p in point_to_submit:
         node_dict = osm.NodeCreate({u"lon": p.longitude,
                                     u"lat": p.latitude,
-                                    u"tag": {'name': p.name}})
+                                    u"tag": {'name': p.name,
+                                             'amenity': p.amenity,
+                                             'website': p.url}})
         p.osm_id = node_dict['id']
         db.session.add(p)
     osm.ChangesetClose()
@@ -131,12 +137,23 @@ def save_poi():
         return flask.redirect('/login')
 
     form = flask.request.form
+    poi_url = form['url']
 
-    if coords(form['lat'], form['lon']):
-        add_point(form['lat'], form['lon'], form['name'], flask.g.user)
+    ok_coords = coords(form['lat'], form['lon'])
+    ok_name = bool(form['name'] != "name")
+    ok_type = bool(form['type'] != "none")
+
+    if ok_coords and ok_name and ok_type:
+
+        if form['url'] == "website":
+            poi_url = None
+
+        add_point(form['lat'], form['lon'], form['name'],
+                  poi_url, form['type'], flask.g.user)
         return flask.redirect('/thank_you')
 
-    return flask.render_template('edit.html', ok=0)
+    return flask.render_template('edit.html', ok_coords=ok_coords,
+                                 ok_name=ok_name, ok_type=ok_type)
 
 
 @app.route("/thank_you")
@@ -181,17 +198,26 @@ def edit_point():
     if point is 404 or is_admin() is False:
         flask.abort(404)
 
-    ok = 0
+    ok_coords = coords(form['lat'], form['lon'])
 
-    if coords(form['lat'], form['lon']):
-        ok = 1
+    if ok_coords:
+
         point.latitude = form['lat']
         point.longitude = form['lon']
         point.name = form['name']
+        point.url = form['url']
+
+        ok_type = bool(form['type'] != "none")
+
+        if ok_type:
+
+            point.amenity = form['type']
+
         db.session.add(point)
         db.session.commit()
 
-    return flask.render_template('edit.html', ok=ok)
+    return flask.render_template('edit.html', ok_coords=ok_coords,
+                                 ok_name=1, ok_type=1)
 
 @app.route("/send", methods=['POST'])
 def send_point():

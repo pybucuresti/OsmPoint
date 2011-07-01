@@ -101,7 +101,17 @@ $(function() {
   <form method="post" action="/save_poi">
     <input name="lat" size="5">
     <input name="lon" size="5"><br>
-    <input name="name"><br>
+    <input name="name" value="name"><br>
+    <input name="url" value="website"><br>
+    <select name="type">
+      <option value="none">type</option>
+      <option value="bar">bar</option>
+      <option value="cafe">cafe</option>
+      <option value="fuel">fuel</option>
+      <option value="pub">pub</option>
+      <option value="restaurant">restaurant</option>
+      <option value="nightclub">nightclub</option>
+    </select><br>
     <input type="submit" value="save">
   </form>
 </div>

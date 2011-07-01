@@ -70,6 +70,17 @@
         <input name="lat" size="5" value={{ point.latitude }}>
         <input name="lon" size="5" value={{ point.longitude }}>
         <br>
+        <input name="url" size="14" value="{{ point.url }}"><br>
+        Amenity: {{ point.amenity }}<br>
+        <select name="type">
+          <option value="none">type</option>
+          <option value="bar">bar</option>
+          <option value="cafe">cafe</option>
+          <option value="fuel">fuel</option>
+          <option value="pub">pub</option>
+          <option value="restaurant">restaurant</option>
+          <option value="nightclub">nightclub</option>
+        </select><br>
         <input type="submit" value="save changes">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
