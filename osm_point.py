@@ -26,7 +26,7 @@ def configure_app(workdir):
        with open(os.path.join(workdir, 'admins'), 'r') as f:
            app.config['OSMPOINT_ADMINS'] = f.read().split()
     except IOError:
-       app.config['OSMPOINT_ADMINS'] = None
+       app.config['OSMPOINT_ADMINS'] = []
 
     global oid
     openid_path = os.path.join(workdir, 'openid_store')
@@ -80,20 +80,15 @@ def submit_points_to_osm(point_to_submit):
     osm.ChangesetClose()
     db.session.commit()
 
-def coords(lat, lon):
+def valid_coordinates(lat, lon):
     lat = float(lat)
     lon = float(lon)
-    if (lat < -90 or lat > 90):
-        return False
-    if (lon < -180 or lon > 180):
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
         return False
     return True
 
 def is_admin():
-    try:
-        return  bool(flask.g.user in app.config['OSMPOINT_ADMINS'])
-    except TypeError:
-        return False
+    return  flask.g.user in app.config['OSMPOINT_ADMINS']
 
 @app.before_request
 def lookup_current_user():
@@ -139,7 +134,7 @@ def save_poi():
     form = flask.request.form
     poi_url = form['url']
 
-    ok_coords = coords(form['lat'], form['lon'])
+    ok_coords = valid_coordinates(form['lat'], form['lon'])
     ok_name = bool(form['name'] != "name")
     ok_type = bool(form['type'] != "none")
 
@@ -174,7 +169,7 @@ def delete_point():
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])
 
-    if point is 404 or is_admin() is False:
+    if not is_admin():
         flask.abort(404)
 
     del_point(point)
@@ -185,8 +180,6 @@ def delete_point():
 def show_map():
     point = Point.query.get_or_404(flask.request.args['id'])
 
-    if point is 404:
-        flask.abort(404)
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
 
@@ -195,10 +188,10 @@ def edit_point():
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])
 
-    if point is 404 or is_admin() is False:
+    if not is_admin():
         flask.abort(404)
 
-    ok_coords = coords(form['lat'], form['lon'])
+    ok_coords = valid_coordinates(form['lat'], form['lon'])
 
     if ok_coords:
 
@@ -221,17 +214,14 @@ def edit_point():
 
 @app.route("/send", methods=['POST'])
 def send_point():
-    if is_admin() is False:
+    if not is_admin():
         flask.abort(404)
 
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])
 
-    if point is 404:
-       flask.abort(404)
-
     if point.osm_id is not None:
-        flask.abort(404)
+        flask.abort(400)
 
     submit_points_to_osm(point)
     return flask.render_template('sent.html')
