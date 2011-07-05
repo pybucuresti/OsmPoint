@@ -7,8 +7,8 @@ from mock import patch
 class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
-        self._db = osm_point.db
-        self._db.create_all()
+        self.db = osm_point.db
+        self.db.create_all()
 
         self.app = osm_point.app
         self.app.config['SECRET_KEY'] = 'my-secret-key'
@@ -18,7 +18,7 @@ class SetUpTests(unittest2.TestCase):
             return "ok"
 
     def tearDown(self):
-         self._db.drop_all()
+         self.db.drop_all()
 
 class SavePointTest(SetUpTests):
 
@@ -50,8 +50,8 @@ class SavePointTest(SetUpTests):
     def test_point_is_stored(self):
         point = osm_point.Point(46.06, 24.10, 'Eau de Web',
                                 'website', 'business', 'my-open-id')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         points = osm_point.Point.query.all()
         self.assertEquals(len(points), 1)
@@ -117,8 +117,8 @@ class DeletePointTest(SetUpTests):
 
     def test_del_point(self):
         point = osm_point.Point(1, 2, 'X', 'Y', 'Z', 'W')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         osm_point.del_point(point)
 
@@ -132,8 +132,8 @@ class DeletePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'non-admin')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
         point_id = {'id': point.id}
         points = osm_point.Point.query.all()
 
@@ -147,8 +147,8 @@ class DeletePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_id = {'id': point.id}
 
@@ -177,7 +177,7 @@ class SubmitPointTest(SetUpTests):
                              'link1', 'pub', 'my-open-id')
         p2 = osm_point.Point(46.07, 24.11, 'blabla',
                              'link2', 'bar', 'my-open-id')
-        self._db.session.commit()
+        self.db.session.commit()
         values = [13, 45]
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
@@ -204,8 +204,8 @@ class SubmitPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'non-admin')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
         point_id = {'id': point.id}
         points = osm_point.Point.query.all()
 
@@ -220,8 +220,8 @@ class SubmitPointTest(SetUpTests):
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         point.osm_id = 100
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'id': point.id}
         response = client.post('/send', data=dict(point_data))
@@ -246,8 +246,8 @@ class EditPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
                       'url': 'new_url', 'amenity': 'pub', 'id': point.id}
@@ -275,8 +275,8 @@ class EditPointTest(SetUpTests):
 
         point = osm_point.Point(45, 25, 'name', 'url',
                                 'type', 'non-admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong',
                       'url': 'url', 'type': 'type', 'id': point.id}
@@ -289,8 +289,8 @@ class EditPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
                       'url': 'url', 'type': 'pub', 'id': point.id}
@@ -305,8 +305,8 @@ class EditPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'old_type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
                       'amenity': 'none', 'url': 'url', 'id': point.id}
@@ -320,8 +320,8 @@ class EditPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'old_name', 'url', 'type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
                       'name': '', 'url': 'url', 'id': point.id}
@@ -338,8 +338,8 @@ class UserPageTest(SetUpTests):
     def test_show_points(self):
         point = osm_point.Point(1, 2, 'location_name',
                                 'link', 'bar', 'user_name')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         client = self.app.test_client()
 
@@ -356,8 +356,8 @@ class UserPageTest(SetUpTests):
         client = self.app.test_client()
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
-        self._db.session.add(point)
-        self._db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         response = client.get('/view?id=1')
         self.assertEqual(response.status_code, 200)
