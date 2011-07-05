@@ -4,7 +4,7 @@ import osm_point
 
 from mock import patch
 
-class SavePointTest(unittest2.TestCase):
+class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
         self._db = osm_point.db
@@ -18,6 +18,8 @@ class SavePointTest(unittest2.TestCase):
 
     def tearDown(self):
          self._db.drop_all()
+
+class SavePointTest(SetUpTests):
 
     def test_save_poi(self):
         app = osm_point.app.test_client()
@@ -110,20 +112,7 @@ class SavePointTest(unittest2.TestCase):
 
 
 
-class DeletePointTest(unittest2.TestCase):
-
-    def setUp(self):
-        self._db = osm_point.db
-        self._db.create_all()
-
-        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
-        @osm_point.app.route('/test_login', methods=['POST'])
-        def test_login():
-            flask.session['openid'] = flask.request.form['user_id']
-            return "ok"
-
-    def tearDown(self):
-         self._db.drop_all()
+class DeletePointTest(SetUpTests):
 
     def test_del_point(self):
         point = osm_point.Point(1, 2, 'X', 'Y', 'Z', 'W')
@@ -178,20 +167,7 @@ class DeletePointTest(unittest2.TestCase):
 
 
 
-class SubmitPointTest(unittest2.TestCase):
-
-    def setUp(self):
-        self._db = osm_point.db
-        self._db.create_all()
-
-        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
-        @osm_point.app.route('/test_login', methods=['POST'])
-        def test_login():
-            flask.session['openid'] = flask.request.form['user_id']
-            return "ok"
-
-    def tearDown(self):
-         self._db.drop_all()
+class SubmitPointTest(SetUpTests):
 
     @patch('osm_point.osm')
     def test_submit_points_to_osm(self, mock_osm):
@@ -261,20 +237,7 @@ class SubmitPointTest(unittest2.TestCase):
 
 
 
-class EditPointTest(unittest2.TestCase):
-
-    def setUp(self):
-        self._db = osm_point.db
-        self._db.create_all()
-
-        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
-        @osm_point.app.route('/test_login', methods=['POST'])
-        def test_login():
-            flask.session['openid'] = flask.request.form['user_id']
-            return "ok"
-
-    def tearDown(self):
-        self._db.drop_all()
+class EditPointTest(SetUpTests):
 
     def test_edit_point(self):
         app = osm_point.app.test_client()
@@ -352,20 +315,7 @@ class EditPointTest(unittest2.TestCase):
 
 
 
-class UserPageTest(unittest2.TestCase):
-
-    def setUp(self):
-        self._db = osm_point.db
-        self._db.create_all()
-
-        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
-        @osm_point.app.route('/test_login', methods=['POST'])
-        def test_login():
-            flask.session['openid'] = flask.request.form['user_id']
-            return "ok"
-
-    def tearDown(self):
-        self._db.drop_all()
+class UserPageTest(SetUpTests):
 
     def test_page_renders(self):
         app = osm_point.app.test_client()
