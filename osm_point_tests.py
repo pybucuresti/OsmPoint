@@ -13,6 +13,9 @@ class SetUpTests(unittest2.TestCase):
         self.addCleanup(self._tmp_dir.remove)
         self.app = osm_point.create_app(str(self._tmp_dir))
         self.db = osm_point.db
+        self._ctx = self.app.test_request_context()
+        self._ctx.push()
+        self.addCleanup(self._ctx.pop)
 
         @self.app.route('/test_login', methods=['POST'])
         def test_login():
@@ -24,14 +27,12 @@ class SetUpTests(unittest2.TestCase):
 
     def add_point(self, *args, **kwargs):
         point = osm_point.Point(*args, **kwargs)
-        with self.app.test_request_context():
-            self.db.session.add(point)
-            self.db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
         return point
 
     def get_all_points(self):
-        with self.app.test_request_context():
-            return osm_point.Point.query.all()
+        return osm_point.Point.query.all()
 
 
 class SavePointTest(SetUpTests):
@@ -142,9 +143,9 @@ class DeletePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
-        points = self.get_all_points()
 
         response = client.post('/delete', data={'id': point.id})
+        points = self.get_all_points()
         self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 404)
 
@@ -182,8 +183,8 @@ class SubmitPointTest(SetUpTests):
         values = [13, 45]
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
-        with self.app.test_request_context():
-            osm_point.submit_points_to_osm([p1, p2])
+        osm_point.submit_points_to_osm([p1, p2])
+        self.db.session.commit()
 
         self.assertEquals(p1.osm_id, 13)
         self.assertEquals(p2.osm_id, 45)
@@ -206,9 +207,10 @@ class SubmitPointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
-        points = self.get_all_points()
 
         response = client.post('/send', data={'id': point.id})
+
+        points = self.get_all_points()
         self.assertEqual(points[0].osm_id, None)
         self.assertEqual(response.status_code, 404)
 
@@ -219,9 +221,8 @@ class SubmitPointTest(SetUpTests):
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         point.osm_id = 100
-        with self.app.test_request_context():
-            self.db.session.add(point)
-            self.db.session.commit()
+        self.db.session.add(point)
+        self.db.session.commit()
 
         response = client.post('/send', data={'id': point.id})
         self.assertEqual(response.status_code, 400)
@@ -333,8 +334,7 @@ class UserPageTest(SetUpTests):
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
-        with self.app.test_request_context():
-            osm_point.del_point(point)
+        osm_point.del_point(point)
 
         response = client.get('/points')
         self.assertNotIn('location_name', response.data)
