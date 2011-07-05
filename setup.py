@@ -7,6 +7,7 @@ setup(
         'Flask',
         'flask-sqlalchemy',
         'flask-openid',
+        'WTForms',
     ],
     entry_points={'console_scripts': ['osm_point = osm_point:main']},
 )
