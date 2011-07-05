@@ -6,12 +6,13 @@ import OsmApi
 from wtforms import BooleanField, TextField, DecimalField, HiddenField
 from wtforms import SelectField, Form, validators
 
-app = flask.Flask(__name__) # TODO split away a module with the views
-db = SQLAlchemy(app)
-oid = OpenID(app)
+db = SQLAlchemy()
+oid = OpenID()
 osm = None
 
-def configure_app(workdir):
+frontend = flask.Blueprint('frontend', __name__)
+
+def configure_app(app, workdir):
     import os.path
     workdir = os.path.abspath(workdir)
 
@@ -19,7 +20,8 @@ def configure_app(workdir):
 
     db_path = os.path.join(workdir, 'db.sqlite3')
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///%s" % db_path
-    db.create_all()
+    with app.test_request_context():
+        db.create_all()
 
     with open(os.path.join(workdir, 'secret'), 'rb') as f:
         app.config['SECRET_KEY'] = f.read()
@@ -30,7 +32,6 @@ def configure_app(workdir):
     except IOError:
        app.config['OSMPOINT_ADMINS'] = []
 
-    global oid
     openid_path = os.path.join(workdir, 'openid_store')
     app.config['OPENID_FS_STORE_PATH'] = openid_path
 
@@ -95,15 +96,15 @@ def submit_points_to_osm(point_to_submit):
     db.session.commit()
 
 def is_admin():
-    return  flask.g.user in app.config['OSMPOINT_ADMINS']
+    return  flask.g.user in flask.current_app.config['OSMPOINT_ADMINS']
 
-@app.before_request
+@frontend.before_request
 def lookup_current_user():
     flask.g.user = None
     if 'openid' in flask.session:
         flask.g.user = flask.session['openid']
 
-@app.route('/login', methods=['GET', 'POST'])
+@frontend.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
 def login():
     if flask.g.user is not None:
@@ -117,7 +118,7 @@ def login():
                                  next=oid.get_next_url(),
                                  error=oid.fetch_error())
 
-@app.route('/logout')
+@frontend.route('/logout')
 def logout():
     del flask.session['openid']
     return flask.redirect('/')
@@ -127,12 +128,12 @@ def create_or_login(resp):
     flask.session['openid'] = resp.identity_url
     return flask.redirect('/')
 
-@app.route("/")
+@frontend.route("/")
 def homepage():
     logged_in = bool(flask.g.user is not None)
     return flask.render_template('home.html', logged_in=logged_in)
 
-@app.route("/save_poi", methods=['POST'])
+@frontend.route("/save_poi", methods=['POST'])
 def save_poi():
     logged_in = bool(flask.g.user is not None)
     if not logged_in:
@@ -152,11 +153,11 @@ def save_poi():
                                  ok_name=ok_name, ok_type=ok_type)
 
 
-@app.route("/thank_you")
+@frontend.route("/thank_you")
 def thank_you():
     return flask.render_template('thank_you.html')
 
-@app.route("/points")
+@frontend.route("/points")
 def show_points():
     local_points = Point.query.filter(Point.osm_id==None).all()
     sent_points = Point.query.filter(Point.osm_id!=None).all()
@@ -165,7 +166,7 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@app.route("/delete", methods=['POST'])
+@frontend.route("/delete", methods=['POST'])
 def delete_point():
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])
@@ -177,14 +178,14 @@ def delete_point():
     return flask.render_template('deleted.html')
 
 # TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
-@app.route("/view")
+@frontend.route("/view")
 def show_map():
     point = Point.query.get_or_404(flask.request.args['id'])
 
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
 
-@app.route("/save", methods=['POST'])
+@frontend.route("/save", methods=['POST'])
 def edit_point():
     form = EditPointForm(flask.request.form)
     point = Point.query.get_or_404(form.id.data)
@@ -209,7 +210,7 @@ def edit_point():
     return flask.render_template('edit.html', ok_coords=ok_coords,
                                  ok_name=ok_name, ok_type=ok_type)
 
-@app.route("/send", methods=['POST'])
+@frontend.route("/send", methods=['POST'])
 def send_point():
     if not is_admin():
         flask.abort(404)
@@ -223,9 +224,22 @@ def send_point():
     submit_points_to_osm(point)
     return flask.render_template('sent.html')
 
+
+def create_app(workdir):
+    app = flask.Flask(__name__)
+    db.init_app(app)
+    oid.init_app(app)
+
+    app.register_blueprint(frontend)
+
+    configure_app(app, workdir)
+
+    return app
+
+
 def main():
     import sys
-    configure_app(sys.argv[1])
+    app = create_app(sys.argv[1])
     app.run(host='0.0.0.0')
 
 if __name__ == "__main__":

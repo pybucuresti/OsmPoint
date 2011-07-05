@@ -1,24 +1,26 @@
 import flask
 import unittest2
 import osm_point
+import py
 
 from mock import patch
 
 class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
+        self._tmp_dir = py.path.local.mkdtemp()
+        self._tmp_dir.join('secret').write('my-secret-key')
+        self.addCleanup(self._tmp_dir.remove)
+        self.app = osm_point.create_app(str(self._tmp_dir))
         self.db = osm_point.db
-        self.db.create_all()
 
-        self.app = osm_point.app
-        self.app.config['SECRET_KEY'] = 'my-secret-key'
         @self.app.route('/test_login', methods=['POST'])
         def test_login():
             flask.session['openid'] = flask.request.form['user_id']
             return "ok"
 
     def tearDown(self):
-         self.db.drop_all()
+        self.db.session.remove()
 
     def add_point(self, *args, **kwargs):
         point = osm_point.Point(*args, **kwargs)
@@ -28,7 +30,8 @@ class SetUpTests(unittest2.TestCase):
         return point
 
     def get_all_points(self):
-        return osm_point.Point.query.all()
+        with self.app.test_request_context():
+            return osm_point.Point.query.all()
 
 
 class SavePointTest(SetUpTests):
@@ -183,7 +186,8 @@ class SubmitPointTest(SetUpTests):
         values = [13, 45]
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
-        osm_point.submit_points_to_osm([p1, p2])
+        with self.app.test_request_context():
+            osm_point.submit_points_to_osm([p1, p2])
 
         self.assertEquals(p1.osm_id, 13)
         self.assertEquals(p2.osm_id, 45)
@@ -220,8 +224,9 @@ class SubmitPointTest(SetUpTests):
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         point.osm_id = 100
-        self.db.session.add(point)
-        self.db.session.commit()
+        with self.app.test_request_context():
+            self.db.session.add(point)
+            self.db.session.commit()
 
         point_data = {'id': point.id}
         response = client.post('/send', data=dict(point_data))
@@ -335,7 +340,8 @@ class UserPageTest(SetUpTests):
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
-        osm_point.del_point(point)
+        with self.app.test_request_context():
+            osm_point.del_point(point)
 
         response = client.get('/points')
         self.assertNotIn('location_name', response.data)
