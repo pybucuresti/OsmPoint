@@ -3,6 +3,8 @@ import flask
 from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
 import OsmApi
+from wtforms import BooleanField, TextField, DecimalField, HiddenField
+from wtforms import SelectField, Form, validators
 
 app = flask.Flask(__name__) # TODO split away a module with the views
 db = SQLAlchemy(app)
@@ -58,6 +60,18 @@ class Point(db.Model):
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
+class EditPointForm(Form):
+    name = TextField('name', [validators.Required()])
+    url = TextField('url')
+    lat = DecimalField('lat', [validators.NumberRange(min=-90, max=90)])
+    lon = DecimalField('lon', [validators.NumberRange(min=-180, max=180)])
+    amenity = SelectField('amenity', choices=[('bar', 'bar'), ('cafe', 'cafe'),
+                                              ('fuel','fuel'),('pub','pub'),
+                                              ('restaurant','restaurant'),
+                                              ('nightclub','nightclub')]
+                         )
+    id = HiddenField('id', [validators.Optional()])
+
 def add_point(latitude, longitude, name, url, amenity, user_open_id):
     point = Point(latitude, longitude, name, url, amenity, user_open_id)
     db.session.add(point)
@@ -79,13 +93,6 @@ def submit_points_to_osm(point_to_submit):
         db.session.add(p)
     osm.ChangesetClose()
     db.session.commit()
-
-def valid_coordinates(lat, lon):
-    lat = float(lat)
-    lon = float(lon)
-    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
-        return False
-    return True
 
 def is_admin():
     return  flask.g.user in app.config['OSMPOINT_ADMINS']
@@ -131,22 +138,16 @@ def save_poi():
     if not logged_in:
         return flask.redirect('/login')
 
-    form = flask.request.form
-    poi_url = form['url']
+    form = EditPointForm(flask.request.form)
 
-    ok_coords = valid_coordinates(form['lat'], form['lon'])
-    ok_name = bool(form['name'] != "name")
-    ok_type = bool(form['type'] != "none")
-
-    if ok_coords and ok_name and ok_type:
-
-        if form['url'] == "website":
-            poi_url = None
-
-        add_point(form['lat'], form['lon'], form['name'],
-                  poi_url, form['type'], flask.g.user)
+    if form.validate():
+        add_point(form.lat.data, form.lon.data, form.name.data,
+                  form.url.data, form.amenity.data, flask.g.user)
         return flask.redirect('/thank_you')
 
+    ok_type = form.amenity.validate(form)
+    ok_name = form.name.validate(form)
+    ok_coords = form.lat.validate(form) and form.lon.validate(form)
     return flask.render_template('edit.html', ok_coords=ok_coords,
                                  ok_name=ok_name, ok_type=ok_type)
 
@@ -185,32 +186,28 @@ def show_map():
 
 @app.route("/save", methods=['POST'])
 def edit_point():
-    form = flask.request.form
-    point = Point.query.get_or_404(form['id'])
+    form = EditPointForm(flask.request.form)
+    point = Point.query.get_or_404(form.id.data)
 
     if not is_admin():
         flask.abort(404)
 
-    ok_coords = valid_coordinates(form['lat'], form['lon'])
+    if form.validate():
 
-    if ok_coords:
-
-        point.latitude = form['lat']
-        point.longitude = form['lon']
-        point.name = form['name']
-        point.url = form['url']
-
-        ok_type = bool(form['type'] != "none")
-
-        if ok_type:
-
-            point.amenity = form['type']
+        form.populate_obj(point)
+        point.latitude = form.lat.data
+        point.longitude = form.lon.data
 
         db.session.add(point)
         db.session.commit()
+        return flask.render_template('edit.html', ok_coords=1,
+                                     ok_name=1, ok_type=1)
 
+    ok_type = form.amenity.validate(form)
+    ok_name = form.name.validate(form)
+    ok_coords = form.lat.validate(form) and form.lon.validate(form)
     return flask.render_template('edit.html', ok_coords=ok_coords,
-                                 ok_name=1, ok_type=1)
+                                 ok_name=ok_name, ok_type=ok_type)
 
 @app.route("/send", methods=['POST'])
 def send_point():

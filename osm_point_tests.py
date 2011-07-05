@@ -24,7 +24,7 @@ class SavePointTest(SetUpTests):
     def test_save_poi(self):
         app = osm_point.app.test_client()
         point_data = {'lat': 46.06, 'lon': 24.10, 'name': 'bau',
-                      'url': 'none', 'type': 'bar'}
+                      'url': 'none', 'amenity': 'bar'}
 
         response = app.post('/save_poi', data=dict(point_data))
         self.assertEqual(response.status_code, 302)
@@ -43,7 +43,7 @@ class SavePointTest(SetUpTests):
         self.assertEquals(point.longitude, point_data['lon'])
         self.assertEquals(point.name, point_data['name'])
         self.assertEquals(point.url, point_data['url'])
-        self.assertEquals(point.amenity, point_data['type'])
+        self.assertEquals(point.amenity, point_data['amenity'])
         self.assertEquals(point.user_open_id, 'my-open-id')
 
     def test_point_is_stored(self):
@@ -69,7 +69,7 @@ class SavePointTest(SetUpTests):
         app.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
-                 'url': 'link', 'type': 'none'}
+                 'url': 'link', 'amenity': 'none'}
         response = app.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
@@ -78,8 +78,8 @@ class SavePointTest(SetUpTests):
         osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         app.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = {'lat': 45, 'lon': 20, 'name': 'name',
-                 'url': 'link', 'type': 'no-name'}
+        point = {'lat': 45, 'lon': 20, 'name': '',
+                 'url': 'link', 'amenity': 'pub'}
         response = app.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
@@ -88,7 +88,7 @@ class SavePointTest(SetUpTests):
         app.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': -91, 'lon': 181, 'name': 'wrong',
-                 'url': 'link', 'type': 'type'}
+                 'url': 'link', 'amenity': 'pub'}
         response = app.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
@@ -97,7 +97,7 @@ class SavePointTest(SetUpTests):
         app.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': 45, 'lon': 181, 'name': 'wrong',
-                 'url': 'link', 'type': 'type'}
+                 'url': 'link', 'amenity': 'pub'}
         response = app.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
@@ -106,7 +106,7 @@ class SavePointTest(SetUpTests):
         app.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': -91, 'lon': 20, 'name': 'wrong',
-                 'url': 'link', 'type': 'type'}
+                 'url': 'link', 'amenity': 'pub'}
         response = app.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
@@ -249,14 +249,14 @@ class EditPointTest(SetUpTests):
         self._db.session.commit()
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
-                      'url': 'new_url', 'type': 'new_type', 'id': point.id}
+                      'url': 'new_url', 'amenity': 'pub', 'id': point.id}
         response = app.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.latitude, 40)
         self.assertEqual(point.longitude, 20)
         self.assertEqual(point.name, 'new_name')
         self.assertEqual(point.url, 'new_url')
-        self.assertEqual(point.amenity, 'new_type')
+        self.assertEqual(point.amenity, 'pub')
 
     def test_edit_nonexistent_point(self):
         app = osm_point.app.test_client()
@@ -292,7 +292,7 @@ class EditPointTest(SetUpTests):
         self._db.session.commit()
 
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
-                      'url': 'url', 'type': 'type', 'id': point.id}
+                      'url': 'url', 'type': 'pub', 'id': point.id}
         response = app.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.latitude, 45)
@@ -303,17 +303,30 @@ class EditPointTest(SetUpTests):
         osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         app.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
+        point = osm_point.Point(45, 25, 'name', 'url', 'old_type', 'admin-user')
         self._db.session.add(point)
         self._db.session.commit()
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
-                      'url': 'url', 'type': 'none', 'id': point.id}
+                      'amenity': 'none', 'url': 'url', 'id': point.id}
         response = app.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
-        self.assertEqual(point.amenity, 'type')
+        self.assertEqual(point.amenity, 'old_type')
 
+    def test_edit_point_with_no_name(self):
+        app = osm_point.app.test_client()
+        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        app.post('/test_login', data={'user_id': 'admin-user'})
 
+        point = osm_point.Point(45, 25, 'old_name', 'url', 'type', 'admin-user')
+        self._db.session.add(point)
+        self._db.session.commit()
+
+        point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
+                      'name': '', 'url': 'url', 'id': point.id}
+        response = app.post('/save', data=dict(point_data))
+        point = osm_point.Point.query.all()[0]
+        self.assertEqual(point.name, 'old_name')
 
 class UserPageTest(SetUpTests):
 
