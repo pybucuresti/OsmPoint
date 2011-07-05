@@ -10,8 +10,9 @@ class SetUpTests(unittest2.TestCase):
         self._db = osm_point.db
         self._db.create_all()
 
-        osm_point.app.config['SECRET_KEY'] = 'my-secret-key'
-        @osm_point.app.route('/test_login', methods=['POST'])
+        self.app = osm_point.app
+        self.app.config['SECRET_KEY'] = 'my-secret-key'
+        @self.app.route('/test_login', methods=['POST'])
         def test_login():
             flask.session['openid'] = flask.request.form['user_id']
             return "ok"
@@ -22,18 +23,18 @@ class SetUpTests(unittest2.TestCase):
 class SavePointTest(SetUpTests):
 
     def test_save_poi(self):
-        app = osm_point.app.test_client()
+        client = self.app.test_client()
         point_data = {'lat': 46.06, 'lon': 24.10, 'name': 'bau',
                       'url': 'none', 'amenity': 'bar'}
 
-        response = app.post('/save_poi', data=dict(point_data))
+        response = client.post('/save_poi', data=dict(point_data))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'],
                          'http://localhost/login')
 
-        app.post('/test_login', data={'user_id': 'my-open-id'})
+        client.post('/test_login', data={'user_id': 'my-open-id'})
 
-        response = app.post('/save_poi', data=dict(point_data))
+        response = client.post('/save_poi', data=dict(point_data))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers['Location'],
                          'http://localhost/thank_you')
@@ -64,50 +65,50 @@ class SavePointTest(SetUpTests):
         self.assertEquals(point.user_open_id, 'my-open-id')
 
     def test_amenity_is_mandatory(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
                  'url': 'link', 'amenity': 'none'}
-        response = app.post('/save_poi', data=dict(point))
+        response = client.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
     def test_name_is_mandatory(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': '',
                  'url': 'link', 'amenity': 'pub'}
-        response = app.post('/save_poi', data=dict(point))
+        response = client.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
     def test_valid_coordinates1(self):
-        app = osm_point.app.test_client()
-        app.post('/test_login', data={'user_id': 'my-open-id'})
+        client = self.app.test_client()
+        client.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': -91, 'lon': 181, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
-        response = app.post('/save_poi', data=dict(point))
+        response = client.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
     def test_valid_coordinates2(self):
-        app = osm_point.app.test_client()
-        app.post('/test_login', data={'user_id': 'my-open-id'})
+        client = self.app.test_client()
+        client.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': 45, 'lon': 181, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
-        response = app.post('/save_poi', data=dict(point))
+        response = client.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
     def test_valid_coordinates3(self):
-        app = osm_point.app.test_client()
-        app.post('/test_login', data={'user_id': 'my-open-id'})
+        client = self.app.test_client()
+        client.post('/test_login', data={'user_id': 'my-open-id'})
 
         point = {'lat': -91, 'lon': 20, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
-        response = app.post('/save_poi', data=dict(point))
+        response = client.post('/save_poi', data=dict(point))
         self.assertEqual(len(osm_point.Point.query.all()), 0)
 
 
@@ -125,10 +126,10 @@ class DeletePointTest(SetUpTests):
         self.assertEquals(len(points), 0)
 
     def test_delete_by_non_admin(self):
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app = osm_point.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client = self.app.test_client()
 
-        app.post('/test_login', data={'user_id': 'non-admin'})
+        client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'non-admin')
         self._db.session.add(point)
@@ -136,14 +137,14 @@ class DeletePointTest(SetUpTests):
         point_id = {'id': point.id}
         points = osm_point.Point.query.all()
 
-        response = app.post('/delete', data=dict(point_id))
+        response = client.post('/delete', data=dict(point_id))
         self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 404)
 
     def test_delete_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         self._db.session.add(point)
@@ -151,18 +152,18 @@ class DeletePointTest(SetUpTests):
 
         point_id = {'id': point.id}
 
-        response = app.post('/delete', data=dict(point_id))
+        response = client.post('/delete', data=dict(point_id))
         self.assertEqual(response.status_code, 200)
         points = osm_point.Point.query.all()
         self.assertEqual(len(points), 0)
 
     def test_delete_nonexistent_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         fake_point = {'id': 10}
-        response = app.post('/delete', data=dict(fake_point))
+        response = client.post('/delete', data=dict(fake_point))
         self.assertEqual(response.status_code, 404)
 
 
@@ -171,7 +172,7 @@ class SubmitPointTest(SetUpTests):
 
     @patch('osm_point.osm')
     def test_submit_points_to_osm(self, mock_osm):
-        app = osm_point.app.test_client()
+        client = self.app.test_client()
         p1 = osm_point.Point(46.06, 24.10, 'Eau de Web',
                              'link1', 'pub', 'my-open-id')
         p2 = osm_point.Point(46.07, 24.11, 'blabla',
@@ -197,10 +198,10 @@ class SubmitPointTest(SetUpTests):
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
 
     def test_submit_by_non_admin(self):
-        osm_point.app.config['OSMPOINT_ADMINS'] = []
-        app = osm_point.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = []
+        client = self.app.test_client()
 
-        app.post('/test_login', data={'user_id': 'non-admin'})
+        client.post('/test_login', data={'user_id': 'non-admin'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'non-admin')
         self._db.session.add(point)
@@ -208,14 +209,14 @@ class SubmitPointTest(SetUpTests):
         point_id = {'id': point.id}
         points = osm_point.Point.query.all()
 
-        response = app.post('/send', data=dict(point_id))
+        response = client.post('/send', data=dict(point_id))
         self.assertEqual(points[0].osm_id, None)
         self.assertEqual(response.status_code, 404)
 
     def test_submit_already_submitted_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         point.osm_id = 100
@@ -223,16 +224,16 @@ class SubmitPointTest(SetUpTests):
         self._db.session.commit()
 
         point_data = {'id': point.id}
-        response = app.post('/send', data=dict(point_data))
+        response = client.post('/send', data=dict(point_data))
         self.assertEqual(response.status_code, 400)
 
     def test_submit_nonexistent_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         fake_point = {'id': 500}
-        response = app.post('/send', data=dict(fake_point))
+        response = client.post('/send', data=dict(fake_point))
         self.assertEqual(response.status_code, 404)
 
 
@@ -240,9 +241,9 @@ class SubmitPointTest(SetUpTests):
 class EditPointTest(SetUpTests):
 
     def test_edit_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         self._db.session.add(point)
@@ -250,7 +251,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
                       'url': 'new_url', 'amenity': 'pub', 'id': point.id}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.latitude, 40)
         self.assertEqual(point.longitude, 20)
@@ -259,18 +260,18 @@ class EditPointTest(SetUpTests):
         self.assertEqual(point.amenity, 'pub')
 
     def test_edit_nonexistent_point(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong', 'id': 500}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         self.assertEqual(response.status_code, 404)
 
     def test_edit_point_by_non_admin(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = []
-        app.post('/test_login', data={'user_id': 'non-admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = []
+        client.post('/test_login', data={'user_id': 'non-admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url',
                                 'type', 'non-admin-user')
@@ -279,13 +280,13 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong',
                       'url': 'url', 'type': 'type', 'id': point.id}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         self.assertEqual(response.status_code, 404)
 
     def test_edit_point_with_wrong_coords(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         self._db.session.add(point)
@@ -293,15 +294,15 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
                       'url': 'url', 'type': 'pub', 'id': point.id}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.latitude, 45)
         self.assertEqual(point.longitude, 25)
 
     def test_edit_point_with_no_amenity(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'name', 'url', 'old_type', 'admin-user')
         self._db.session.add(point)
@@ -309,14 +310,14 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
                       'amenity': 'none', 'url': 'url', 'id': point.id}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.amenity, 'old_type')
 
     def test_edit_point_with_no_name(self):
-        app = osm_point.app.test_client()
-        osm_point.app.config['OSMPOINT_ADMINS'] = ['admin-user']
-        app.post('/test_login', data={'user_id': 'admin-user'})
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = osm_point.Point(45, 25, 'old_name', 'url', 'type', 'admin-user')
         self._db.session.add(point)
@@ -324,15 +325,15 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
                       'name': '', 'url': 'url', 'id': point.id}
-        response = app.post('/save', data=dict(point_data))
+        response = client.post('/save', data=dict(point_data))
         point = osm_point.Point.query.all()[0]
         self.assertEqual(point.name, 'old_name')
 
 class UserPageTest(SetUpTests):
 
     def test_page_renders(self):
-        app = osm_point.app.test_client()
-        self.assertEqual(app.get('/').status_code, 200)
+        client = self.app.test_client()
+        self.assertEqual(client.get('/').status_code, 200)
 
     def test_show_points(self):
         point = osm_point.Point(1, 2, 'location_name',
@@ -340,29 +341,29 @@ class UserPageTest(SetUpTests):
         self._db.session.add(point)
         self._db.session.commit()
 
-        app = osm_point.app.test_client()
+        client = self.app.test_client()
 
-        response = app.get('/points')
+        response = client.get('/points')
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
         osm_point.del_point(point)
 
-        response = app.get('/points')
+        response = client.get('/points')
         self.assertNotIn('location_name', response.data)
 
     def test_show_map(self):
-        app = osm_point.app.test_client()
+        client = self.app.test_client()
 
         point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         self._db.session.add(point)
         self._db.session.commit()
 
-        response = app.get('/view?id=1')
+        response = client.get('/view?id=1')
         self.assertEqual(response.status_code, 200)
 
     def test_view_nonexistent_point(self):
-        app = osm_point.app.test_client()
+        client = self.app.test_client()
 
-        response = app.get('/view?id=500')
+        response = client.get('/view?id=500')
         self.assertEqual(response.status_code,404)
