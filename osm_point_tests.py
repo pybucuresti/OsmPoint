@@ -27,6 +27,9 @@ class SetUpTests(unittest2.TestCase):
             self.db.session.commit()
         return point
 
+    def get_all_points(self):
+        return osm_point.Point.query.all()
+
 
 class SavePointTest(SetUpTests):
 
@@ -47,7 +50,7 @@ class SavePointTest(SetUpTests):
         self.assertEqual(response.headers['Location'],
                          'http://localhost/thank_you')
 
-        point = osm_point.Point.query.all()[0]
+        point = self.get_all_points()[0]
         self.assertEquals(point.latitude, point_data['lat'])
         self.assertEquals(point.longitude, point_data['lon'])
         self.assertEquals(point.name, point_data['name'])
@@ -59,7 +62,7 @@ class SavePointTest(SetUpTests):
         self.add_point(46.06, 24.10, 'Eau de Web',
                        'website', 'business', 'my-open-id')
 
-        points = osm_point.Point.query.all()
+        points = self.get_all_points()
         self.assertEquals(len(points), 1)
 
         point = points[0]
@@ -78,7 +81,7 @@ class SavePointTest(SetUpTests):
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
                  'url': 'link', 'amenity': 'none'}
         response = client.post('/save_poi', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 0)
+        self.assertEqual(len(self.get_all_points()), 0)
 
     def test_name_is_mandatory(self):
         client = self.app.test_client()
@@ -88,7 +91,7 @@ class SavePointTest(SetUpTests):
         point = {'lat': 45, 'lon': 20, 'name': '',
                  'url': 'link', 'amenity': 'pub'}
         response = client.post('/save_poi', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 0)
+        self.assertEqual(len(self.get_all_points()), 0)
 
     def test_valid_coordinates1(self):
         client = self.app.test_client()
@@ -97,7 +100,7 @@ class SavePointTest(SetUpTests):
         point = {'lat': -91, 'lon': 181, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
         response = client.post('/save_poi', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 0)
+        self.assertEqual(len(self.get_all_points()), 0)
 
     def test_valid_coordinates2(self):
         client = self.app.test_client()
@@ -106,7 +109,7 @@ class SavePointTest(SetUpTests):
         point = {'lat': 45, 'lon': 181, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
         response = client.post('/save_poi', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 0)
+        self.assertEqual(len(self.get_all_points()), 0)
 
     def test_valid_coordinates3(self):
         client = self.app.test_client()
@@ -115,7 +118,7 @@ class SavePointTest(SetUpTests):
         point = {'lat': -91, 'lon': 20, 'name': 'wrong',
                  'url': 'link', 'amenity': 'pub'}
         response = client.post('/save_poi', data=dict(point))
-        self.assertEqual(len(osm_point.Point.query.all()), 0)
+        self.assertEqual(len(self.get_all_points()), 0)
 
 
 
@@ -126,7 +129,7 @@ class DeletePointTest(SetUpTests):
 
         osm_point.del_point(point)
 
-        points = osm_point.Point.query.all()
+        points = self.get_all_points()
         self.assertEquals(len(points), 0)
 
     def test_delete_by_non_admin(self):
@@ -137,7 +140,7 @@ class DeletePointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
         point_id = {'id': point.id}
-        points = osm_point.Point.query.all()
+        points = self.get_all_points()
 
         response = client.post('/delete', data=dict(point_id))
         self.assertEqual(len(points), 1)
@@ -154,7 +157,7 @@ class DeletePointTest(SetUpTests):
 
         response = client.post('/delete', data=dict(point_id))
         self.assertEqual(response.status_code, 200)
-        points = osm_point.Point.query.all()
+        points = self.get_all_points()
         self.assertEqual(len(points), 0)
 
     def test_delete_nonexistent_point(self):
@@ -204,7 +207,7 @@ class SubmitPointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
         point_id = {'id': point.id}
-        points = osm_point.Point.query.all()
+        points = self.get_all_points()
 
         response = client.post('/send', data=dict(point_id))
         self.assertEqual(points[0].osm_id, None)
@@ -247,7 +250,7 @@ class EditPointTest(SetUpTests):
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
                       'url': 'new_url', 'amenity': 'pub', 'id': point.id}
         response = client.post('/save', data=dict(point_data))
-        point = osm_point.Point.query.all()[0]
+        point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 40)
         self.assertEqual(point.longitude, 20)
         self.assertEqual(point.name, 'new_name')
@@ -286,7 +289,7 @@ class EditPointTest(SetUpTests):
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
                       'url': 'url', 'type': 'pub', 'id': point.id}
         response = client.post('/save', data=dict(point_data))
-        point = osm_point.Point.query.all()[0]
+        point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 45)
         self.assertEqual(point.longitude, 25)
 
@@ -300,7 +303,7 @@ class EditPointTest(SetUpTests):
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
                       'amenity': 'none', 'url': 'url', 'id': point.id}
         response = client.post('/save', data=dict(point_data))
-        point = osm_point.Point.query.all()[0]
+        point = self.get_all_points()[0]
         self.assertEqual(point.amenity, 'old_type')
 
     def test_edit_point_with_no_name(self):
@@ -313,7 +316,7 @@ class EditPointTest(SetUpTests):
         point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
                       'name': '', 'url': 'url', 'id': point.id}
         response = client.post('/save', data=dict(point_data))
-        point = osm_point.Point.query.all()[0]
+        point = self.get_all_points()[0]
         self.assertEqual(point.name, 'old_name')
 
 class UserPageTest(SetUpTests):
