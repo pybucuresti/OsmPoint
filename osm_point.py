@@ -3,6 +3,8 @@ import flask
 from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
 import OsmApi
+from wtforms import BooleanField, TextField, DecimalField, HiddenField
+from wtforms import SelectField, Form, validators
 
 app = flask.Flask(__name__) # TODO split away a module with the views
 db = SQLAlchemy(app)
@@ -22,8 +24,11 @@ def configure_app(workdir):
     with open(os.path.join(workdir, 'secret'), 'rb') as f:
         app.config['SECRET_KEY'] = f.read()
 
-    with open(os.path.join(workdir, 'admins'), 'r') as f:
-        app.config['OSMPOINT_ADMINS'] = f.read()
+    try:
+       with open(os.path.join(workdir, 'admins'), 'r') as f:
+           app.config['OSMPOINT_ADMINS'] = f.read().split()
+    except IOError:
+       app.config['OSMPOINT_ADMINS'] = []
 
     global oid
     openid_path = os.path.join(workdir, 'openid_store')
@@ -39,20 +44,36 @@ class Point(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     name = db.Column(db.String(200))
+    url = db.Column(db.String(50))
+    amenity = db.Column(db.String(50))
     osm_id = db.Column(db.Integer)
     user_open_id = db.Column(db.Text)
 
-    def __init__(self, latitude, longitude, name, user_open_id):
+    def __init__(self, latitude, longitude, name, url, amenity, user_open_id):
         self.latitude = latitude
         self.longitude = longitude
         self.name = name
+        self.url = url
+        self.amenity = amenity
         self.user_open_id = user_open_id
 
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
-def add_point(latitude, longitude, name, user_open_id):
-    point = Point(latitude, longitude, name, user_open_id)
+class EditPointForm(Form):
+    name = TextField('name', [validators.Required()])
+    url = TextField('url')
+    lat = DecimalField('lat', [validators.NumberRange(min=-90, max=90)])
+    lon = DecimalField('lon', [validators.NumberRange(min=-180, max=180)])
+    amenity = SelectField('amenity', choices=[('bar', 'bar'), ('cafe', 'cafe'),
+                                              ('fuel','fuel'),('pub','pub'),
+                                              ('restaurant','restaurant'),
+                                              ('nightclub','nightclub')]
+                         )
+    id = HiddenField('id', [validators.Optional()])
+
+def add_point(latitude, longitude, name, url, amenity, user_open_id):
+    point = Point(latitude, longitude, name, url, amenity, user_open_id)
     db.session.add(point)
     db.session.commit()
 
@@ -65,11 +86,16 @@ def submit_points_to_osm(point_to_submit):
     for p in point_to_submit:
         node_dict = osm.NodeCreate({u"lon": p.longitude,
                                     u"lat": p.latitude,
-                                    u"tag": {'name': p.name}})
+                                    u"tag": {'name': p.name,
+                                             'amenity': p.amenity,
+                                             'website': p.url}})
         p.osm_id = node_dict['id']
         db.session.add(p)
     osm.ChangesetClose()
     db.session.commit()
+
+def is_admin():
+    return  flask.g.user in app.config['OSMPOINT_ADMINS']
 
 @app.before_request
 def lookup_current_user():
@@ -112,10 +138,19 @@ def save_poi():
     if not logged_in:
         return flask.redirect('/login')
 
-    form = flask.request.form
-    # TODO if lat/lon are beyond limits then send error
-    add_point(form['lat'], form['lon'], form['name'], flask.g.user)
-    return flask.redirect('/thank_you')
+    form = EditPointForm(flask.request.form)
+
+    if form.validate():
+        add_point(form.lat.data, form.lon.data, form.name.data,
+                  form.url.data, form.amenity.data, flask.g.user)
+        return flask.redirect('/thank_you')
+
+    ok_type = form.amenity.validate(form)
+    ok_name = form.name.validate(form)
+    ok_coords = form.lat.validate(form) and form.lon.validate(form)
+    return flask.render_template('edit.html', ok_coords=ok_coords,
+                                 ok_name=ok_name, ok_type=ok_type)
+
 
 @app.route("/thank_you")
 def thank_you():
@@ -130,35 +165,61 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@app.route("/deleted", methods=['POST'])
+@app.route("/delete", methods=['POST'])
 def delete_point():
-    # TODO test that non-admins can't delete points
-    # TODO test deleting of non-existent point
     form = flask.request.form
-    point = Point.query.filter(Point.id==form['id']).first()
+    point = Point.query.get_or_404(form['id'])
+
+    if not is_admin():
+        flask.abort(404)
+
     del_point(point)
     return flask.render_template('deleted.html')
 
 # TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
 @app.route("/view")
 def show_map():
-    is_admin =  bool(str(flask.g.user) in app.config['OSMPOINT_ADMINS'])
-    point = Point.query.filter(Point.id==flask.request.args['id']).first()
-    if point is None:
-        flask.abort(404) # TODO test me
-    return flask.render_template('view.html', point=point, is_admin=is_admin)
+    point = Point.query.get_or_404(flask.request.args['id'])
 
-@app.route("/sent", methods=['POST'])
+    return flask.render_template('view.html', point=point,
+                                  is_admin=is_admin())
+
+@app.route("/save", methods=['POST'])
+def edit_point():
+    form = EditPointForm(flask.request.form)
+    point = Point.query.get_or_404(form.id.data)
+
+    if not is_admin():
+        flask.abort(404)
+
+    if form.validate():
+
+        form.populate_obj(point)
+        point.latitude = form.lat.data
+        point.longitude = form.lon.data
+
+        db.session.add(point)
+        db.session.commit()
+        return flask.render_template('edit.html', ok_coords=1,
+                                     ok_name=1, ok_type=1)
+
+    ok_type = form.amenity.validate(form)
+    ok_name = form.name.validate(form)
+    ok_coords = form.lat.validate(form) and form.lon.validate(form)
+    return flask.render_template('edit.html', ok_coords=ok_coords,
+                                 ok_name=ok_name, ok_type=ok_type)
+
+@app.route("/send", methods=['POST'])
 def send_point():
-    # TODO test me
-    # TODO if lat/lon are beyond limits then send error
+    if not is_admin():
+        flask.abort(404)
+
     form = flask.request.form
-    point = Point.query.filter(Point.id==form['id']).first()
-    point.latitude = form['lat']
-    point.longitude = form['lon']
-    point.name = form['name']
-    db.session.add(point)
-    db.session.commit()
+    point = Point.query.get_or_404(form['id'])
+
+    if point.osm_id is not None:
+        flask.abort(400)
+
     submit_points_to_osm(point)
     return flask.render_template('sent.html')
 

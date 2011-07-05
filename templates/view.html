@@ -31,8 +31,8 @@
     div#coord form {
       margin: 0;
     }
-    
-    {% if is_admin %}
+
+    {% if is_admin and (point.osm_id is none) %}
       div#admin-form { display: block; }
     {% else %}
       div#coord { display: block; }
@@ -44,48 +44,79 @@
   <script src="static/js/jquery-1.5.2.js"></script>
   <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
   <script>
-   
+
      $('#demoMap').empty();
      var proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
      var proj_mercator = new OpenLayers.Projection("EPSG:900913");
-     var center = new OpenLayers.LonLat({{point.longitude}}, {{point.latitude}});
+     var center = new OpenLayers.LonLat({{point.longitude}},
+                                        {{point.latitude}});
      center = center.transform(proj_wgs1984, proj_mercator);
      var map = new OpenLayers.Map("demoMap");
      map.addLayer(new OpenLayers.Layer.OSM());
      map.setCenter(center, 16);
-   
+
      var marker = new OpenLayers.Layer.Markers();
      map.addLayer(marker);
      var size = new OpenLayers.Size(21,25);
      var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-     var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
+     var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',
+                                    size, offset);
      marker.addMarker(new OpenLayers.Marker(center ,icon));
- 
+
   </script>
   <div id="admin-form" class="overlay_admin">
     <div align="center">
-      <form action="/sent" method="post" >
-        <input name="name" size="14" value={{ point.name }}>
+
+      <form action="/save" method="post" >
+        <input name="name" size="14" value="{{ point.name }}">
         <br>
         <input name="lat" size="5" value={{ point.latitude }}>
         <input name="lon" size="5" value={{ point.longitude }}>
         <br>
+        <input name="url" size="14" value="{{ point.url }}"><br>
+        Amenity: {{ point.amenity }}<br>
+        <select name="amenity">
+          <option value="none">type</option>
+          <option value="bar">bar</option>
+          <option value="cafe">cafe</option>
+          <option value="fuel">fuel</option>
+          <option value="pub">pub</option>
+          <option value="restaurant">restaurant</option>
+          <option value="nightclub">nightclub</option>
+        </select><br>
+        <input type="submit" value="save changes">
+        <input type="hidden" name="id" value={{ point.id }} >
+      </form>
+
+      <form action="/send" method="post">
         <input type="submit" value="submit">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
-      <form action="/deleted" method="post">
+
+      <form action="/delete" method="post">
         <input type="submit" value="delete">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
+
     </div>
   </div>
   <div id="coord" class="overlay_coord">
     <div align="center">
-    {{ point.name }} 
     <form>
       <input name="lat" size=5 value={{ point.latitude }}>
       <input name="lon" size=5 value={{ point.longitude }}>
     </form>
+    </div>
+    Name:<br>
+    {{ point.name }}<br>
+    Type:<br>
+    {{ point.amenity }}<br>
+    URL:<br>
+    {% if point.url != "" %}
+      {{ point.url }}<br>
+    {% else %}
+      ---<br>
+    {% endif %}
   </div>
 </body>
 </html>

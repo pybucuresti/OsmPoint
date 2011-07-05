@@ -1,0 +1,29 @@
+<html>
+  <body>
+    {% if ok_coords and ok_type and ok_name %}
+
+      <h2>Point data edited successfully</h2>
+
+    {% else %}
+
+      <h2>Error encountered while saving data</h2>
+
+      {% if ok_name == 0 %}
+        <p>Please specify a name</p>
+      {% endif %}
+
+      {% if ok_type == 0 %}
+        <p>Please specify a type of location</p>
+      {% endif %}
+
+      {% if ok_coords == 0 %}
+        <p>Coordinates are out of range</p>
+      {% endif %}
+
+    {% endif %}
+
+    <a href="/points">Points</a>
+    <br>
+    <a href="/">Home</a>
+  </body>
+</html>
