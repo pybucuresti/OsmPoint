@@ -166,8 +166,8 @@ def show_points():
                                  local_points=local_points,
                                  sent_points=sent_points)
 
-@frontend.route("/delete", methods=['POST'])
-def delete_point():
+@frontend.route("/points/<int:point_id>/delete", methods=['POST'])
+def delete_point(point_id):
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])
 
@@ -177,16 +177,16 @@ def delete_point():
     del_point(point)
     return flask.render_template('deleted.html')
 
-# TODO URL scheme: /point/1, /point/1/save, /point/1/delete, /point/1/submit
-@frontend.route("/view")
-def show_map():
-    point = Point.query.get_or_404(flask.request.args['id'])
+@frontend.route("/points/<int:point_id>")
+def show_map(point_id):
+    point = Point.query.get_or_404(point_id)
 
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
 
-@frontend.route("/save", methods=['POST'])
-def edit_point():
+
+@frontend.route("/points/<int:point_id>/edit", methods=['POST'])
+def edit_point(point_id):
     form = EditPointForm(flask.request.form)
     point = Point.query.get_or_404(form.id.data)
 
@@ -210,8 +210,8 @@ def edit_point():
     return flask.render_template('edit.html', ok_coords=ok_coords,
                                  ok_name=ok_name, ok_type=ok_type)
 
-@frontend.route("/send", methods=['POST'])
-def send_point():
+@frontend.route("/points/<int:point_id>/send", methods=['POST'])
+def send_point(point_id):
     if not is_admin():
         flask.abort(404)
 

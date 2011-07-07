@@ -41,7 +41,7 @@
 </head>
 <body>
   <div id="demoMap">Loading coordinates...</div>
-  <script src="static/js/jquery-1.5.2.js"></script>
+  <script src="/static/js/jquery-1.5.2.js"></script>
   <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
   <script>
 
@@ -67,7 +67,7 @@
   <div id="admin-form" class="overlay_admin">
     <div align="center">
 
-      <form action="/save" method="post" >
+      <form action="/points/{{ point.id }}/edit" method="post" >
         <input name="name" size="14" value="{{ point.name }}">
         <br>
         <input name="lat" size="5" value={{ point.latitude }}>
@@ -88,12 +88,12 @@
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
 
-      <form action="/send" method="post">
+      <form action="/points/{{ point.id }}/send" method="post">
         <input type="submit" value="submit">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>
 
-      <form action="/delete" method="post">
+      <form action="/points/{{ point.id }}/delete" method="post">
         <input type="submit" value="delete">
         <input type="hidden" name="id" value={{ point.id }} >
       </form>

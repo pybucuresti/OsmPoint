@@ -6,7 +6,7 @@
   {% for p in local_points %}
     <li>
     {{ p.name }} added by {{ p.user_open_id }}
-    <a href="/view?id={{ p.id }}">view</a>
+    <a href="/points/{{ p.id }}">view</a>
     </li>
   {% else %}
     <li>All submitted points have been checked</li>
@@ -17,7 +17,7 @@
   {% for p in sent_points %}
     <li>
     {{ p.name }} added by {{ p.user_open_id }}
-    <a href="/view?id={{ p.id }}">view</a>
+    <a href="/points/{{ p.id }}">view</a>
     </li>
   {% else %}
     <li>No points have been sent yet</li>
