@@ -19,9 +19,9 @@
     }};
   </script>
 
-  <script src="static/js/jquery-1.5.2.js"></script>
+  <script src="{{ url_for('static', filename='js/jquery-1.5.2.js') }}"></script>
   <script src="http://openlayers.org/dev/OpenLayers.js"></script>
-  <script src="static/js/frontend.js"></script>
+  <script src="{{ url_for('static', filename='js/frontend.js') }}"></script>
 
   {% block scripts %}{% endblock %}
 
