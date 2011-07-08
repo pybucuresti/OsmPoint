@@ -49,8 +49,8 @@ M.center_to_gps = function() {
 }
 
 M.enable_adding_points = function() {
-  var points_layer = new OpenLayers.Layer.Vector("Points");
-  M.map.addLayer(points_layer);
+  M.points_layer = new OpenLayers.Layer.Markers("Markers");
+  M.map.addLayer(M.points_layer);
   var add_point = new OpenLayers.Control.Click(function(xy) {
     var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
     var add_poi_box = $('#add-poi-box');
@@ -58,9 +58,18 @@ M.enable_adding_points = function() {
     $('form input[name=lon]', add_poi_box).val(lonlat.lon);
     add_poi_box.show();
     $('body').addClass('menu-form');
+    M.draw_marker(lonlat);
   });
   M.map.addControl(add_point);
   add_point.activate();
+};
+
+M.draw_marker = function(lonlat) {
+  var size = new OpenLayers.Size(32, 32);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -(size.h/2));
+  var icon = new OpenLayers.Icon('/static/crosshair.png', size, offset);
+  M.points_layer.clearMarkers();
+  M.points_layer.addMarker(new OpenLayers.Marker(M.project(lonlat), icon));
 };
 
 })();
