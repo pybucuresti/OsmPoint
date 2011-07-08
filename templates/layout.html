@@ -1,0 +1,18 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" href="static/style.css">
+    <meta name="viewport" content="width=device-width">
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body>
+    {% block menu %}{% endblock %}
+    <div id="map"></div>
+  </body>
+
+  <script src="static/js/jquery-1.5.2.js"></script>
+  <script src="http://openlayers.org/dev/OpenLayers.js"></script>
+  <script src="static/js/frontend.js"></script>
+  {% block scripts %}{% endblock %}
+</html>

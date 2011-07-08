@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+}
+
+div.overlay {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: white;
+  border: 1px solid black;
+}
+
+div#poi-form form {
+  margin: 0;
+}
