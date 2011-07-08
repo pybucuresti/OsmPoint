@@ -2,12 +2,12 @@
 
 {% block menu %}
 <div id="links">
-  <a class="login" href="/login">login</a>
-  <a class="logout" href="/logout">logout</a>
+  <a class="login" href="{{ url_for('.login') }}">login</a>
+  <a class="logout" href="{{ url_for('.logout') }}">logout</a>
 </div>
 
 <div id="add-poi-box">
-  <form method="post" action="/save_poi">
+  <form method="post" action="{{ url_for('.save_poi') }}">
     <input type="hidden" name="lat">
     <input type="hidden" name="lon">
     Name: <input name="name">
