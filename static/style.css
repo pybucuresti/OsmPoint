@@ -18,8 +18,8 @@ div#map {
 }
 
 /* the menu-add layout - big form at the top */
-body.menu-form div#menu { height: 1.6em; }
-body.menu-form div#map { top: 1.6em; }
+body.menu-form div#menu { height: 3em; }
+body.menu-form div#map { top: 3em; }
 
 /* hide one of the login/logout links */
 body.logged-in a.login { display: none; }

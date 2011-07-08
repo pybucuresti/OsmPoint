@@ -45,8 +45,6 @@ M.center_to_gps = function() {
       var lon = position.coords.longitude, lat = position.coords.latitude;
       var center = new OpenLayers.LonLat(lon, lat);
       M.map.setCenter(M.project(center), 16);
-      $('#poi-form form input[name=lat]').val(lat);
-      $('#poi-form form input[name=lon]').val(lon);
   });
 }
 
@@ -55,7 +53,11 @@ M.enable_adding_points = function() {
   M.map.addLayer(points_layer);
   var add_point = new OpenLayers.Control.Click(function(xy) {
     var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
-    console.log('clicked on', lonlat.lon, lonlat.lat);
+    var add_poi_box = $('#add-poi-box');
+    $('form input[name=lat]', add_poi_box).val(lonlat.lat);
+    $('form input[name=lon]', add_poi_box).val(lonlat.lon);
+    add_poi_box.show();
+    $('body').addClass('menu-form');
   });
   M.map.addControl(add_point);
   add_point.activate();
