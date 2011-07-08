@@ -57,6 +57,7 @@ M.enable_adding_points = function() {
     $('form input[name=lat]', add_poi_box).val(lonlat.lat);
     $('form input[name=lon]', add_poi_box).val(lonlat.lon);
     add_poi_box.show();
+    M.map.updateSize();
     $('body').addClass('menu-form');
     M.draw_marker(lonlat);
   });
@@ -65,11 +66,13 @@ M.enable_adding_points = function() {
 };
 
 M.draw_marker = function(lonlat) {
+  var map_coords = M.project(lonlat);
   var size = new OpenLayers.Size(32, 32);
   var offset = new OpenLayers.Pixel(-(size.w/2), -(size.h/2));
   var icon = new OpenLayers.Icon(M.config['marker_image_src'], size, offset);
   M.points_layer.clearMarkers();
-  M.points_layer.addMarker(new OpenLayers.Marker(M.project(lonlat), icon));
+  M.points_layer.addMarker(new OpenLayers.Marker(map_coords, icon));
+  M.map.panTo(map_coords);
 };
 
 })();
