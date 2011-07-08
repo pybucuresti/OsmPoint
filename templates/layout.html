@@ -12,8 +12,17 @@
     <div id="map"></div>
   </body>
 
+  <script>window.M = {config: {
+        logged_in: {{ (True if g.user else False)|tojson|safe }},
+        marker_image_src: {{ url_for('static',
+            filename='crosshair.png')|tojson|safe }}
+    }};
+  </script>
+
   <script src="static/js/jquery-1.5.2.js"></script>
   <script src="http://openlayers.org/dev/OpenLayers.js"></script>
   <script src="static/js/frontend.js"></script>
+
   {% block scripts %}{% endblock %}
+
 </html>

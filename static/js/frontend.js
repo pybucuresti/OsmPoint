@@ -15,7 +15,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
     }
 });
 
-window.M = {};
+if(window.M == null) window.M = {};
 M.proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
 M.proj_mercator = new OpenLayers.Projection("EPSG:900913");
 M.project = function(point) {
@@ -67,7 +67,7 @@ M.enable_adding_points = function() {
 M.draw_marker = function(lonlat) {
   var size = new OpenLayers.Size(32, 32);
   var offset = new OpenLayers.Pixel(-(size.w/2), -(size.h/2));
-  var icon = new OpenLayers.Icon('/static/crosshair.png', size, offset);
+  var icon = new OpenLayers.Icon(M.config['marker_image_src'], size, offset);
   M.points_layer.clearMarkers();
   M.points_layer.addMarker(new OpenLayers.Marker(M.project(lonlat), icon));
 };
