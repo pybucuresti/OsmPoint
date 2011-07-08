@@ -41,3 +41,13 @@
   </form>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+  M.init_map();
+  M.center_to_gps();
+  M.enable_adding_points();
+});
+</script>
+{% endblock %}
