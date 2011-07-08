@@ -9,6 +9,7 @@ setup(
         'flask-openid',
         'WTForms',
         'py',
+        'pytest', # not sure why this is needed
     ],
     entry_points={'console_scripts': ['osm_point = osm_point:main']},
 )
