@@ -1,15 +1,25 @@
-body {
+html, body {
   margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
-div.overlay {
-  z-index: 1000;
-  position: fixed;
-  top: 0;
-  right: 0;
-  background: white;
-  border: 1px solid black;
+/* by default, menu is hidden, map is full-window */
+div#menu {
+  height: 0;
+  overflow: hidden;
+  background: #8a6;
 }
+
+div#map {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  background: #aaa;
+}
+
+/* the menu-add layout - big form at the top */
+body.menu-form div#menu { height: 1.6em; }
+body.menu-form div#map { top: 1.6em; }
 
 div#poi-form form {
   margin: 0;

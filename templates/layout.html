@@ -6,8 +6,8 @@
     {% block extra_head %}{% endblock %}
   </head>
 
-  <body>
-    {% block menu %}{% endblock %}
+  <body class="{% block body_class %}{% endblock %}">
+    <div id="menu">{% block menu %}{% endblock %}</div>
     <div id="map"></div>
   </body>
 

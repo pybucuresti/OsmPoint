@@ -17,17 +17,19 @@
 </style>
 {% endblock %}
 
+{% block body_class %}menu-form{% endblock %}
+
 {% block menu %}
-<div id="login" class="overlay">
+<div id="login">
   <a href="/login">login</a>
 </div>
 
-<div id="poi-form" class="overlay">
+<div id="poi-form">
   <form method="post" action="/save_poi">
     <input name="lat" size="5">
-    <input name="lon" size="5"><br>
-    Name:<br><input name="name"><br>
-    Website:<br><input name="url"><br>
+    <input name="lon" size="5">
+    Name: <input name="name">
+    Website: <input name="url">
     <select name="amenity">
       <option value="none">type</option>
       <option value="bar">bar</option>
@@ -36,7 +38,7 @@
       <option value="pub">pub</option>
       <option value="restaurant">restaurant</option>
       <option value="nightclub">nightclub</option>
-    </select><br>
+    </select>
     <input type="submit" value="save">
   </form>
 </div>
