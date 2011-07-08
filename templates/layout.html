@@ -6,7 +6,8 @@
     {% block extra_head %}{% endblock %}
   </head>
 
-  <body class="{% block body_class %}{% endblock %}">
+  <body class="{% if g.user %}logged-in {% else %}not-logged-in {% endif %}
+               {%- block body_class -%}{%- endblock %}">
     <div id="menu">{% block menu %}{% endblock %}</div>
     <div id="map"></div>
   </body>

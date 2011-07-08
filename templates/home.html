@@ -17,11 +17,10 @@
 </style>
 {% endblock %}
 
-{% block body_class %}menu-form{% endblock %}
-
 {% block menu %}
-<div id="login">
-  <a href="/login">login</a>
+<div id="links">
+  <a class="login" href="/login">login</a>
+  <a class="logout" href="/logout">logout</a>
 </div>
 
 <div id="poi-form">
