@@ -17,6 +17,7 @@ def configure_app(app, workdir):
     workdir = os.path.abspath(workdir)
 
     app.config['DEBUG'] = True
+    app.config['STATIC_CACHE_TIMEOUT'] = 0
 
     db_path = os.path.join(workdir, 'db.sqlite3')
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///%s" % db_path
