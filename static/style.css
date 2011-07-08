@@ -26,7 +26,7 @@ body.logged-in a.login { display: none; }
 body.not-logged-in a.logout { display: none; }
 
 /* form to add POI */
-div#poi-form form {
+div#add-poi-box {
   display: none;
   margin: 0;
 }

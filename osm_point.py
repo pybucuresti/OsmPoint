@@ -131,13 +131,11 @@ def create_or_login(resp):
 
 @frontend.route("/")
 def homepage():
-    logged_in = bool(flask.g.user is not None)
-    return flask.render_template('home.html', logged_in=logged_in)
+    return flask.render_template('home.html')
 
 @frontend.route("/save_poi", methods=['POST'])
 def save_poi():
-    logged_in = bool(flask.g.user is not None)
-    if not logged_in:
+    if flask.g.user is None:
         return flask.redirect('/login')
 
     form = EditPointForm(flask.request.form)

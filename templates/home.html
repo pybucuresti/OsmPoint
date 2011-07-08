@@ -1,29 +1,12 @@
 {% extends "layout.html" %}
 
-{% block extra_head %}
-<style>
-  div#login {
-    display: none;
-  }
-
-  div#poi-form {
-    display: none;
-  }
-  {% if logged_in %}
-    div#poi-form { display: block; }
-  {% else %}
-    div#login { display: block; }
-  {% endif %}
-</style>
-{% endblock %}
-
 {% block menu %}
 <div id="links">
   <a class="login" href="/login">login</a>
   <a class="logout" href="/logout">logout</a>
 </div>
 
-<div id="poi-form">
+<div id="add-poi-box">
   <form method="post" action="/save_poi">
     <input name="lat" size="5">
     <input name="lon" size="5">
