@@ -11,7 +11,7 @@ class SetUpTests(unittest2.TestCase):
         from osmpoint.application import create_app
 
         self._tmp_dir = py.path.local.mkdtemp()
-        self._tmp_dir.join('secret').write('my-secret-key')
+        self._tmp_dir.join('config.py').write("SECRET_KEY = 'my-secret-key'\n")
         self.addCleanup(self._tmp_dir.remove)
         self.app = create_app(str(self._tmp_dir))
         self.db = database.db
