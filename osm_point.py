@@ -24,8 +24,11 @@ def configure_app(app, workdir):
     with app.test_request_context():
         db.create_all()
 
-    with open(os.path.join(workdir, 'secret'), 'rb') as f:
-        app.config['SECRET_KEY'] = f.read()
+    try:
+        with open(os.path.join(workdir, 'secret'), 'rb') as f:
+            app.config['SECRET_KEY'] = f.read()
+    except IOError:
+        app.config['SECRET_KEY'] = None # TODO issue a warning in the log
 
     try:
        with open(os.path.join(workdir, 'admins'), 'r') as f:
