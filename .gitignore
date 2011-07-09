@@ -1,3 +1,4 @@
 *.pyc
 *.egg-info
 dist
+local_fabfile.py
