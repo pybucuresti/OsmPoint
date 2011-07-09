@@ -57,8 +57,8 @@ M.enable_adding_points = function() {
     $('form input[name=lat]', add_poi_box).val(lonlat.lat);
     $('form input[name=lon]', add_poi_box).val(lonlat.lon);
     add_poi_box.show();
-    M.map.updateSize();
     $('body').addClass('menu-form');
+    M.map.updateSize();
     M.draw_marker(lonlat);
   });
   M.map.addControl(add_point);
