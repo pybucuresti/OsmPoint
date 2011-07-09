@@ -234,12 +234,3 @@ def create_app(workdir):
     configure_app(app, workdir)
 
     return app
-
-
-def main():
-    import sys
-    app = create_app(sys.argv[1])
-    app.run(host='0.0.0.0')
-
-if __name__ == "__main__":
-    main()

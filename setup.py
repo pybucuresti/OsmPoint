@@ -7,11 +7,12 @@ setup(
         'Flask >= 0.7',
         'flask-sqlalchemy',
         'flask-openid',
+        'flask-actions',
         'WTForms',
         'py',
         'pytest', # not sure why this is needed
     ],
-    entry_points={'console_scripts': ['osm_point = osm_point:main']},
+    entry_points={'console_scripts': ['osmpoint = manage:main']},
 )
 
 # Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from
