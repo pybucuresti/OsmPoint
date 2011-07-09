@@ -13,3 +13,7 @@ setup(
     ],
     entry_points={'console_scripts': ['osm_point = osm_point:main']},
 )
+
+# Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from
+# http://svn.openstreetmap.org/applications/utils/python_lib/OsmApi/OsmApi.py).
+# Deploying can be done with 'fabric'.
