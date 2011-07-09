@@ -7,12 +7,16 @@ server_name, server_prefix = server.split(':')
 server_repo = "%s/src/OsmPoint" % server_prefix
 server_virtualenv = "%s/virtualenv" % server_prefix
 
+osmapi_url = ("http://svn.openstreetmap.org/applications/utils/python_lib/"
+              "OsmApi/OsmApi.py")
+
 
 def _push_code():
     local("git push -f '%s:%s' HEAD:incoming" % (server_name, server_repo))
 
 def install_server():
     run("mkdir -p '%s'" % server_prefix)
+    run("mkdir -p '%s/www'" % server_prefix)
 
     if not exists(server_repo):
         run("mkdir -p '%s'" % server_repo)
@@ -25,8 +29,31 @@ def install_server():
     if not exists(server_virtualenv):
         run("virtualenv -p /usr/bin/python --distribute '%s'" %
             server_virtualenv)
+        with cd(server_virtualenv):
+            run("bin/pip install -e '%s'" % server_repo)
+            run("bin/pip install flup")
+            site_packages = run("ls -d lib/python*/site-packages")
+        with cd(server_virtualenv + '/' + site_packages):
+            run("curl -O '%s'" % osmapi_url)
+        with cd(server_virtualenv):
+            run("mkdir -p var")
+            run("OSMPOINT_WORKDIR=var bin/osmpoint "
+                "generate_secret_key > var/secret")
 
 def push():
     _push_code()
     with cd(server_repo):
         run("git reset incoming --hard")
+
+def app_start():
+    with cd(server_virtualenv):
+        run("OSMPOINT_WORKDIR=var "
+            "bin/osmpoint runfcgi "
+            "--socket var/fcgi.socket "
+            "--pidfile var/fcgi.pid "
+            "--daemonize")
+        run("chmod 777 var/fcgi.socket")
+
+def app_stop():
+    with cd(server_virtualenv):
+        run("kill `cat var/fcgi.pid` && rm var/fcgi.pid && rm var/fcgi.socket")
