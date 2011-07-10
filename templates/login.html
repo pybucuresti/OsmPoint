@@ -8,9 +8,9 @@
   <p>
     <p>
       Sign in <a class="google-openid">with your Google account</a>
-      or enter manually:
+      or <a class="manual-openid">enter OpenID manually</a>.
     </p>
-    <input type=text name=openid size=30>
+    <input type=text name=openid size=30 style="display: none;">
     <input type=submit value="Sign in">
     <input type=hidden name=next value="{{ next }}">
 </form>
@@ -24,6 +24,10 @@
     evt.preventDefault();
     $('input[name=openid]').val('https://www.google.com/accounts/o8/id');
     $('form').submit();
+  });
+  $('a.manual-openid').attr('href', '#').click(function(evt) {
+    evt.preventDefault();
+    $('input[name=openid]').show();
   });
   $('form').submit(function(evt) {
     var button = $('input[type=submit]', this);
