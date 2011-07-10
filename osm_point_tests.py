@@ -1,6 +1,7 @@
 import flask
 import unittest2
 import osm_point
+from osmpoint import database
 import py
 
 from mock import patch
@@ -12,7 +13,7 @@ class SetUpTests(unittest2.TestCase):
         self._tmp_dir.join('secret').write('my-secret-key')
         self.addCleanup(self._tmp_dir.remove)
         self.app = osm_point.create_app(str(self._tmp_dir))
-        self.db = osm_point.db
+        self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()
         self.addCleanup(self._ctx.pop)
@@ -26,13 +27,13 @@ class SetUpTests(unittest2.TestCase):
         self.db.session.remove()
 
     def add_point(self, *args, **kwargs):
-        point = osm_point.Point(*args, **kwargs)
+        point = database.Point(*args, **kwargs)
         self.db.session.add(point)
         self.db.session.commit()
         return point
 
     def get_all_points(self):
-        return osm_point.Point.query.all()
+        return database.Point.query.all()
 
     def create_url(self, point_id):
         return '/points/' + str(point_id)
@@ -133,7 +134,7 @@ class DeletePointTest(SetUpTests):
     def test_del_point(self):
         point = self.add_point(1, 2, 'X', 'Y', 'Z', 'W')
 
-        osm_point.del_point(point)
+        database.del_point(point)
 
         points = self.get_all_points()
         self.assertEquals(len(points), 0)
@@ -188,7 +189,7 @@ class SubmitPointTest(SetUpTests):
         values = [13, 45]
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
-        osm_point.submit_points_to_osm([p1, p2])
+        database.submit_points_to_osm([p1, p2])
         self.db.session.commit()
 
         self.assertEquals(p1.osm_id, 13)
@@ -225,7 +226,7 @@ class SubmitPointTest(SetUpTests):
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = osm_point.Point(45, 25, 'name', 'url', 'type', 'admin-user')
+        point = database.Point(45, 25, 'name', 'url', 'type', 'admin-user')
         point.osm_id = 100
         self.db.session.add(point)
         self.db.session.commit()
@@ -346,7 +347,7 @@ class UserPageTest(SetUpTests):
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
-        osm_point.del_point(point)
+        database.del_point(point)
 
         response = client.get('/points')
         self.assertNotIn('location_name', response.data)
