@@ -6,24 +6,34 @@ html, body {
 
 /* default layout - small menu showing links */
 div#menu {
-  height: 1.3em;
+  height: 30px;
+  padding: 3px;
   overflow: hidden;
   background: #8a6;
+  font-size: 16pt;
 }
 
 div#map {
   position: absolute;
-  top: 1.3em; bottom: 0; left: 0; right: 0;
+  top: 30px; bottom: 0; left: 0; right: 0;
   background: #aaa;
 }
 
 /* the menu-add layout - big form at the top */
-body.menu-form div#menu { height: 3em; }
-body.menu-form div#map { top: 3em; }
+body.menu-form div#menu { height: 110px; }
+body.menu-form div#map { top: 110px; }
 
 /* hide one of the login/logout links */
 body.logged-in a.login { display: none; }
 body.not-logged-in a.logout { display: none; }
+
+/* menu buttons */
+div#menu a, div#menu a:visited {
+  margin: 5px;
+  color: #05b;
+  font-weight: bold;
+  text-decoration: none;
+}
 
 /* form to add POI */
 div#add-poi-box {

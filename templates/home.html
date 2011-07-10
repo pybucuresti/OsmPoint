@@ -13,8 +13,8 @@
     <form method="post" action="{{ url_for('.save_poi') }}">
       <input type="hidden" name="lat">
       <input type="hidden" name="lon">
-      Name: <input name="name">
-      Website: <input name="url">
+      Name: <input name="name" size="15"><br>
+      Type:
       <select name="amenity">
         <option value="none">type</option>
         <option value="bar">bar</option>
