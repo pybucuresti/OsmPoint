@@ -29,14 +29,20 @@ def install_server():
     if not exists(server_virtualenv):
         run("virtualenv -p /usr/bin/python --distribute '%s'" %
             server_virtualenv)
-        with cd(server_virtualenv):
-            run("bin/pip install -e '%s'" % server_repo)
-            run("bin/pip install flup")
-            site_packages = run("ls -d lib/python*/site-packages")
-        with cd(server_virtualenv + '/' + site_packages):
+
+    with cd(server_virtualenv):
+        run("bin/pip install -e '%s'" % server_repo)
+        run("bin/pip install flup")
+        site_packages = run("ls -d lib/python*/site-packages")
+
+    with cd(server_virtualenv + '/' + site_packages):
+        osmapi_filename = osmapi_url.rsplit('/', 1)[-1]
+        if run("test -f '%s' || echo 'missing'" % osmapi_filename):
             run("curl -O '%s'" % osmapi_url)
-        with cd(server_virtualenv):
-            run("mkdir -p var")
+
+    with cd(server_virtualenv):
+        run("mkdir -p var")
+        if run("test -f var/secret || echo 'missing'"):
             run("OSMPOINT_WORKDIR=var bin/osmpoint "
                 "generate_secret_key > var/secret")
 
