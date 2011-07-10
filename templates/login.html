@@ -25,5 +25,9 @@
     $('input[name=openid]').val('https://www.google.com/accounts/o8/id');
     $('form').submit();
   });
+  $('form').submit(function(evt) {
+    var button = $('input[type=submit]', this);
+    button.attr('disabled', 'disabled').val("please wait...");
+  });
 </script>
 {% endblock %}
