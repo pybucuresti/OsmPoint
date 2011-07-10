@@ -57,3 +57,7 @@ def app_start():
 def app_stop():
     with cd(server_virtualenv):
         run("kill `cat var/fcgi.pid` && rm var/fcgi.pid && rm var/fcgi.socket")
+
+def app_restart():
+  app_stop()
+  app_start()
