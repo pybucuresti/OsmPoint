@@ -12,7 +12,7 @@ setup(
         'py',
         'pytest', # not sure why this is needed
     ],
-    entry_points={'console_scripts': ['osmpoint = manage:main']},
+    entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main']},
 )
 
 # Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from

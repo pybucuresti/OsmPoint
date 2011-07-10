@@ -1,6 +1,5 @@
 import flask
 import unittest2
-import osm_point
 from osmpoint import database
 import py
 
@@ -9,10 +8,12 @@ from mock import patch
 class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
+        from osmpoint.application import create_app
+
         self._tmp_dir = py.path.local.mkdtemp()
         self._tmp_dir.join('secret').write('my-secret-key')
         self.addCleanup(self._tmp_dir.remove)
-        self.app = osm_point.create_app(str(self._tmp_dir))
+        self.app = create_app(str(self._tmp_dir))
         self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()

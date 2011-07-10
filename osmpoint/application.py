@@ -2,8 +2,8 @@ import flask
 
 import OsmApi
 
-from osmpoint.database import db
-from osmpoint.frontend import frontend, oid
+from database import db
+from frontend import frontend, oid
 
 def configure_app(app, workdir):
     import os.path

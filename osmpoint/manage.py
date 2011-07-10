@@ -1,6 +1,6 @@
 import os
 from flaskext.actions import Manager
-from osm_point import create_app
+from application import create_app
 
 def main():
     app = create_app(os.environ['OSMPOINT_WORKDIR'])
