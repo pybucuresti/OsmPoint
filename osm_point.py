@@ -1,14 +1,13 @@
 import flask
 
-from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.openid import OpenID
 import OsmApi
 from wtforms import BooleanField, TextField, DecimalField, HiddenField
 from wtforms import SelectField, Form, validators
 
-db = SQLAlchemy()
+from osmpoint.database import db, Point
 oid = OpenID()
-osm = None
+from osmpoint.database import add_point, del_point, submit_points_to_osm
 
 frontend = flask.Blueprint('frontend', __name__)
 
@@ -39,31 +38,8 @@ def configure_app(app, workdir):
     openid_path = os.path.join(workdir, 'openid_store')
     app.config['OPENID_FS_STORE_PATH'] = openid_path
 
-    global osm
-    osm_password_path = os.path.join(workdir,'osm-login.txt')
-    if os.path.isfile(osm_password_path):
-        osm = OsmApi.OsmApi(passwordfile=osm_password_path)
+    app.config['OSM_PASSWORD_PATH'] = os.path.join(workdir,'osm-login.txt')
 
-class Point(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    name = db.Column(db.String(200))
-    url = db.Column(db.String(50))
-    amenity = db.Column(db.String(50))
-    osm_id = db.Column(db.Integer)
-    user_open_id = db.Column(db.Text)
-
-    def __init__(self, latitude, longitude, name, url, amenity, user_open_id):
-        self.latitude = latitude
-        self.longitude = longitude
-        self.name = name
-        self.url = url
-        self.amenity = amenity
-        self.user_open_id = user_open_id
-
-    def __repr__(self):
-        return "<%s %r>" % (self.__class__.__name__, self.name)
 
 class EditPointForm(Form):
     name = TextField('name', [validators.Required()])
@@ -76,28 +52,6 @@ class EditPointForm(Form):
                                               ('nightclub','nightclub')]
                          )
     id = HiddenField('id', [validators.Optional()])
-
-def add_point(latitude, longitude, name, url, amenity, user_open_id):
-    point = Point(latitude, longitude, name, url, amenity, user_open_id)
-    db.session.add(point)
-    db.session.commit()
-
-def del_point(point):
-    db.session.delete(point)
-    db.session.commit()
-
-def submit_points_to_osm(point_to_submit):
-    osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
-    for p in point_to_submit:
-        node_dict = osm.NodeCreate({u"lon": p.longitude,
-                                    u"lat": p.latitude,
-                                    u"tag": {'name': p.name,
-                                             'amenity': p.amenity,
-                                             'website': p.url}})
-        p.osm_id = node_dict['id']
-        db.session.add(p)
-    osm.ChangesetClose()
-    db.session.commit()
 
 def is_admin():
     return  flask.g.user in flask.current_app.config['OSMPOINT_ADMINS']

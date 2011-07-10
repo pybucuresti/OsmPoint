@@ -177,8 +177,9 @@ class DeletePointTest(SetUpTests):
 
 class SubmitPointTest(SetUpTests):
 
-    @patch('osm_point.osm')
-    def test_submit_points_to_osm(self, mock_osm):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_points_to_osm(self, mock_get_osm_api):
+        mock_osm = mock_get_osm_api.return_value
         client = self.app.test_client()
         p1 = self.add_point(46.06, 24.10, 'Eau de Web',
                              'link1', 'pub', 'my-open-id')
