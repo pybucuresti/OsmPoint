@@ -1,11 +1,22 @@
 <html><body>
-  <h2>Sign in</h2>
+  <h2>Log in with OpenID</h2>
   <form action="" method=post>
     {% if error %}<p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}
     <p>
-      OpenID:
+      <p>
+        Sign in <a class="google-openid">with your Google account</a>
+        or enter manually:
+      </p>
       <input type=text name=openid size=30>
       <input type=submit value="Sign in">
       <input type=hidden name=next value="{{ next }}">
   </form>
+  <script src="{{ url_for('static', filename='js/jquery-1.5.2.js') }}"></script>
+  <script>
+    $('a.google-openid').attr('href', '#').click(function(evt) {
+      evt.preventDefault();
+      $('input[name=openid]').val('https://www.google.com/accounts/o8/id');
+      $('form').submit();
+    });
+  </script>
 </body></html>
