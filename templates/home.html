@@ -1,29 +1,37 @@
 {% extends "layout.html" %}
 
-{% block menu %}
-<div id="links">
-  <a class="login" href="{{ url_for('.login') }}">login</a>
-  <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+{% block body %}
+
+<div id="menu">
+
+  <div id="links">
+    <a class="login" href="{{ url_for('.login') }}">login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+  </div>
+
+  <div id="add-poi-box">
+    <form method="post" action="{{ url_for('.save_poi') }}">
+      <input type="hidden" name="lat">
+      <input type="hidden" name="lon">
+      Name: <input name="name">
+      Website: <input name="url">
+      <select name="amenity">
+        <option value="none">type</option>
+        <option value="bar">bar</option>
+        <option value="cafe">cafe</option>
+        <option value="fuel">fuel</option>
+        <option value="pub">pub</option>
+        <option value="restaurant">restaurant</option>
+        <option value="nightclub">nightclub</option>
+      </select>
+      <input type="submit" value="save">
+    </form>
+  </div>
+
 </div>
 
-<div id="add-poi-box">
-  <form method="post" action="{{ url_for('.save_poi') }}">
-    <input type="hidden" name="lat">
-    <input type="hidden" name="lon">
-    Name: <input name="name">
-    Website: <input name="url">
-    <select name="amenity">
-      <option value="none">type</option>
-      <option value="bar">bar</option>
-      <option value="cafe">cafe</option>
-      <option value="fuel">fuel</option>
-      <option value="pub">pub</option>
-      <option value="restaurant">restaurant</option>
-      <option value="nightclub">nightclub</option>
-    </select>
-    <input type="submit" value="save">
-  </form>
-</div>
+<div id="map"></div>
+
 {% endblock %}
 
 {% block scripts %}

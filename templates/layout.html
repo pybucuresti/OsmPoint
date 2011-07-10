@@ -9,8 +9,7 @@
 
   <body class="{% if g.user %}logged-in {% else %}not-logged-in {% endif %}
                {%- block body_class -%}{%- endblock %}">
-    <div id="menu">{% block menu %}{% endblock %}</div>
-    <div id="map"></div>
+    {% block body %}{% endblock %}
   </body>
 
   <script>window.M = {config: {
