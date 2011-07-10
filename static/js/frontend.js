@@ -51,19 +51,28 @@ M.center_to_gps = function() {
 M.enable_adding_points = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.points_layer);
-  var add_point = new OpenLayers.Control.Click(function(xy) {
-    var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
-    var add_poi_box = $('#add-poi-box');
-    $('form input[name=lat]', add_poi_box).val(lonlat.lat);
-    $('form input[name=lon]', add_poi_box).val(lonlat.lon);
-    add_poi_box.show();
-    $('body').addClass('menu-form');
-    M.map.updateSize();
-    M.draw_marker(lonlat);
-  });
+  var add_point = new OpenLayers.Control.Click(M.map_clicked);
   M.map.addControl(add_point);
   add_point.activate();
 };
+
+M.map_clicked = function(xy) {
+  if(! M.config['logged_in']) {
+    $('#add-poi-box').text("To add points, please log in.").show();
+    $('body').addClass('menu-form');
+    M.map.updateSize();
+    return;
+  }
+
+  var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
+  var add_poi_box = $('#add-poi-box');
+  $('form input[name=lat]', add_poi_box).val(lonlat.lat);
+  $('form input[name=lon]', add_poi_box).val(lonlat.lon);
+  add_poi_box.show();
+  $('body').addClass('menu-form');
+  M.map.updateSize();
+  M.draw_marker(lonlat);
+}
 
 M.draw_marker = function(lonlat) {
   var map_coords = M.project(lonlat);
