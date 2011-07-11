@@ -48,6 +48,19 @@ M.center_to_gps = function() {
   });
 }
 
+M.center_map = function(lon, lat) {
+  var center = M.project(new OpenLayers.LonLat(lon, lat));
+  M.map.setCenter(center, 16);
+
+  var size = new OpenLayers.Size(21,25);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
+
+  M.init_points_layer = new OpenLayers.Layer.Markers("Markers");
+  M.map.addLayer(M.init_points_layer);
+  M.init_points_layer.addMarker(new OpenLayers.Marker(center, icon));
+}
+
 M.enable_adding_points = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.points_layer);

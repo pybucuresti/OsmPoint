@@ -1,7 +1,7 @@
 <html>
 
   <head>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
     <meta name="viewport" content="width=device-width">
     <title>OsmPoint</title>
     {% block extra_head %}{% endblock %}
@@ -15,7 +15,9 @@
   <script>window.M = {config: {
         logged_in: {{ (True if g.user else False)|tojson|safe }},
         marker_image_src: {{ url_for('static',
-            filename='crosshair.png')|tojson|safe }}
+            filename='crosshair.png')|tojson|safe }},
+        poi_marker: {{ url_for('static',
+            filename='openlayers/img/marker.png')|tojson|safe }}
     }};
   </script>
 

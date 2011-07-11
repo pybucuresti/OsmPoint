@@ -1,122 +1,50 @@
-<html>
-<head>
-  <style>
-    div.overlay_coord {
-      z-index: 1000;
-      position: fixed;
-      top: 0;
-      right: 0;
-      background: white;
-      border: 1px solid black;
-    }
+{% extends "layout.html" %}
 
-    div.overlay_admin {
-       z-index: 1000;
-       position: fixed;
-       top: 0;
-       right: 0;
-       background: white;
-       border: 1px solid black;
-    }
+{% block body %}
 
-    div#admin-form {
-      display: none;
-    }
-    div#admin-form form {
-      margin: 0;
-    }
-    div#coord {
-      display: none;
-    }
-    div#coord form {
-      margin: 0;
-    }
+<div id="menu">
 
-    {% if is_admin and (point.osm_id is none) %}
-      div#admin-form { display: block; }
-    {% else %}
-      div#coord { display: block; }
-    {% endif %}
-  </style>
-</head>
-<body>
-  <div id="demoMap">Loading coordinates...</div>
-  <script src="/static/js/jquery-1.5.2.js"></script>
-  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
-  <script>
-
-     $('#demoMap').empty();
-     var proj_wgs1984 = new OpenLayers.Projection("EPSG:4326");
-     var proj_mercator = new OpenLayers.Projection("EPSG:900913");
-     var center = new OpenLayers.LonLat({{point.longitude}},
-                                        {{point.latitude}});
-     center = center.transform(proj_wgs1984, proj_mercator);
-     var map = new OpenLayers.Map("demoMap");
-     map.addLayer(new OpenLayers.Layer.OSM());
-     map.setCenter(center, 16);
-
-     var marker = new OpenLayers.Layer.Markers();
-     map.addLayer(marker);
-     var size = new OpenLayers.Size(21,25);
-     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-     var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',
-                                    size, offset);
-     marker.addMarker(new OpenLayers.Marker(center ,icon));
-
-  </script>
-  <div id="admin-form" class="overlay_admin">
-    <div align="center">
-
-      <form action="/points/{{ point.id }}/edit" method="post" >
-        <input name="name" size="14" value="{{ point.name }}">
-        <br>
-        <input name="lat" size="5" value={{ point.latitude }}>
-        <input name="lon" size="5" value={{ point.longitude }}>
-        <br>
-        <input name="url" size="14" value="{{ point.url }}"><br>
-        Amenity: {{ point.amenity }}<br>
-        <select name="amenity">
-          <option value="none">type</option>
-          <option value="bar">bar</option>
-          <option value="cafe">cafe</option>
-          <option value="fuel">fuel</option>
-          <option value="pub">pub</option>
-          <option value="restaurant">restaurant</option>
-          <option value="nightclub">nightclub</option>
-        </select><br>
-        <input type="submit" value="save changes">
-        <input type="hidden" name="id" value={{ point.id }} >
-      </form>
-
-      <form action="/points/{{ point.id }}/send" method="post">
-        <input type="submit" value="submit">
-        <input type="hidden" name="id" value={{ point.id }} >
-      </form>
-
-      <form action="/points/{{ point.id }}/delete" method="post">
-        <input type="submit" value="delete">
-        <input type="hidden" name="id" value={{ point.id }} >
-      </form>
-
-    </div>
+  <div id="links">
+    <a class="login" href="{{ url_for('.login') }}">login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
   </div>
-  <div id="coord" class="overlay_coord">
-    <div align="center">
-    <form>
-      <input name="lat" size=5 value={{ point.latitude }}>
-      <input name="lon" size=5 value={{ point.longitude }}>
+
+  <div id="add-poi-box">
+    <form method="post" action="{{ url_for('.save_poi') }}">
+      <input type="hidden" name="lat" value={{ point.lat }}>
+      <input type="hidden" name="lon" value={{ point.lon }}>
+      Name: <input name="name" size="15" value={{ point.name }}><br>
+      Type:
+      <select name="amenity">
+        <option value="none">type</option>
+        <option value="bar">bar</option>
+        <option value="cafe">cafe</option>
+        <option value="fuel">fuel</option>
+        <option value="pub">pub</option>
+        <option value="restaurant">restaurant</option>
+        <option value="nightclub">nightclub</option>
+      </select>
+      <input type="submit" value="save">
     </form>
-    </div>
-    Name:<br>
-    {{ point.name }}<br>
-    Type:<br>
-    {{ point.amenity }}<br>
-    URL:<br>
-    {% if point.url != "" %}
-      {{ point.url }}<br>
-    {% else %}
-      ---<br>
-    {% endif %}
   </div>
-</body>
-</html>
+
+</div>
+
+
+
+<div id="map"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  lon = {{ point.longitude }}
+  lat = {{ point.latitude }}
+  $(document).ready(function() {
+    M.init_map();
+    M.center_map(lon, lat);
+    M.enable_adding_points();
+  });
+</script>
+{% endblock %}
+
