@@ -36,9 +36,6 @@ class SetUpTests(unittest2.TestCase):
     def get_all_points(self):
         return database.Point.query.all()
 
-    def create_url(self, point_id):
-        return '/points/' + str(point_id)
-
 class SavePointTest(SetUpTests):
 
     def test_save_poi(self):
@@ -148,7 +145,7 @@ class DeletePointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
-        address = self.create_url(point.id) + '/delete'
+        address = flask.url_for('.delete_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
@@ -161,7 +158,7 @@ class DeletePointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
-        address = self.create_url(point.id) + '/delete'
+        address = flask.url_for('.delete_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
         self.assertEqual(response.status_code, 200)
         points = self.get_all_points()
@@ -215,7 +212,7 @@ class SubmitPointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
-        address = self.create_url(point.id) + '/send'
+        address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
 
         points = self.get_all_points()
@@ -232,7 +229,7 @@ class SubmitPointTest(SetUpTests):
         self.db.session.add(point)
         self.db.session.commit()
 
-        address = self.create_url(point.id) + '/send'
+        address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
         self.assertEqual(response.status_code, 400)
 
@@ -257,7 +254,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
                       'url': 'new_url', 'amenity': 'pub', 'id': point.id}
-        address = self.create_url(point.id) + '/edit'
+        address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 40)
@@ -285,7 +282,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong',
                       'url': 'url', 'type': 'type', 'id': point.id}
-        address = self.create_url(point.id) + '/edit'
+        address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         self.assertEqual(response.status_code, 403)
 
@@ -298,7 +295,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
                       'url': 'url', 'type': 'pub', 'id': point.id}
-        address = self.create_url(point.id) + '/edit'
+        address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 45)
@@ -313,7 +310,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
                       'amenity': 'none', 'url': 'url', 'id': point.id}
-        address = self.create_url(point.id) + '/edit'
+        address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.amenity, 'old_type')
@@ -327,7 +324,7 @@ class EditPointTest(SetUpTests):
 
         point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
                       'name': '', 'url': 'url', 'id': point.id}
-        address = self.create_url(point.id) + '/edit'
+        address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.name, 'old_name')
