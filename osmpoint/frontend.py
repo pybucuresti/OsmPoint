@@ -99,7 +99,7 @@ def delete_point(point_id):
     point = Point.query.get_or_404(form['id'])
 
     if not is_admin():
-        flask.abort(404)
+        flask.abort(403)
 
     del_point(point)
     return flask.render_template('deleted.html')
@@ -118,7 +118,7 @@ def edit_point(point_id):
     point = Point.query.get_or_404(form.id.data)
 
     if not is_admin():
-        flask.abort(404)
+        flask.abort(403)
 
     if form.validate():
 
@@ -140,7 +140,7 @@ def edit_point(point_id):
 @frontend.route("/points/<int:point_id>/send", methods=['POST'])
 def send_point(point_id):
     if not is_admin():
-        flask.abort(404)
+        flask.abort(403)
 
     form = flask.request.form
     point = Point.query.get_or_404(form['id'])

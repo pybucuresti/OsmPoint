@@ -152,7 +152,7 @@ class DeletePointTest(SetUpTests):
         response = client.post(address, data={'id': point.id})
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_point(self):
         client = self.app.test_client()
@@ -220,7 +220,7 @@ class SubmitPointTest(SetUpTests):
 
         points = self.get_all_points()
         self.assertEqual(points[0].osm_id, None)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_submit_already_submitted_point(self):
         client = self.app.test_client()
@@ -287,7 +287,7 @@ class EditPointTest(SetUpTests):
                       'url': 'url', 'type': 'type', 'id': point.id}
         address = self.create_url(point.id) + '/edit'
         response = client.post(address, data=point_data)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_edit_point_with_wrong_coords(self):
         client = self.app.test_client()
