@@ -15,7 +15,7 @@ div#menu {
 
 div#map {
   position: absolute;
-  top: 30px; bottom: 0; left: 0; right: 0;
+  top: 30px; right: 0; bottom: 0; left: 0;
   background: #aaa;
 }
 
@@ -40,3 +40,14 @@ div#add-poi-box {
   display: none;
   margin: 0;
 }
+
+/* form to delete/submit POI */
+div#delete-submit {
+  display: none;
+  margin: 0;
+}
+
+body.edit-form div#map { height: 300px; width: 300px; top: 0px; }
+body.edit-form div#menu { position: absolute;
+                          height: 300px; right: 0px;
+                          left: 500px; }

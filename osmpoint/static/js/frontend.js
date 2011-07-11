@@ -48,7 +48,9 @@ M.center_to_gps = function() {
   });
 }
 
-M.center_map = function(lon, lat) {
+M.center_to_coordinates = function(lon, lat) {
+  $('body').addClass('edit-form');
+  $('#map').show()
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   M.map.setCenter(center, 16);
 
@@ -59,6 +61,15 @@ M.center_map = function(lon, lat) {
   M.init_points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.init_points_layer);
   M.init_points_layer.addMarker(new OpenLayers.Marker(center, icon));
+}
+
+M.enable_editing_point = function(lon, lat) {
+  $('body').addClass('edit-form');
+  $('#delete-submit').show()
+  var add_poi_box = $('#add-poi-box')
+  add_poi_box.show()
+  $('form input[name=lat]', add_poi_box).val(lat);
+  $('form input[name=lon]', add_poi_box).val(lon);
 }
 
 M.enable_adding_points = function() {

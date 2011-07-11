@@ -9,11 +9,15 @@
     <a class="logout" href="{{ url_for('.logout') }}">logout</a>
   </div>
 
+  {% if is_admin %}
+
   <div id="add-poi-box">
-    <form method="post" action="{{ url_for('.save_poi') }}">
-      <input type="hidden" name="lat" value={{ point.lat }}>
-      <input type="hidden" name="lon" value={{ point.lon }}>
-      Name: <input name="name" size="15" value={{ point.name }}><br>
+    <form method="post" action="{{ url_for('.edit_point',
+                                   point_id=point.id) }}">
+      <input type="hidden" name="lat" value="{{ point.lat }}">
+      <input type="hidden" name="lon" value="{{ point.lon }}">
+      <input type="hidden" name="id" value="{{ point.id }}">
+      Name: <input name="name" size="15" value="{{ point.name }}"><br>
       Type:
       <select name="amenity">
         <option value="none">type</option>
@@ -28,9 +32,26 @@
     </form>
   </div>
 
+  <div id="delete-submit">
+    <form action="{{ url_for('.send_point', point_id=point.id) }}" method="post">
+       <input type="submit" value="submit">
+       <input type="hidden" name="id" value={{ point.id }} >
+     </form>
+
+     <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
+       <input type="submit" value="delete">
+       <input type="hidden" name="id" value={{ point.id }} >
+     </form>
+  </div>
+
+  {% else %}
+
+  Name:<br>{{ point.name }}<br>
+  Type:<br>{{ point.amenity }}<br>
+
+  {% endif %}
+
 </div>
-
-
 
 <div id="map"></div>
 
@@ -40,10 +61,16 @@
 <script>
   lon = {{ point.longitude }}
   lat = {{ point.latitude }}
+
   $(document).ready(function() {
     M.init_map();
-    M.center_map(lon, lat);
-    M.enable_adding_points();
+    M.center_to_coordinates(lon, lat);
+
+    {% if is_admin %}
+      M.enable_editing_point(lon, lat);
+      M.enable_adding_points();
+    {% endif %}
+
   });
 </script>
 {% endblock %}
