@@ -11,7 +11,7 @@
 
   {% if is_admin %}
 
-  <div id="add-poi-box">
+  <div id="add-poi-box" onLoad="document.form.amenity">
     <form method="post" action="{{ url_for('.edit_point',
                                    point_id=point.id) }}">
       <input type="hidden" name="lat" value="{{ point.lat }}">
@@ -20,7 +20,7 @@
       Name: <input name="name" size="15" value="{{ point.name }}"><br>
       Type:
       <select name="amenity">
-        <option value="none">type</option>
+        <option value={{ point.amenity|string }}>{{ point.amenity|string }}</option>
         <option value="bar">bar</option>
         <option value="cafe">cafe</option>
         <option value="fuel">fuel</option>
