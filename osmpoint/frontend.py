@@ -101,8 +101,15 @@ def delete_point(point_id):
     if not is_admin():
         flask.abort(403)
 
-    del_point(point)
-    return flask.render_template('deleted.html')
+    if form['confirm'] == "false":
+        address = flask.url_for('.show_map', point_id=point.id)
+        return flask.redirect(address)
+
+    if form['confirm'] == "true":
+        del_point(point)
+
+    return flask.render_template('deleted.html', confirm=form['confirm'],
+                                                 point=point)
 
 @frontend.route("/points/<int:point_id>")
 def show_map(point_id):

@@ -146,12 +146,12 @@ class DeletePointTest(SetUpTests):
         point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
         address = flask.url_for('.delete_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id})
+        response = client.post(address, data={'id': point.id, 'confirm': 'true'})
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 403)
 
-    def test_delete_point(self):
+    def test_confirm_delete_point(self):
         client = self.app.test_client()
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
@@ -159,7 +159,8 @@ class DeletePointTest(SetUpTests):
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         address = flask.url_for('.delete_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id})
+        response = client.post(address, data={'id': point.id, 'confirm': 'true'})
+
         self.assertEqual(response.status_code, 200)
         points = self.get_all_points()
         self.assertEqual(len(points), 0)
@@ -172,6 +173,18 @@ class DeletePointTest(SetUpTests):
         response = client.post('/points/10/delete', data={'id': 10})
         self.assertEqual(response.status_code, 404)
 
+    def test_cancel_deletion(self):
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
+
+        point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+
+        address = flask.url_for('.delete_point', point_id=point.id)
+        response = client.post(address, data={'id': point.id, 'confirm': 'false'})
+
+        points = self.get_all_points()
+        self.assertEqual(len(points), 1)
 
 
 class SubmitPointTest(SetUpTests):

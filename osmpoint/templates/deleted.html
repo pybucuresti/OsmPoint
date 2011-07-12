@@ -2,7 +2,26 @@
 
 {% block body %}
 
-<h2>Point deleted successfully</h2>
-<a href="/points">Back</a>
+  {% if confirm|string == "true" %}
+
+    <h2>Point deleted successfully</h2>
+
+  {% else %}
+
+    <p>Are you sure you want to delete {{ point.name }}?</p>
+    <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
+       <input type="submit" value="Yes">
+       <input type="hidden" name="id" value={{ point.id }} >
+       <input type="hidden" name="confirm" value="true">
+    </form>
+    <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
+       <input type="submit" value="No">
+       <input type="hidden" name="id" value={{ point.id }} >
+       <input type="hidden" name="confirm" value="false">
+    </form>
+
+  {% endif %}
+
+  <a href="/points">Points</a>
 
 {% endblock %}
