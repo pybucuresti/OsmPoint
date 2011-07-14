@@ -14,8 +14,6 @@ div#menu {
 }
 
 div#map {
-  position: absolute;
-  top: 30px; right: 0; bottom: 0; left: 0;
   background: #aaa;
 }
 
@@ -47,7 +45,10 @@ div#delete-submit {
   margin: 0;
 }
 
-body.edit-form div#map { height: 300px; width: 300px; top: 0px; }
-body.edit-form div#menu { position: absolute;
-                          height: 300px; right: 0px;
-                          left: 500px; }
+body.edit-form div#map { position: absolute;  top: 36px; right: 0;
+                         height: 300px; width: 300px; }
+body.edit-form div#menu { position: absolute; height: 300px;
+                          right: 0px; left: 500px; }
+
+body.home-page div#map { position: absolute; top: 30px;
+                         right: 0; bottom: 0; left: 0; }
