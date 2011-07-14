@@ -1,5 +1,6 @@
 from flaskext.sqlalchemy import SQLAlchemy
-
+import flask
+import OsmApi
 
 db = SQLAlchemy()
 
