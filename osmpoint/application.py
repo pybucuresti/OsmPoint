@@ -17,17 +17,18 @@ def configure_app(app, workdir):
     with app.test_request_context():
         db.create_all()
 
+    config_file = os.path.join(workdir, 'config.py')
+    try:
+        app.config.from_pyfile(config_file, silent=False)
+    except IOError:
+        app.config['OSMPOINT_ADMINS'] = []
+        app.config['AMENITY_OPTIONS'] = []
+
     try:
         with open(os.path.join(workdir, 'secret'), 'rb') as f:
             app.config['SECRET_KEY'] = f.read()
     except IOError:
         app.config['SECRET_KEY'] = None # TODO issue a warning in the log
-
-    try:
-       with open(os.path.join(workdir, 'admins'), 'r') as f:
-           app.config['OSMPOINT_ADMINS'] = f.read().split()
-    except IOError:
-       app.config['OSMPOINT_ADMINS'] = []
 
     openid_path = os.path.join(workdir, 'openid_store')
     app.config['OPENID_FS_STORE_PATH'] = openid_path
