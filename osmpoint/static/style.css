@@ -50,5 +50,4 @@ body.edit-form div#map { position: absolute;  top: 36px; right: 0;
 body.edit-form div#menu { position: absolute; height: 300px;
                           right: 0px; left: 500px; }
 
-body.home-page div#map { position: absolute; top: 30px;
-                         right: 0; bottom: 0; left: 0; }
+body.home-page div#map { top: 30px; right: 0; bottom: 0; left: 0; }
