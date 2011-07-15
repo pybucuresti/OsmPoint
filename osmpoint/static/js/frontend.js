@@ -55,6 +55,7 @@ M.set_home_page = function() {
 
 M.center_to_coordinates = function(lon, lat) {
   $('body').addClass('edit-form');
+  $('#edit-box').show();
   $('#map').show();
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   M.map.setCenter(center, 16);

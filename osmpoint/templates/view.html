@@ -9,6 +9,10 @@
     <a class="logout" href="{{ url_for('.logout') }}">logout</a>
   </div>
 
+</div>
+
+<div id="edit-box">
+
   {% if is_admin %}
 
   <div id="add-poi-box" onLoad="document.form.amenity">
@@ -47,8 +51,12 @@
 
   {% else %}
 
+  <div id="info">
+
   Name:<br>{{ point.name }}<br>
   Type:<br>{{ point.amenity }}<br>
+
+  </div>
 
   {% endif %}
 
