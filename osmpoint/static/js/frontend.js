@@ -48,11 +48,6 @@ M.center_to_gps = function() {
   });
 }
 
-M.set_home_page = function() {
-  $('body').addClass('home-page');
-  $('#map').show();
-}
-
 M.center_to_coordinates = function(lon, lat) {
   $('body').addClass('edit-form');
   $('#edit-box').show();
