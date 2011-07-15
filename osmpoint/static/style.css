@@ -39,14 +39,7 @@ div#add-poi-box {
   margin: 0;
 }
 
-/* form to delete/submit POI */
-div#delete-submit {
-  display: none;
-  margin: 0;
-}
-
-/* cuprinde #delete-submit si add-poi-box */
-div#edit-box {
+div#edit-form {
   display: none;
   margin: 0;
 }
@@ -54,15 +47,11 @@ div#edit-box {
 div#info {
   display: block;
   margin: 0;
-  left: 0;
-  top: 36px;
 }
 
-body.edit-form div#map { position: absolute;  top: 36px; right: 0;
+body.poi-page div#map { position: absolute;  top: 36px; right: 0;
                          height: 300px; width: 300px; }
-body.edit-form div#menu { position: absolute; right: 0px; left: 0; }
-body.edit-form div#info { position: absolute; }
-body.edit-form div#edit-box { position: absolute; top: 36px; left: 0; }
-body.edit-form div#add-poi-box { height: 100; left: 0; }
+body.poi-page div#menu { position: absolute; right: 0px; left: 0; }
+body.poi-page div#edit-form { position: absolute; top: 36px; left: 0; }
 
 body.home-page div#map { top: 30px; right: 0; bottom: 0; left: 0; }

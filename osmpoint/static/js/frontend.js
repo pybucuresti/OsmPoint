@@ -49,8 +49,8 @@ M.center_to_gps = function() {
 }
 
 M.center_to_coordinates = function(lon, lat) {
-  $('body').addClass('edit-form');
-  $('#edit-box').show();
+  $('body').addClass('poi-page');
+  $('#edit-form').show();
   $('#map').show();
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   M.map.setCenter(center, 16);
@@ -65,12 +65,28 @@ M.center_to_coordinates = function(lon, lat) {
 }
 
 M.enable_editing_point = function(lon, lat) {
-  $('body').addClass('edit-form');
-  $('#delete-submit').show();
-  var add_poi_box = $('#add-poi-box');
-  add_poi_box.show();
-  $('form input[name=lat]', add_poi_box).val(lat);
-  $('form input[name=lon]', add_poi_box).val(lon);
+  $('body').addClass('poi-page');
+  $('#edit-form').show();
+  var edit_poi_box = $('#edit-poi-box');
+  edit_poi_box.show();
+  $('form input[name=lat]', edit_poi_box).val(lat);
+  $('form input[name=lon]', edit_poi_box).val(lon);
+
+  M.points_layer = new OpenLayers.Layer.Markers("Markers");
+  M.map.addLayer(M.points_layer);
+  var add_point = new OpenLayers.Control.Click(M.map_click_to_edit);
+  M.map.addControl(add_point);
+  add_point.activate();
+}
+
+M.map_click_to_edit = function(xy) {
+  var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
+  var edit_poi_box = $('#edit-poi-box');
+  $('form input[name=lat]', edit_poi_box).val(lonlat.lat);
+  $('form input[name=lon]', edit_poi_box).val(lonlat.lon);
+  edit_poi_box.show();
+  M.map.updateSize();
+  M.draw_marker(lonlat);
 }
 
 M.enable_adding_points = function() {

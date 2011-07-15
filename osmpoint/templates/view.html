@@ -11,52 +11,48 @@
 
 </div>
 
-<div id="edit-box">
+<div id="edit-form">
 
   {% if is_admin %}
 
-  <div id="add-poi-box" onLoad="document.form.amenity">
-    <form method="post" action="{{ url_for('.edit_point',
-                                   point_id=point.id) }}">
-      <input type="hidden" name="lat" value="{{ point.lat }}">
-      <input type="hidden" name="lon" value="{{ point.lon }}">
-      <input type="hidden" name="id" value="{{ point.id }}">
-      Name: <input name="name" size="15" value="{{ point.name }}"><br>
-      Type:
-      <select name="amenity">
-        <option value={{ point.amenity|string }}>{{ point.amenity|string }}</option>
-        <option value="bar">bar</option>
-        <option value="cafe">cafe</option>
-        <option value="fuel">fuel</option>
-        <option value="pub">pub</option>
-        <option value="restaurant">restaurant</option>
-        <option value="nightclub">nightclub</option>
-      </select>
-      <input type="submit" value="save">
-    </form>
-  </div>
+    <div id="edit-poi-box" onLoad="document.form.amenity">
+      <form method="post" action="{{ url_for('.edit_point',
+                                     point_id=point.id) }}">
+        <input type="hidden" name="lat" value="{{ point.lat }}">
+        <input type="hidden" name="lon" value="{{ point.lon }}">
+        <input type="hidden" name="id" value="{{ point.id }}">
+        Name: <input name="name" size="15" value="{{ point.name }}"><br>
+        Type:
+        <select name="amenity">
+          <option value={{ point.amenity|string }}>{{ point.amenity|string }}</option>
+          <option value="bar">bar</option>
+          <option value="cafe">cafe</option>
+          <option value="fuel">fuel</option>
+          <option value="pub">pub</option>
+          <option value="restaurant">restaurant</option>
+          <option value="nightclub">nightclub</option>
+        </select>
+        <input type="submit" value="save">
+      </form>
 
-  <div id="delete-submit">
-    <form action="{{ url_for('.send_point', point_id=point.id) }}" method="post">
-       <input type="submit" value="submit">
-       <input type="hidden" name="id" value={{ point.id }} >
-     </form>
+      <form action="{{ url_for('.send_point', point_id=point.id) }}" method="post">
+         <input type="submit" value="submit">
+         <input type="hidden" name="id" value={{ point.id }} >
+       </form>
 
-     <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
-       <input type="submit" value="delete">
-       <input type="hidden" name="id" value={{ point.id }} >
-       <input type="hidden" name="confirm" value="none">
-     </form>
-  </div>
+       <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
+         <input type="submit" value="delete">
+         <input type="hidden" name="id" value={{ point.id }} >
+         <input type="hidden" name="confirm" value="none">
+       </form>
+    </div>
 
   {% else %}
 
-  <div id="info">
-
-  Name:<br>{{ point.name }}<br>
-  Type:<br>{{ point.amenity }}<br>
-
-  </div>
+    <div id="info">
+      Name: {{ point.name }}<br>
+      Type: {{ point.amenity }}<br>
+    </div>
 
   {% endif %}
 
@@ -77,7 +73,6 @@
 
     {% if is_admin %}
       M.enable_editing_point(lon, lat);
-      M.enable_adding_points();
     {% endif %}
 
   });
