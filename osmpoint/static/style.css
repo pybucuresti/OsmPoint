@@ -54,4 +54,4 @@ body.poi-page div#map { position: absolute;  top: 36px; right: 0;
 body.poi-page div#menu { position: absolute; right: 0px; left: 0; }
 body.poi-page div#edit-form { position: absolute; top: 36px; left: 0; }
 
-body.home-page div#map { top: 30px; right: 0; bottom: 0; left: 0; }
+body.full-screen div#map { top: 30px; right: 0; bottom: 0; left: 0; }
