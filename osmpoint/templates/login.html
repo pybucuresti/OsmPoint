@@ -2,6 +2,18 @@
 
 {% block body %}
 
+<div id="menu">
+
+  <div id="links">
+    <a class="login" href="{{ url_for('.login') }}">login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+    <a href="/">Home</a>
+    <a href="/points">Points</a>
+    <a href="/explore">Explore</a>
+  </div>
+
+</div>
+
 <h1>Log in with OpenID</h1>
 <form action="" method=post>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}
@@ -11,6 +23,8 @@
       or <a class="manual-openid">enter OpenID manually</a>.
     </p>
     <input type=text name=openid size=30 style="display: none;">
+    <p><a href="http://openstreetmap.org/">OpenStreetMap</a> is open data, licensed under the Creative Commons Attribution-ShareAlike 2.0s<br>
+    By signing in, you agree to the <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA</a> license agreement</p>
     <input type=submit value="Sign in">
     <input type=hidden name=next value="{{ next }}">
 </form>

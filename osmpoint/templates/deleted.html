@@ -2,6 +2,18 @@
 
 {% block body %}
 
+  <div id="menu">
+
+    <div id="links">
+      <a class="login" href="{{ url_for('.login') }}">login</a>
+      <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+      <a href="/">Home</a>
+      <a href="/points">Points</a>
+      <a href="/explore">Explore</a>
+    </div>
+
+  </div>
+
   {% if confirm|string == "true" %}
 
     <h2>Point deleted successfully</h2>
@@ -21,7 +33,5 @@
     </form>
 
   {% endif %}
-
-  <a href="/points">Points</a>
 
 {% endblock %}

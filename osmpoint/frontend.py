@@ -88,6 +88,11 @@ def save_poi():
 def thank_you():
     return flask.render_template('thank_you.html')
 
+@frontend.route("/explore")
+def explore():
+    sent_points = Point.query.filter(Point.osm_id!=None).all()
+    return flask.render_template('explore.html', sent_points=sent_points)
+
 @frontend.route("/points")
 def show_points():
     local_points = Point.query.filter(Point.osm_id==None).all()
@@ -140,13 +145,13 @@ def edit_point(point_id):
         db.session.add(point)
         db.session.commit()
         return flask.render_template('edit.html', ok_coords=1,
-                                     ok_name=1, ok_type=1)
+                                     ok_name=1, ok_type=1, id=point.id)
 
     ok_type = form.amenity.validate(form)
     ok_name = form.name.validate(form)
     ok_coords = form.lat.validate(form) and form.lon.validate(form)
     return flask.render_template('edit.html', ok_coords=ok_coords,
-                                 ok_name=ok_name, ok_type=ok_type)
+                                 ok_name=ok_name, ok_type=ok_type, id=point.id)
 
 @frontend.route("/points/<int:point_id>/send", methods=['POST'])
 def send_point(point_id):
@@ -160,5 +165,5 @@ def send_point(point_id):
         flask.abort(400)
 
     submit_points_to_osm(point)
-    return flask.render_template('sent.html')
+    return flask.render_template('sent.html', id=point.id)
 

@@ -2,7 +2,19 @@
 
 {% block body %}
 
+<div id="menu">
+
+  <div id="links">
+    <a class="login" href="{{ url_for('.login') }}">login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+    <a href="/">Home</a>
+    <a href="/points">Points</a>
+    <a href="/explore">Explore</a>
+  </div>
+
+</div>
+
 <h2>Point sent to OpenStreetMap database</h2>
-<a href="/points">Back</a>
+<a href="/points/{{ id }}">Back</a>
 
 {% endblock %}

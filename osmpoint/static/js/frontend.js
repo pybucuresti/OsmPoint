@@ -40,6 +40,14 @@ M.init_map = function() {
   M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
 }
 
+M.mark_point = function(lon, lat) {
+  var center = M.project(new OpenLayers.LonLat(lon, lat));
+  var size = new OpenLayers.Size(21,25);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
+  M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
+}
+
 M.center_to_gps = function() {
   window.navigator.geolocation.getCurrentPosition(function(position){
       var lon = position.coords.longitude, lat = position.coords.latitude;

@@ -2,8 +2,19 @@
 
 {% block body %}
 
+<div id="menu">
+
+  <div id="links">
+    <a class="login" href="{{ url_for('.login') }}">login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+    <a href="/">Home</a>
+    <a href="/points">Points</a>
+    <a href="/explore">Explore</a>
+  </div>
+
+</div>
+
 <p>Thank you. The point has been carefully saved in the database.</p>
-<p><a href="/">Back to map</a></p>
 </body></html>
 
 {% endblock %}
