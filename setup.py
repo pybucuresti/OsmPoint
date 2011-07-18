@@ -11,6 +11,7 @@ setup(
         'WTForms',
         'py',
         'pytest', # not sure why this is needed
+        'PyYAML',
     ],
     entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main']},
 )

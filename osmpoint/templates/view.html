@@ -35,16 +35,21 @@
         <input type="submit" value="save">
       </form>
 
-      <form action="{{ url_for('.send_point', point_id=point.id) }}" method="post">
-         <input type="submit" value="submit">
-         <input type="hidden" name="id" value={{ point.id }} >
-       </form>
+      {% if not point.osm_id %}
 
-       <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
-         <input type="submit" value="delete">
-         <input type="hidden" name="id" value={{ point.id }} >
-         <input type="hidden" name="confirm" value="none">
-       </form>
+      <form action="{{ url_for('.send_point', point_id=point.id) }}" method="post">
+        <input type="submit" value="submit">
+        <input type="hidden" name="id" value={{ point.id }} >
+      </form>
+
+      {% endif %}
+
+      <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
+        <input type="submit" value="delete">
+        <input type="hidden" name="id" value={{ point.id }} >
+        <input type="hidden" name="confirm" value="none">
+      </form>
+
     </div>
 
   {% else %}

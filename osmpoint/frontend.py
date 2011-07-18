@@ -1,4 +1,6 @@
 import flask
+import yaml
+import os
 from flaskext.openid import OpenID
 from wtforms import BooleanField, TextField, DecimalField, HiddenField
 from wtforms import SelectField, Form, validators
@@ -14,11 +16,13 @@ class EditPointForm(Form):
     url = TextField('url')
     lat = DecimalField('lat', [validators.NumberRange(min=-90, max=90)])
     lon = DecimalField('lon', [validators.NumberRange(min=-180, max=180)])
-    amenity = SelectField('amenity', choices=[('bar', 'bar'), ('cafe', 'cafe'),
-                                              ('fuel','fuel'),('pub','pub'),
-                                              ('restaurant','restaurant'),
-                                              ('nightclub','nightclub')]
-                         )
+
+    ops_file = os.path.join(os.path.dirname(__file__), 'amenities.yaml')
+    options = yaml.load(file(ops_file, 'r'))
+    for i, j in enumerate(options):
+        options[i] = tuple(options[i])
+    amenity = SelectField('amenity', choices=options)
+
     id = HiddenField('id', [validators.Optional()])
 
 
