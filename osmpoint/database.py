@@ -1,7 +1,9 @@
+import logging
 from flaskext.sqlalchemy import SQLAlchemy
 import flask
 import OsmApi
 
+sql_log = logging.getLogger(__name__ + '.sql')
 db = SQLAlchemy()
 
 class Point(db.Model):
@@ -29,6 +31,7 @@ def add_point(latitude, longitude, name, url, amenity, user_open_id):
     point = Point(latitude, longitude, name, url, amenity, user_open_id)
     db.session.add(point)
     db.session.commit()
+    return point.id
 
 def del_point(point):
     db.session.delete(point)
@@ -52,3 +55,25 @@ def submit_points_to_osm(point_to_submit):
         db.session.add(p)
     osm.ChangesetClose()
     db.session.commit()
+
+
+# monkey patch SQLite so we can log statemets just as we like
+
+def monkeypatch_method(cls):
+    def decorator(func):
+        old_func = getattr(cls, func.__name__, None)
+        if old_func is not None:
+            old_ref = "_original_%s" % func.__name__
+            setattr(cls, old_ref, old_func)
+            old_funcs = getattr(cls, old_ref, None)
+        setattr(cls, func.__name__, func)
+        return func
+    return decorator
+
+from sqlalchemy.engine.default import DefaultDialect
+
+@monkeypatch_method(DefaultDialect)
+def do_execute(self, cursor, statement, parameters, context=None):
+    if any(statement.startswith(s) for s in ['INSERT ', 'UPDATE ', 'DELETE ']):
+        sql_log.info("%s %r", statement, parameters)
+    return self._original_do_execute(cursor, statement, parameters, context)
