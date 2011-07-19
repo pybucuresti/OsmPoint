@@ -2,18 +2,6 @@
 
 {% block body %}
 
-<div id="menu">
-
-  <div id="links">
-    <a class="login" href="{{ url_for('.login') }}">login</a>
-    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
-    <a href="/addPOI">AddPOI</a>
-    <a href="/points">Points</a>
-    <a href="/">Explore</a>
-  </div>
-
-</div>
-
 <h1>Log in with OpenID</h1>
 <form action="" method=post>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}

@@ -9,6 +9,15 @@
 
   <body class="{% if g.user %}logged-in {% else %}not-logged-in {% endif %}
                {%- block body_class -%}{%- endblock %}">
+
+     <div id="menu">
+       <a class="login" href="{{ url_for('.login') }}">login</a>
+       <a class="logout" href="{{ url_for('.logout') }}">logout</a>
+       <a href="/addPOI">AddPOI</a>
+       <a href="/points">Points</a>
+       <a href="/">Explore</a>
+     </div>
+
     {% block body %}{% endblock %}
   </body>
 

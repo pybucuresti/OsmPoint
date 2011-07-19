@@ -4,14 +4,6 @@
 
 <div id="menu">
 
-  <div id="links">
-    <a class="login" href="{{ url_for('.login') }}">login</a>
-    <a class="logout" href="{{ url_for('.logout') }}">logout</a>
-    <a href="/addPOI">AddPOI</a>
-    <a href="/points">Points</a>
-    <a href="/">Explore</a>
-  </div>
-
   <div id="add-poi-box">
     <form method="post" action="{{ url_for('.save_poi') }}">
       <input type="hidden" name="lat">
