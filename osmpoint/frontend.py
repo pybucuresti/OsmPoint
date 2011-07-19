@@ -61,8 +61,8 @@ def create_or_login(resp):
     flask.session['openid'] = resp.identity_url
     return flask.redirect('/')
 
-@frontend.route("/")
-def homepage():
+@frontend.route("/addPOI")
+def init():
     return flask.render_template('home.html')
 
 @frontend.route("/save_poi", methods=['POST'])
@@ -88,8 +88,8 @@ def save_poi():
 def thank_you():
     return flask.render_template('thank_you.html')
 
-@frontend.route("/explore")
-def explore():
+@frontend.route("/")
+def homepage():
     sent_points = Point.query.filter(Point.osm_id!=None).all()
     return flask.render_template('explore.html', sent_points=sent_points)
 
