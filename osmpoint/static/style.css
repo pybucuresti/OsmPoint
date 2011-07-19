@@ -18,7 +18,7 @@ div#map {
 }
 
 /* the menu-add layout - big form at the top */
-body.menu-form div#menu { height: 110px; }
+body.menu-form div#add-poi-box { height: 74px; }
 body.menu-form div#map { top: 110px; }
 
 /* hide one of the login/logout links */
@@ -35,8 +35,11 @@ div#menu a, div#menu a:visited {
 
 /* form to add POI */
 div#add-poi-box {
+  top: 36px;
   display: none;
   margin: 0;
+  background: #8a6;
+  font-size: 16pt;
 }
 
 div#edit-form {

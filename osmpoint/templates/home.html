@@ -2,9 +2,8 @@
 
 {% block body %}
 
-<div id="menu">
+<div id="add-poi-box">
 
-  <div id="add-poi-box">
     <form method="post" action="{{ url_for('.save_poi') }}">
       <input type="hidden" name="lat">
       <input type="hidden" name="lon">
@@ -23,7 +22,6 @@
       </select>
       <input type="submit" value="save">
     </form>
-  </div>
 
 </div>
 
