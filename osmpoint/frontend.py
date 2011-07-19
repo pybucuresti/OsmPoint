@@ -53,6 +53,8 @@ def is_admin():
 
 @frontend.route('/logout')
 def logout():
+    if flask.g.user is None:
+        return flask.abort(400)
     del flask.session['openid']
     return flask.redirect('/')
 
