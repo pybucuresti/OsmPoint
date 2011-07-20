@@ -18,8 +18,8 @@ div#map {
 }
 
 /* the menu-add layout - big form at the top */
-body.menu-form div#add-poi-box { height: 74px; }
-body.menu-form div#map { top: 110px; }
+body.add-form div#add-poi-box { height: 74px; }
+body.add-form div#map { top: 110px; }
 
 /* hide one of the login/logout links */
 body.logged-in a.login { display: none; }
@@ -54,7 +54,6 @@ div#info {
 
 body.poi-page div#map { position: absolute;  top: 36px; right: 0;
                          height: 300px; width: 300px; }
-body.poi-page div#menu { position: absolute; right: 0px; left: 0; }
 body.poi-page div#edit-form { position: absolute; top: 36px; left: 0; }
 
 body.full-screen div#map { top: 30px; right: 0; bottom: 0; left: 0; }
