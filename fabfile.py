@@ -1,3 +1,4 @@
+from StringIO import StringIO
 from fabric.api import env, local, cd, run, put, settings, hide
 from fabric.contrib.files import exists
 
@@ -6,9 +7,33 @@ from local_fabfile import *
 server_name, server_prefix = server.split(':')
 server_repo = "%s/src/OsmPoint" % server_prefix
 server_virtualenv = "%s/virtualenv" % server_prefix
+server_var = "%s/var" % server_prefix
 
 osmapi_url = ("http://svn.openstreetmap.org/applications/utils/python_lib/"
               "OsmApi/OsmApi.py")
+
+PRODUCTION_CONFIG = """\
+import os
+import logging
+
+workdir = os.path.dirname(__file__)
+
+OPENID_FS_STORE_PATH = os.path.join(workdir, 'openid_store')
+OSM_PASSWORD_PATH = os.path.join(workdir,'osm-login.txt')
+SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(workdir, 'db.sqlite3')
+
+with open(os.path.join(workdir, 'secret'), 'rb') as f:
+    SECRET_KEY = f.read().strip()
+
+OSMPOINT_ADMINS = [
+    # Alex Morega:
+    'http://grep.ro/openid',
+    ('https://www.google.com/accounts/o8/id?'
+     'id=AItOawlvc4WaevDOhwzbc2j3rM74GSF9Cy5gMbY'),
+]
+
+logging.basicConfig()
+"""
 
 
 def _push_code():
@@ -26,6 +51,8 @@ def install_server():
         with cd(server_repo):
             run("git checkout incoming -b deploy")
 
+    _push_code()
+
     if not exists(server_virtualenv):
         run("virtualenv -p /usr/bin/python --distribute '%s'" %
             server_virtualenv)
@@ -40,30 +67,37 @@ def install_server():
         if run("test -f '%s' || echo 'missing'" % osmapi_filename):
             run("curl -O '%s'" % osmapi_url)
 
-    with cd(server_virtualenv):
-        run("mkdir -p var")
-        if run("test -f var/secret || echo 'missing'"):
-            run("OSMPOINT_WORKDIR=var bin/osmpoint "
-                "generate_secret_key > var/secret")
+    run("mkdir -p '%s'" % server_var)
+    with cd(server_var):
+        if run("test -f secret || echo 'missing'"):
+            run("OSMPOINT_WORKDIR=. ../virtualenv/bin/osmpoint "
+                "generate_secret_key > secret")
+        put(StringIO(PRODUCTION_CONFIG), "config.py")
 
 def push():
     _push_code()
     with cd(server_repo):
         run("git reset incoming --hard")
-
-def app_start():
     with cd(server_virtualenv):
-        run("OSMPOINT_WORKDIR=var "
-            "bin/osmpoint runfcgi "
-            "--socket var/fcgi.socket "
-            "--pidfile var/fcgi.pid "
+        run("bin/pip install -e '%s'" % server_repo)
+
+def start():
+    with cd(server_var):
+        run("OSMPOINT_WORKDIR=. "
+            "../virtualenv/bin/osmpoint runfcgi "
+            "--socket fcgi.socket "
+            "--pidfile fcgi.pid "
             "--daemonize")
-        run("chmod 777 var/fcgi.socket")
+        run("chmod 777 fcgi.socket")
 
-def app_stop():
-    with cd(server_virtualenv):
-        run("kill `cat var/fcgi.pid` && rm var/fcgi.pid && rm var/fcgi.socket")
+def stop():
+    with cd(server_var):
+        run("kill `cat fcgi.pid` && rm fcgi.pid && rm fcgi.socket")
 
-def app_restart():
-  app_stop()
-  app_start()
+def restart():
+    try:
+        stop()
+    except:
+        pass
+
+    start()
