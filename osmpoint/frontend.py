@@ -93,7 +93,10 @@ def thank_you():
 @frontend.route("/")
 def homepage():
     sent_points = Point.query.filter(Point.osm_id!=None).all()
-    return flask.render_template('explore.html', sent_points=sent_points)
+    local_points = Point.query.filter(Point.osm_id==None).all()
+    return flask.render_template('explore.html',
+                                 sent_points=sent_points,
+                                 local_points=local_points)
 
 @frontend.route("/points")
 def show_points():
