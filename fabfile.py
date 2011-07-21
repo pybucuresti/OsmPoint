@@ -25,11 +25,19 @@ SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(workdir, 'db.sqlite3')
 with open(os.path.join(workdir, 'secret'), 'rb') as f:
     SECRET_KEY = f.read().strip()
 
+# Choose API:
+#OSM_API = "www.openstreetmap.org" #main api
+OSM_API = "api06.dev.openstreetmap.org" #development
+
 OSMPOINT_ADMINS = [
     # Alex Morega:
     'http://grep.ro/openid',
     ('https://www.google.com/accounts/o8/id?'
      'id=AItOawlvc4WaevDOhwzbc2j3rM74GSF9Cy5gMbY'),
+   # Groza Camelia:
+   'http://camelia-groza.myopenid.com/',
+   ('https://www.google.com/accounts/o8/id?'
+    'id=AItOawlJ1QvNzCKERGnaPWUMAEq2aL3mUlcyWb8'),
 ]
 
 logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
