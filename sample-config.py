@@ -13,4 +13,8 @@ DEBUG = True
 STATIC_CACHE_TIMEOUT = 0
 OSMPOINT_ADMINS = []
 
+#Choose API:
+#OSM_API = "www.openstreetmap.org" #main api
+OSM_API = "api06.dev.openstreetmap.org" #development
+
 logging.basicConfig()

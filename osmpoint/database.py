@@ -43,7 +43,7 @@ def get_osm_api():
 
 def submit_points_to_osm(point_to_submit):
     osm = get_osm_api()
-    osm._api = "api06.dev.openstreetmap.org"
+    osm._api = flask.current_app.config['OSM_API']
     osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
     for p in point_to_submit:
         node_dict = osm.NodeCreate({u"lon": p.longitude,
