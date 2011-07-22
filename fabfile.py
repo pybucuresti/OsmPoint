@@ -32,7 +32,9 @@ OSMPOINT_ADMINS = [
      'id=AItOawlvc4WaevDOhwzbc2j3rM74GSF9Cy5gMbY'),
 ]
 
-logging.basicConfig()
+logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
+                    level=logging.INFO)
+logging.getLogger('osmpoint').setLevel(logging.INFO)
 """
 
 
