@@ -40,6 +40,8 @@ OSMPOINT_ADMINS = [
     'id=AItOawlJ1QvNzCKERGnaPWUMAEq2aL3mUlcyWb8'),
 ]
 
+CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
+
 logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
                     level=logging.INFO)
 logging.getLogger('osmpoint').setLevel(logging.INFO)
