@@ -6,11 +6,11 @@ html, body {
 
 /* default layout - small menu showing links */
 div#menu {
-  height: 30px;
+  height: 25px;
   padding: 3px;
   overflow: hidden;
   background: #8a6;
-  font-size: 16pt;
+  font-size: 15pt;
 }
 
 div#map {
@@ -52,8 +52,8 @@ div#info {
   margin: 0;
 }
 
-body.poi-page div#map { position: absolute;  top: 36px; right: 0;
+body.poi-page div#map { position: absolute; top: 31px; right: 0;
                          height: 300px; width: 300px; }
-body.poi-page div#edit-form { position: absolute; top: 36px; left: 0; }
+body.poi-page div#edit-form { position: absolute; top: 31px; left: 0; }
 
-body.full-screen div#map { top: 30px; right: 0; bottom: 0; left: 0; }
+body.full-screen div#map { top: 31px; right: 0; bottom: 0; left: 0; }

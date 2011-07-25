@@ -5,12 +5,12 @@
 <div style="height: 100%; overflow: auto;">
 
 <h2>Submitted points</h2>
-  <p>Points that need to be checked:</p>
+  <p>Points waiting to be checked:</p>
 
   <ul>
   {% for p in local_points %}
     <li>
-    {{ p.name }} added by {{ p.user_open_id }}
+    {{ p.name }}
     <a href="/points/{{ p.id }}">view</a>
     </li>
   {% else %}
@@ -18,12 +18,12 @@
   {% endfor %}
   </ul>
 
-  <p>Points sent to OSM database:</p>
+  <p>Points sent to the OSM database:</p>
 
   <ul>
   {% for p in sent_points %}
     <li>
-    {{ p.name }} added by {{ p.user_open_id }}
+    {{ p.name }}
     <a href="/points/{{ p.id }}">view</a>
     </li>
   {% else %}
