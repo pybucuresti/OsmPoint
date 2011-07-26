@@ -11,8 +11,11 @@ class SetUpTests(unittest2.TestCase):
         from osmpoint.application import create_app
 
         self._tmp_dir = py.path.local.mkdtemp()
-        self._tmp_dir.join('config.py').write("OSM_API = 'api06.dev.openstreetmap.org'\n")
-        self._tmp_dir.join('config.py').write("SECRET_KEY = 'my-secret-key'\n", mode='a')
+        config_for_tests="""\
+OSM_API = 'api06.dev.openstreetmap.org'
+SECRET_KEY = 'my-secret-key'
+        """
+        self._tmp_dir.join('config.py').write(config_for_tests)
         self.addCleanup(self._tmp_dir.remove)
         self.app = create_app(str(self._tmp_dir))
         self.db = database.db
