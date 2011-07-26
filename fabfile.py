@@ -34,10 +34,10 @@ OSMPOINT_ADMINS = [
     'http://grep.ro/openid',
     ('https://www.google.com/accounts/o8/id?'
      'id=AItOawlvc4WaevDOhwzbc2j3rM74GSF9Cy5gMbY'),
-   # Groza Camelia:
-   'http://camelia-groza.myopenid.com/',
-   ('https://www.google.com/accounts/o8/id?'
-    'id=AItOawlJ1QvNzCKERGnaPWUMAEq2aL3mUlcyWb8'),
+    # Groza Camelia:
+    'http://camelia-groza.myopenid.com/',
+    ('https://www.google.com/accounts/o8/id?'
+     'id=AItOawkmpwuvvH5diF-QG_ExmxGV6Cj-0vdEIKQ'),
 ]
 
 CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
