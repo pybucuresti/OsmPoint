@@ -3,7 +3,7 @@
 {% block body %}
 
 <div id="edit-form">
-
+  <br>
   {% if is_admin %}
 
     <div id="edit-poi-box" onLoad="document.form.amenity">
@@ -12,7 +12,8 @@
         <input type="hidden" name="lat" value="{{ point.lat }}">
         <input type="hidden" name="lon" value="{{ point.lon }}">
         <input type="hidden" name="id" value="{{ point.id }}">
-        Name: <input name="name" size="15" value="{{ point.name }}"><br>
+        Name: <input name="name" size="15" value="{{ point.name }}"
+               autocorrect="off" autocomplete="off"><br>
         Type:
         <select name="amenity">
           <option value={{ point.amenity|string }}>{{ point.amenity|string }}</option>
