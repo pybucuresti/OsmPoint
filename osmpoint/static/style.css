@@ -52,13 +52,29 @@ div#info {
   margin: 0;
 }
 
-@media screen and (max-width: 480px) {
+/* phone-portrait */
+@media screen and (max-width: 480px) and (orientation: portrait) {
 body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
-                        height: 70%; width: 70% } }
+                        height: 70%; width: 70% }
+ul { font-size: 20px; }
+}
 
+/* phone-landscape */
+@media screen and (max-width: 480px) and (orientation: landscape) {
+div#menu { height: 20px; font-size: 14px; }
+body.add-form div#add-poi-box { height: 50px; font-size: 13px; }
+body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
+                        height: 100%; width: 40%; top: 26px; }
+p { font-size: 12px; }
+ul { font-size: 12px; }
+h2 { font-size: 16px; }
+}
+
+/* desktop */
 @media screen and (min-width: 500px) {
 body.poi-page div#map { position: absolute; top: 31px; right: 0;
-                        height: 300px; width: 300px; } }
+                        height: 300px; width: 300px; }
+}
 
 body.poi-page div#edit-form { position: absolute; top: 31px; left: 0; }
 
