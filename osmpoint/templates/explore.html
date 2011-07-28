@@ -15,10 +15,12 @@ $(document).ready(function() {
   M.point_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.point_layer);
   {% for p in sent_points %}
-     M.mark_sent_point({{ p.longitude }}, {{ p.latitude }})
+     M.mark_point({{ p.longitude }}, {{ p.latitude }})
   {% endfor %}
+  M.config['poi_marker'] = {{ url_for('static',
+                    filename='openlayers/img/marker-blue.png')|tojson|safe }}
   {% for p in local_points %}
-     M.mark_local_point({{ p.longitude }}, {{ p.latitude }})
+     M.mark_point({{ p.longitude }}, {{ p.latitude }})
   {% endfor %}
 });
 </script>

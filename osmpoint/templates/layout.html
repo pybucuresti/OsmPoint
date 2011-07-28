@@ -25,10 +25,8 @@
         logged_in: {{ (True if g.user else False)|tojson|safe }},
         marker_image_src: {{ url_for('static',
             filename='crosshair.png')|tojson|safe }},
-        sent_poi_marker: {{ url_for('static',
-            filename='openlayers/img/marker.png')|tojson|safe }},
-        local_poi_marker: {{ url_for('static',
-            filename='openlayers/img/marker-blue.png')|tojson|safe }}
+        poi_marker: {{ url_for('static',
+             filename='openlayers/img/marker.png')|tojson|safe }}
     }};
   </script>
 

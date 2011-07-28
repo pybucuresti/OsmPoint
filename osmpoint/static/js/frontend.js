@@ -40,19 +40,11 @@ M.init_map = function() {
   M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
 }
 
-M.mark_sent_point = function(lon, lat) {
+M.mark_point = function(lon, lat) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   var size = new OpenLayers.Size(21,25);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(M.config['sent_poi_marker'], size, offset);
-  M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
-}
-
-M.mark_local_point = function(lon, lat) {
-  var center = M.project(new OpenLayers.LonLat(lon, lat));
-  var size = new OpenLayers.Size(21,25);
-  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(M.config['local_poi_marker'], size, offset);
+  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
   M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
 }
 
@@ -73,7 +65,7 @@ M.center_to_coordinates = function(lon, lat) {
 
   var size = new OpenLayers.Size(21,25);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(M.config['sent_poi_marker'], size, offset);
+  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
 
   M.init_points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.init_points_layer);
