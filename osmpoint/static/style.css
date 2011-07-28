@@ -18,8 +18,8 @@ div#map {
 }
 
 /* the menu-add layout - big form at the top */
-body.add-form div#add-poi-box { height: 74px; }
-body.add-form div#map { top: 110px; }
+body.add-form div#add-poi-box { height: 85px; }
+body.add-form div#map { top: 121px; }
 
 /* hide one of the login/logout links */
 body.logged-in a.login { display: none; }
@@ -62,7 +62,7 @@ ul { font-size: 20px; }
 /* phone-landscape */
 @media screen and (max-width: 480px) and (orientation: landscape) {
 div#menu { height: 20px; font-size: 14px; }
-body.add-form div#add-poi-box { height: 50px; font-size: 13px; }
+body.add-form div#add-poi-box { height: 75px; font-size: 13px; }
 body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
                         height: 100%; width: 40%; top: 26px; }
 p { font-size: 12px; }

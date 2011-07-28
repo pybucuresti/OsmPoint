@@ -88,9 +88,19 @@ class SavePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
-                 'url': 'link', 'amenity': 'none'}
+                 'url': 'link', 'amenity': 'none', 'new_amenity': ''}
         response = client.post('/save_poi', data=point)
         self.assertEqual(len(self.get_all_points()), 0)
+
+    def test_enter_new_amenity(self):
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
+
+        point = {'lat': 45, 'lon': 20, 'name': 'no-type',
+                 'url': 'link', 'amenity': 'none', 'new_amenity': 'new_type'}
+        response = client.post('/save_poi', data=point)
+        self.assertEqual(len(self.get_all_points()), 1)
 
     def test_name_is_mandatory(self):
         client = self.app.test_client()
@@ -325,12 +335,26 @@ class EditPointTest(SetUpTests):
 
         point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
 
-        point_data = {'lat': 45, 'lon': 25, 'name': 'wrong',
+        point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': '',
                       'amenity': 'none', 'url': 'url', 'id': point.id}
         address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.amenity, 'old_type')
+
+    def test_edit_point_with_another_amenity(self):
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
+
+        point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
+
+        point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': 'new',
+                      'amenity': 'none', 'url': 'url', 'id': point.id}
+        address = flask.url_for('.edit_point', point_id=point.id)
+        response = client.post(address, data=point_data)
+        point = self.get_all_points()[0]
+        self.assertEqual(point.amenity, 'new')
 
     def test_edit_point_with_no_name(self):
         client = self.app.test_client()

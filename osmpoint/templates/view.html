@@ -16,7 +16,7 @@
                autocorrect="off" autocomplete="off"><br>
         Type:
         <select name="amenity">
-          <option value={{ point.amenity|string }}>{{ point.amenity|string }}</option>
+          <option value="none">---</option>
           <option value="bar">bar</option>
           <option value="cafe">cafe</option>
           <option value="cinema">cinema</option>
@@ -26,7 +26,9 @@
           <option value="nightclub">nightclub</option>
           <option value="theatre">theatre</option>
         </select>
-        <input type="submit" value="save">
+        <input type="submit" value="save"><br>
+        <input name="new_amenity" size="15" value="{{ point.amenity }}"
+               autocorrect="off" autocomplete="off">
       </form>
 
       {% if not point.osm_id %}

@@ -23,6 +23,7 @@ class EditPointForm(Form):
         options[i] = tuple(options[i])
     amenity = SelectField('amenity', choices=options)
 
+    new_amenity = TextField('new_amenity')
     id = HiddenField('id', [validators.Optional()])
 
 
@@ -75,11 +76,23 @@ def save_poi():
     form = EditPointForm(flask.request.form)
 
     if form.validate():
-        add_point(form.lat.data, form.lon.data, form.name.data,
-                  form.url.data, form.amenity.data, flask.g.user)
-        return flask.redirect('/thank_you')
+        if form.amenity.data == 'none' and form.new_amenity.data == "":
+            ok_type = False
+        else:
+            if form.amenity.data == 'none':
+                amenity = form.new_amenity.data
+            else:
+                amenity = form.amenity.data
+            add_point(form.lat.data, form.lon.data, form.name.data,
+                      form.url.data, amenity, flask.g.user)
+            return flask.redirect('/thank_you')
 
-    ok_type = form.amenity.validate(form)
+    try:
+        if ok_type is False:
+            pass
+    except UnboundLocalError:
+        ok_type = form.amenity.validate(form)
+
     ok_name = form.name.validate(form)
     ok_coords = form.lat.validate(form) and form.lon.validate(form)
     return flask.render_template('edit.html', ok_coords=ok_coords,
@@ -142,17 +155,26 @@ def edit_point(point_id):
         flask.abort(403)
 
     if form.validate():
+        if form.amenity.data == 'none' and form.new_amenity.data == "":
+            ok_type = False
+        else:
+            if form.amenity.data == 'none':
+                form.amenity.data = form.new_amenity.data
+            form.populate_obj(point)
+            point.latitude = form.lat.data
+            point.longitude = form.lon.data
 
-        form.populate_obj(point)
-        point.latitude = form.lat.data
-        point.longitude = form.lon.data
+            db.session.add(point)
+            db.session.commit()
+            return flask.render_template('edit.html', ok_coords=1,
+                                         ok_name=1, ok_type=1, id=point.id)
 
-        db.session.add(point)
-        db.session.commit()
-        return flask.render_template('edit.html', ok_coords=1,
-                                     ok_name=1, ok_type=1, id=point.id)
+    try:
+        if ok_type is False:
+            pass
+    except UnboundLocalError:
+        ok_type = form.amenity.validate(form)
 
-    ok_type = form.amenity.validate(form)
     ok_name = form.name.validate(form)
     ok_coords = form.lat.validate(form) and form.lon.validate(form)
     return flask.render_template('edit.html', ok_coords=ok_coords,
