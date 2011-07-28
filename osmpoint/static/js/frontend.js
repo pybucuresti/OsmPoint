@@ -42,7 +42,7 @@ M.init_map = function() {
 
 M.mark_point = function(lon, lat) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
-  var size = new OpenLayers.Size(21,25);
+  var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
   var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
   M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
