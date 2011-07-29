@@ -66,7 +66,7 @@ def create_or_login(resp):
 
 @frontend.route("/addPOI")
 def init():
-    return flask.render_template('home.html')
+    return flask.render_template('add_poi.html')
 
 @frontend.route("/save_poi", methods=['POST'])
 def save_poi():
@@ -81,6 +81,7 @@ def save_poi():
         else:
             if form.amenity.data == 'none':
                 amenity = form.new_amenity.data
+                form.name.data = '#' + form.name.data
             else:
                 amenity = form.amenity.data
             add_point(form.lat.data, form.lon.data, form.name.data,
