@@ -18,7 +18,7 @@ $(document).ready(function() {
     {% if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
                                  'restaurant', 'theatre', 'cinema'] %}
       M.config['poi_marker'] = {{ url_for('static',
-                  filename=(p.amenity|string+'.png'))|tojson|safe }};
+                  filename=('marker/'+p.amenity|string+'.png'))|tojson|safe }};
     {% else %}
       M.config['poi_marker'] = {{ url_for('static',
                   filename=('openlayers/img/marker-blue.png'))|tojson|safe }};
