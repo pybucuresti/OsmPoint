@@ -14,17 +14,12 @@ $(document).ready(function() {
   M.init_map();
   M.point_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.point_layer);
-  {% for p in points %}
-    {% if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
-                                 'restaurant', 'theatre', 'cinema'] %}
-      M.config['poi_marker'] = {{ url_for('static',
-                  filename=('marker/'+p.amenity|string+'.png'))|tojson|safe }};
-    {% else %}
-      M.config['poi_marker'] = {{ url_for('static',
-                  filename=('openlayers/img/marker-blue.png'))|tojson|safe }};
-    {% endif %}
-    M.mark_point({{ p.longitude }}, {{ p.latitude }});
-  {% endfor %}
+  var marker_data = {{ marker_data|tojson|safe }};
+  $.each(marker_data, function(i, marker_info) {
+    M.mark_point(marker_info['longitude'],
+                 marker_info['latitude'],
+                 marker_info['marker_url']);
+  });
 });
 </script>
 {% endblock %}

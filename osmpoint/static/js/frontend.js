@@ -40,11 +40,12 @@ M.init_map = function() {
   M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
 }
 
-M.mark_point = function(lon, lat) {
+M.mark_point = function(lon, lat, marker_url) {
+  console.log(lon, lat, marker_url);
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
+  var icon = new OpenLayers.Icon(marker_url, size, offset);
   M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
 }
 
