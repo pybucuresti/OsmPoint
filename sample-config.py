@@ -1,5 +1,6 @@
 import os
 import logging
+import yaml
 
 workdir = os.path.dirname(__file__)
 
@@ -12,6 +13,11 @@ SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % os.path.join(workdir, 'db.sqlite3')
 DEBUG = True
 STATIC_CACHE_TIMEOUT = 0
 OSMPOINT_ADMINS = []
+
+try:
+    IMPORTED_POINTS = yaml.load(file('points.yaml', 'r'))
+except IOError:
+    IMPORTED_POINTS = []
 
 #Choose API:
 #OSM_API = "www.openstreetmap.org" #main api

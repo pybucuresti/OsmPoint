@@ -15,6 +15,7 @@ osmapi_url = ("http://svn.openstreetmap.org/applications/utils/python_lib/"
 PRODUCTION_CONFIG = """\
 import os
 import logging
+import yaml
 
 workdir = os.path.dirname(__file__)
 
@@ -28,6 +29,11 @@ with open(os.path.join(workdir, 'secret'), 'rb') as f:
 # Choose API:
 #OSM_API = "www.openstreetmap.org" #main api
 OSM_API = "api06.dev.openstreetmap.org" #development
+
+try:
+    IMPORTED_POINTS = yaml.load(file('points.yaml', 'r'))
+except IOError:
+    IMPORTED_POINTS = []
 
 OSMPOINT_ADMINS = [
     # Alex Morega:

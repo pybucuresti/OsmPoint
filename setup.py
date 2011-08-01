@@ -12,6 +12,7 @@ setup(
         'py',
         'pytest', # not sure why this is needed
         'PyYAML',
+        'imposm.parser',
     ],
     entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main']},
 )
