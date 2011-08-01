@@ -38,8 +38,9 @@
 <script>
 $(document).ready(function() {
   M.init_map();
-  M.center_to_gps();
+  M.enable_geolocation();
   M.enable_adding_points();
+  M.center_to_gps();
 });
 </script>
 {% endblock %}

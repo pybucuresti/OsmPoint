@@ -48,13 +48,50 @@ M.mark_point = function(lon, lat, marker_url) {
   M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
 }
 
-M.center_to_gps = function() {
-  window.navigator.geolocation.getCurrentPosition(function(position){
-      var lon = position.coords.longitude, lat = position.coords.latitude;
-      var center = new OpenLayers.LonLat(lon, lat);
-      M.map.setCenter(M.project(center), 16);
+M.enable_geolocation = function() {
+  M.center_on_next_geolocation = false;
+  M.geolocate = new OpenLayers.Control.Geolocate({bind: false, watch: true});
+  M.map.addControl(M.geolocate);
+  M.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
+  M.map.addLayer(M.geolocation_layer);
+  M.geolocate.events.register("locationupdated", M.geolocate, function(evt) {
+      M.draw_geolocation(evt.point, evt.position.coords.accuracy);
+      if (M.center_on_next_geolocation) {
+        M.map.zoomToExtent(M.geolocation_layer.getDataExtent());
+        M.center_on_next_geolocation = false;
+      }
   });
-}
+};
+
+M.draw_geolocation = function(coordinates, accuracy) {
+  M.geolocation_layer.removeAllFeatures();
+  var circle_style = {
+      fillColor: '#00f',
+      fillOpacity: 0.3,
+      strokeColor: '#00f',
+      strokeOpacity: 0.5,
+      strokeWidth: 2
+  };
+  var center_style = {
+    graphicName: 'cross',
+    strokeColor: '#00f',
+    strokeWidth: 2,
+    fillOpacity: 0,
+    pointRadius: 10
+  };
+  var point = new OpenLayers.Geometry.Point(coordinates.x, coordinates.y);
+  var poly = OpenLayers.Geometry.Polygon.createRegularPolygon(
+        point, accuracy/2, 40, 0)
+  var circle = new OpenLayers.Feature.Vector(poly, {}, circle_style);
+  var center = new OpenLayers.Feature.Vector(coordinates, {}, center_style);
+  M.geolocation_layer.addFeatures([center, circle]);
+};
+
+M.center_to_gps = function() {
+  M.geolocate.deactivate();
+  M.center_on_next_geolocation = true;
+  M.geolocate.activate();
+};
 
 M.center_to_coordinates = function(lon, lat) {
   $('body').addClass('poi-page');
@@ -113,6 +150,7 @@ M.map_clicked = function(xy) {
     return;
   }
 
+  M.center_on_next_geolocation = false;
   var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
   var add_poi_box = $('#add-poi-box');
   $('form input[name=lat]', add_poi_box).val(lonlat.lat);
