@@ -41,7 +41,6 @@ M.init_map = function() {
 }
 
 M.mark_point = function(lon, lat, marker_url) {
-  console.log(lon, lat, marker_url);
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
