@@ -37,7 +37,31 @@ M.init_map = function() {
     'dragPanOptions': {'enableKinetic': true}
   }));
   M.map.addLayer(new OpenLayers.Layer.OSM());
-  M.map.setCenter(M.project(new OpenLayers.LonLat(26.10, 44.43)), 13);
+  M.restore_map_position();
+  M.map.events.register("moveend", M.map, M.save_map_position);
+}
+
+M.restore_map_position = function() {
+  var position_json = localStorage['map_position'];
+  //var position;
+  if(position_json) {
+    var position = JSON.parse(position_json);
+  }
+  else {
+    var position = {lon: 26.10, lat: 44.43, zoom: 13};
+  }
+  var center = M.project(new OpenLayers.LonLat(position.lon, position.lat));
+  M.map.setCenter(center, position.zoom);
+}
+
+M.save_map_position = function(evt) {
+  var center = M.reverse_project(M.map.center);
+  var position = {
+    lat: center.lat,
+    lon: center.lon,
+    zoom: M.map.zoom
+  };
+  localStorage['map_position'] = JSON.stringify(position);
 }
 
 M.mark_point = function(lon, lat, marker_url) {
@@ -89,7 +113,7 @@ M.draw_geolocation = function(coordinates, accuracy) {
 
 M.center_to_gps = function() {
   M.geolocate.deactivate();
-  M.center_on_next_geolocation = true;
+  //M.center_on_next_geolocation = true;
   M.geolocate.activate();
 };
 
