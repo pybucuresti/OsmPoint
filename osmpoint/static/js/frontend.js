@@ -74,7 +74,10 @@ M.mark_point = function(lon, lat, marker_url) {
 
 M.enable_geolocation = function() {
   M.center_on_next_geolocation = false;
-  M.geolocate = new OpenLayers.Control.Geolocate({bind: false, watch: true});
+  M.geolocate = new OpenLayers.Control.Geolocate({
+    bind: false, watch: true,
+    geolocationOptions: {enableHighAccuracy: true}
+  });
   M.map.addControl(M.geolocate);
   M.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
   M.map.addLayer(M.geolocation_layer);
