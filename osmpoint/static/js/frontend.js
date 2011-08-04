@@ -39,7 +39,7 @@ M.init_map = function() {
   M.map.addLayer(new OpenLayers.Layer.OSM());
   M.restore_map_position();
   M.map.events.register("moveend", M.map, M.save_map_position);
-}
+};
 
 M.restore_map_position = function() {
   var position_json = localStorage['map_position'];
@@ -52,7 +52,7 @@ M.restore_map_position = function() {
   }
   var center = M.project(new OpenLayers.LonLat(position.lon, position.lat));
   M.map.setCenter(center, position.zoom);
-}
+};
 
 M.save_map_position = function(evt) {
   var center = M.reverse_project(M.map.center);
@@ -62,7 +62,7 @@ M.save_map_position = function(evt) {
     zoom: M.map.zoom
   };
   localStorage['map_position'] = JSON.stringify(position);
-}
+};
 
 M.mark_point = function(lon, lat, marker_url) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
@@ -70,7 +70,7 @@ M.mark_point = function(lon, lat, marker_url) {
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
   var icon = new OpenLayers.Icon(marker_url, size, offset);
   M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
-}
+};
 
 M.enable_geolocation = function() {
   M.center_on_next_geolocation = false;
@@ -108,7 +108,7 @@ M.draw_geolocation = function(coordinates, accuracy) {
   };
   var point = new OpenLayers.Geometry.Point(coordinates.x, coordinates.y);
   var poly = OpenLayers.Geometry.Polygon.createRegularPolygon(
-        point, accuracy/2, 40, 0)
+        point, accuracy/2, 40, 0);
   var circle = new OpenLayers.Feature.Vector(poly, {}, circle_style);
   var center = new OpenLayers.Feature.Vector(coordinates, {}, center_style);
   M.geolocation_layer.addFeatures([center, circle]);
@@ -131,7 +131,7 @@ M.center_to_coordinates = function(lon, lat) {
   M.init_points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.init_points_layer);
   M.init_points_layer.addMarker(new OpenLayers.Marker(center, icon));
-}
+};
 
 M.enable_editing_point = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
@@ -139,7 +139,7 @@ M.enable_editing_point = function() {
   var add_point = new OpenLayers.Control.Click(M.map_click_to_edit);
   M.map.addControl(add_point);
   add_point.activate();
-}
+};
 
 M.map_click_to_edit = function(xy) {
   var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
@@ -148,7 +148,7 @@ M.map_click_to_edit = function(xy) {
   $('form input[name=lon]', edit_poi_box).val(lonlat.lon);
   M.map.updateSize();
   M.draw_marker(lonlat);
-}
+};
 
 M.enable_adding_points = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
@@ -175,7 +175,7 @@ M.map_clicked = function(xy) {
   $('body').addClass('add-form');
   M.map.updateSize();
   M.draw_marker(lonlat);
-}
+};
 
 M.draw_marker = function(lonlat) {
   var map_coords = M.project(lonlat);
