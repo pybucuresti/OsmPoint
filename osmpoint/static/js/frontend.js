@@ -74,8 +74,9 @@ M.mark_point = function(lon, lat, marker_url, type, name) {
 
   marker.events.register("mousedown", marker, function() {
     var message = name.toString() + '<br>(' + type.toString() + ')';
-    popup = new OpenLayers.Popup.FramedCloud("piopup", center, size,
-                                             message, icon, true);
+    var popupsize = new OpenLayers.Size(100,100);
+    popup = new OpenLayers.Popup.AnchoredBubble("popup", center, popupsize,
+                                                message, icon, true);
     M.map.addPopup(popup);
   });
 
