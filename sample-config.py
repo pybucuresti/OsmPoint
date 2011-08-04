@@ -1,6 +1,5 @@
 import os
 import logging
-import yaml
 
 workdir = os.path.dirname(__file__)
 
@@ -14,10 +13,7 @@ DEBUG = True
 STATIC_CACHE_TIMEOUT = 0
 OSMPOINT_ADMINS = []
 
-try:
-    IMPORTED_POINTS = yaml.load(file('points.yaml', 'r'))
-except IOError:
-    IMPORTED_POINTS = []
+IMPORTED_POINTS_PATH = '.'
 
 #Choose API:
 #OSM_API = "www.openstreetmap.org" #main api

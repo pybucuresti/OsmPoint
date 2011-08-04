@@ -1,5 +1,6 @@
 from imposm.parser import OSMParser
 import yaml
+import sys
 
 # remove unwanted points
 class AmenityFilter(object):
@@ -7,9 +8,15 @@ class AmenityFilter(object):
              'fuel', 'cinema', 'theatre']
     def amenity_filter(self, tags):
         if 'name' not in tags.keys() or 'amenity' not in tags.keys():
+           for key in tags.keys():
+               del tags[key]
+        try: 
             if tags['amenity'] not in self.types:
                 for key in tags.keys():
                     del tags[key]
+        except KeyError:
+            for key in tags.keys():
+                del tags[key]
 
 # extract points only from Bucharest
 class NodesCoords(object):
@@ -24,12 +31,15 @@ class NodesCoords(object):
                  self.points.append(p)
 
 
-def get_points():
+def main():
+
+    file_name = sys.argv[1]
     filter = AmenityFilter()
     nodes = NodesCoords()
     p = OSMParser(nodes_callback=nodes.nodes_callback,
                   nodes_tag_filter=filter.amenity_filter)
-    p.parse_pbf_file('romania.osm.pbf')
+    p.parse_pbf_file(file_name)
+    print yaml.dump(nodes.points)
 
-    stream = file('points.yaml', 'w')
-    yaml.dump(nodes.points, stream)
+if __name__ == '__main__':
+    main()

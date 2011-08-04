@@ -14,7 +14,8 @@ setup(
         'PyYAML',
         'imposm.parser',
     ],
-    entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main']},
+    entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main',
+                                      'parser = pbf_parser:main']},
 )
 
 # Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from

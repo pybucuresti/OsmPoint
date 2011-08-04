@@ -30,10 +30,7 @@ with open(os.path.join(workdir, 'secret'), 'rb') as f:
 #OSM_API = "www.openstreetmap.org" #main api
 OSM_API = "api06.dev.openstreetmap.org" #development
 
-try:
-    IMPORTED_POINTS = yaml.load(file('points.yaml', 'r'))
-except IOError:
-    IMPORTED_POINTS = []
+IMPORTED_POINTS_PATH = '.'
 
 OSMPOINT_ADMINS = [
     # Alex Morega:
