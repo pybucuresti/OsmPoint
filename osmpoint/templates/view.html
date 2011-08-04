@@ -1,16 +1,18 @@
 {% extends "layout.html" %}
 
+{% block body_class %}poi-page{% endblock %}
+
 {% block body %}
 
-<div id="edit-form">
-  <br>
-  {% if is_admin %}
+<br>
+
+{% if is_admin %}
 
     <div id="edit-poi-box" onLoad="document.form.amenity">
       <form method="post" action="{{ url_for('.edit_point',
                                      point_id=point.id) }}">
-        <input type="hidden" name="lat" value="{{ point.lat }}">
-        <input type="hidden" name="lon" value="{{ point.lon }}">
+        <input type="hidden" name="lat" value="{{ point.latitude }}">
+        <input type="hidden" name="lon" value="{{ point.longitude }}">
         <input type="hidden" name="id" value="{{ point.id }}">
         Name: <input name="name" size="15" value="{{ point.name }}"
                autocorrect="off" autocomplete="off"><br>
@@ -48,16 +50,14 @@
 
     </div>
 
-  {% else %}
+{% else %}
 
     <div id="info">
       Name: {{ point.name }}<br>
       Type: {{ point.amenity }}<br>
     </div>
 
-  {% endif %}
-
-</div>
+{% endif %}
 
 <div id="map"></div>
 
@@ -65,17 +65,14 @@
 
 {% block scripts %}
 <script>
-  lon = {{ point.longitude }}
-  lat = {{ point.latitude }}
-
   $(document).ready(function() {
     M.init_map();
-    M.center_to_coordinates(lon, lat);
+    M.center_to_coordinates({{ point.longitude|tojson }},
+                            {{ point.latitude|tojson }});
 
-    {% if is_admin %}
-      M.enable_editing_point(lon, lat);
-    {% endif %}
-
+    if($('#edit-poi-box').length > 0) {
+      M.enable_editing_point();
+    }
   });
 </script>
 {% endblock %}

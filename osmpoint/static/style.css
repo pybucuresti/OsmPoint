@@ -42,11 +42,6 @@ div#add-poi-box {
   font-size: 16pt;
 }
 
-div#edit-form {
-  display: none;
-  margin: 0;
-}
-
 div#info {
   display: block;
   margin: 0;
@@ -75,7 +70,5 @@ h2 { font-size: 16px; }
 body.poi-page div#map { position: absolute; top: 31px; right: 0;
                         height: 300px; width: 300px; }
 }
-
-body.poi-page div#edit-form { position: absolute; top: 31px; left: 0; }
 
 body.full-screen div#map { top: 31px; right: 0; bottom: 0; left: 0; }

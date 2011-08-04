@@ -121,9 +121,6 @@ M.center_to_gps = function() {
 };
 
 M.center_to_coordinates = function(lon, lat) {
-  $('body').addClass('poi-page');
-  $('#edit-form').show();
-  $('#map').show();
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   M.map.setCenter(center, 16);
 
@@ -136,14 +133,7 @@ M.center_to_coordinates = function(lon, lat) {
   M.init_points_layer.addMarker(new OpenLayers.Marker(center, icon));
 }
 
-M.enable_editing_point = function(lon, lat) {
-  $('body').addClass('poi-page');
-  $('#edit-form').show();
-  var edit_poi_box = $('#edit-poi-box');
-  edit_poi_box.show();
-  $('form input[name=lat]', edit_poi_box).val(lat);
-  $('form input[name=lon]', edit_poi_box).val(lon);
-
+M.enable_editing_point = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.points_layer);
   var add_point = new OpenLayers.Control.Click(M.map_click_to_edit);
@@ -156,7 +146,6 @@ M.map_click_to_edit = function(xy) {
   var edit_poi_box = $('#edit-poi-box');
   $('form input[name=lat]', edit_poi_box).val(lonlat.lat);
   $('form input[name=lon]', edit_poi_box).val(lonlat.lon);
-  edit_poi_box.show();
   M.map.updateSize();
   M.draw_marker(lonlat);
 }
