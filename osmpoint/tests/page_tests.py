@@ -14,6 +14,7 @@ class SetUpTests(unittest2.TestCase):
         config_for_tests="""\
 OSM_API = 'api06.dev.openstreetmap.org'
 SECRET_KEY = 'my-secret-key'
+IMPORTED_POINTS_PATH = '.'
         """
         self._tmp_dir.join('config.py').write(config_for_tests)
         self.addCleanup(self._tmp_dir.remove)
@@ -55,9 +56,7 @@ class SavePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'my-open-id'})
 
         response = client.post('/save_poi', data=dict(point_data))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers['Location'],
-                         'http://localhost/thank_you')
+        self.assertEqual(response.status_code, 200)
 
         point = self.get_all_points()[0]
         self.assertEquals(point.latitude, point_data['lat'])

@@ -1,8 +1,30 @@
 {% extends "layout.html" %}
 
+{% block body_class %}poi-page{% endblock %}
+
 {% block body %}
 
-<p>Thank you. The point has been carefully saved in the database.</p>
-</body></html>
+  <div id="info">
+    <p>Thank you. The point has been carefully saved in the database.</p>
+  </div>
+
+  <div id="map"></div>
 
 {% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    M.init_map();
+    var new_point = {{ new_point|tojson|safe }};
+    M.point_layer = new OpenLayers.Layer.Markers("Markers");
+    M.map.addLayer(M.point_layer);
+    M.open_popup(new_point['longitude'],
+                 new_point['latitude'],
+                 new_point['marker_url'],
+                 new_point['type'],
+                 new_point['name']);
+  });
+</script>
+{% endblock %}
+

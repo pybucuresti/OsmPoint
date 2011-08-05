@@ -60,6 +60,7 @@ div#menu { height: 20px; font-size: 14px; }
 body.add-form div#add-poi-box { height: 75px; font-size: 13px; }
 body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
                         height: 100%; width: 40%; top: 26px; }
+body.poi-page div#info { position:absolute; left: 0px; right: 60%; }
 p { font-size: 12px; }
 ul { font-size: 12px; }
 h2 { font-size: 16px; }
@@ -69,6 +70,7 @@ h2 { font-size: 16px; }
 @media screen and (min-width: 500px) {
 body.poi-page div#map { position: absolute; top: 31px; right: 0;
                         height: 300px; width: 300px; }
+body.poi-page div#info { position:absolute; left: 0px; right: 300px; }
 }
 
 body.full-screen div#map { top: 31px; right: 0; bottom: 0; left: 0; }

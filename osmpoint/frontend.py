@@ -2,7 +2,7 @@ import flask
 import yaml
 import os
 from flaskext.openid import OpenID
-from wtforms import BooleanField, TextField, DecimalField, HiddenField
+from wtforms import BooleanField, TextField, FloatField, HiddenField
 from wtforms import SelectField, Form, validators
 from .database import db, Point
 from .database import add_point, del_point, submit_points_to_osm
@@ -14,8 +14,8 @@ oid = OpenID()
 class EditPointForm(Form):
     name = TextField('name', [validators.Required()])
     url = TextField('url')
-    lat = DecimalField('lat', [validators.NumberRange(min=-90, max=90)])
-    lon = DecimalField('lon', [validators.NumberRange(min=-180, max=180)])
+    lat = FloatField('lat', [validators.NumberRange(min=-90, max=90)])
+    lon = FloatField('lon', [validators.NumberRange(min=-180, max=180)])
 
     ops_file = os.path.join(os.path.dirname(__file__), 'amenities.yaml')
     options = yaml.load(file(ops_file, 'r'))
@@ -82,11 +82,20 @@ def save_poi():
             if form.amenity.data == 'none':
                 amenity = form.new_amenity.data
                 form.name.data = '#' + form.name.data
+                marker_url = flask.url_for('static',
+                                    filename='openlayers/img/marker-blue.png')
             else:
                 amenity = form.amenity.data
+                marker_url = flask.url_for('static',
+                                    filename='marker/'+amenity+'.png')
             add_point(form.lat.data, form.lon.data, form.name.data,
                       form.url.data, amenity, flask.g.user)
-            return flask.redirect('/thank_you')
+            new_point = { 'latitude': form.lat.data,
+                          'longitude': form.lon.data,
+                          'marker_url': marker_url,
+                          'name': form.name.data,
+                          'type': amenity }
+            return flask.render_template('thank_you.html', new_point=new_point)
 
     try:
         if ok_type is False:
