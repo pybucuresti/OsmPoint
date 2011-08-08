@@ -109,9 +109,9 @@ def save_poi():
                                  ok_name=ok_name, ok_type=ok_type)
 
 
-@frontend.route("/thank_you")
-def thank_you():
-    return flask.render_template('thank_you.html')
+@frontend.route("/about")
+def about():
+    return flask.render_template('info.html')
 
 @frontend.route("/")
 def homepage():
