@@ -127,7 +127,7 @@ def homepage():
             'type': p['amenity'],
         })
 
-    for p in Point.query.all():
+    for p in Point.query.filter(Point.osm_id!=None):
         if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
                          'restaurant', 'theatre', 'cinema']:
             url = flask.url_for('static', filename='marker/'+p.amenity+'.png')
