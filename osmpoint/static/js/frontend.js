@@ -83,7 +83,8 @@ M.mark_point = function(lon, lat, marker_url, type, name) {
   var marker = feature.createMarker();
   M.point_layer.addMarker(marker);
 
-  marker.events.register("mousedown", feature, M.click_marker);
+  marker.events.register('click', feature, M.click_marker);
+  marker.events.register('touch', feature, M.click_marker);
 };
 
 M.click_marker = function (evt) {
