@@ -74,7 +74,9 @@ M.mark_point = function(lon, lat, marker_url, type, name) {
   var feature = new OpenLayers.Feature(M.point_layer, center, base_marker);
   feature.closeBox = true;
   feature.data.overflow = "auto";
-  feature.data.popupContentHTML = name.toString() + '<br>(' + type.toString() + ')';
+  var border = '<div style="border-style: solid; border-width: 2px;">';
+  feature.data.popupContentHTML = border + name.toString() + '<br>(' +
+                                  type.toString() + ')' + '</div>';
   feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
                                         { 'autoSize': true });
 
@@ -82,7 +84,7 @@ M.mark_point = function(lon, lat, marker_url, type, name) {
   M.point_layer.addMarker(marker);
 
   marker.events.register("mousedown", feature, M.click_marker);
-}
+};
 
 M.click_marker = function (evt) {
   if (this.popup == null) {
@@ -92,7 +94,7 @@ M.click_marker = function (evt) {
   } else {
     this.popup.toggle();
   }
-}
+};
 
 M.open_popup = function (lon, lat, marker_url, type, name) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
@@ -102,12 +104,15 @@ M.open_popup = function (lon, lat, marker_url, type, name) {
   var base_marker = new OpenLayers.Marker(center, icon);
 
   M.point_layer.addMarker(base_marker);
-  var message = name.toString() + '<br>(' + type.toString() + ')';
+  var border = '<div style="border-style: solid; border-width: 2px;">';
+  var message = border + name.toString() + '<br>(' +
+                type.toString() + ')' + '</div>';
   var popupsize = new OpenLayers.Size(100,100);
-  popup = new OpenLayers.Popup.AnchoredBubble ("popup", center, popupsize, message, icon, true);
+  popup = new OpenLayers.Popup.AnchoredBubble ("popup", center, popupsize,
+                                               message, icon, true);
   popup.autoSize = true;
   M.map.addPopup(popup);
-}
+};
 
 M.enable_geolocation = function() {
   M.center_on_next_geolocation = false;
