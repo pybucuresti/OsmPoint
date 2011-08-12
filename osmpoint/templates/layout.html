@@ -11,8 +11,8 @@
 
     {%- macro menu() %}
     <a href="/">Explore</a>
-    <a href="/addPOI">AddPOI</a>
-    <a href="/points">Points</a>
+    <a href="/addPOI">Add</a>
+    <a href="/points">List</a>
     {% if g.user %}
     <a class="logout" href="{{ url_for('.logout') }}">Logout</a>
     {% else %}

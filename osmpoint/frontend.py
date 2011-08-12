@@ -134,6 +134,10 @@ def homepage():
 
     return flask.render_template('explore.html', point_data=point_data)
 
+@frontend.route("/about")
+def about_page():
+    return flask.render_template('about.html')
+
 @frontend.route("/points")
 def show_points():
     local_points = Point.query.filter(Point.osm_id==None).all()

@@ -1,5 +1,12 @@
 {% extends "layout-fullmap.html" %}
 
+{% block after_menu %}
+<div>
+  OSM points of interest
+  (<a href="/about">about</a>)
+</div>
+{% endblock %}
+
 {% block scripts %}
 <script>
 $(document).ready(function() {
