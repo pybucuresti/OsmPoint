@@ -121,3 +121,8 @@ def restart():
         pass
 
     start()
+
+def deploy():
+    push()
+    configure()
+    restart()
