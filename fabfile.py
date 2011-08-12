@@ -48,6 +48,8 @@ CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
 logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
                     level=logging.INFO)
 logging.getLogger('osmpoint').setLevel(logging.INFO)
+sql_handler = logging.FileHandler(os.path.join(workdir, 'sql.log'))
+logging.getLogger('osmpoint.database.sql').addHandler(sql_handler)
 """
 
 
