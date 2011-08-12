@@ -10,15 +10,16 @@
   <body class="{% if g.user %}logged-in {% else %}not-logged-in {% endif %}
                {%- block body_class -%}{%- endblock %}">
 
-     <div id="menu">
-       <a href="/">Explore</a>
-       <a href="/addPOI">AddPOI</a>
-       <a href="/points">Points</a>
-       <a class="login" href="{{ url_for('.login') }}">Login</a>
-       <a class="logout" href="{{ url_for('.logout') }}">Logout</a>
-     </div>
+    {%- macro menu() %}
+    <a href="/">Explore</a>
+    <a href="/addPOI">AddPOI</a>
+    <a href="/points">Points</a>
+    <a class="login" href="{{ url_for('.login') }}">Login</a>
+    <a class="logout" href="{{ url_for('.logout') }}">Logout</a>
+    {% endmacro -%}
 
-    {% block body %}{% endblock %}
+    {%- block body %}{% endblock -%}
+
   </body>
 
   <script>window.M = {config: {

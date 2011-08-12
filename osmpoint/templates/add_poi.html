@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
+{% extends "layout-fullmap.html" %}
 
-{% block body %}
+{% block after_menu %}
 
 <div id="add-poi-box">
 
@@ -28,11 +28,7 @@
 
 </div>
 
-<div id="map"></div>
-
 {% endblock %}
-
-{% block body_class %}full-screen{% endblock %}
 
 {% block scripts %}
 <script>

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block body -%}
+
+<div id="menu">
+{{ menu() }}
+</div>
+
+{% block content %}
+<div id="map"></div>
+{% endblock %}
+
+{%- endblock %}

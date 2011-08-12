@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block body_class %}full-screen{% endblock %}
+
+{% block body -%}
+
+<div id="map"></div>
+
+<div id="menu">
+{{ menu() }}
+{% block after_menu %}{% endblock %}
+</div>
+
+{%- endblock %}

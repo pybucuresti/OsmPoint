@@ -173,7 +173,6 @@ M.enable_adding_points = function() {
 M.map_clicked = function(xy) {
   if(! M.config['logged_in']) {
     $('#add-poi-box').text("To add points, please log in.").show();
-    $('body').addClass('add-form');
     M.map.updateSize();
     return;
   }
@@ -184,7 +183,6 @@ M.map_clicked = function(xy) {
   $('form input[name=lat]', add_poi_box).val(lonlat.lat);
   $('form input[name=lon]', add_poi_box).val(lonlat.lon);
   add_poi_box.show();
-  $('body').addClass('add-form');
   M.map.updateSize();
   M.draw_marker(lonlat);
 };

@@ -4,51 +4,11 @@ html, body {
   overflow: hidden;
 }
 
-/* default layout - small menu showing links */
-div#menu {
-  position: absolute;
-  z-index: 1;
-  padding: 3px;
-  background: #888;
-  opacity: 0.8;
-  font-size: 15pt;
-}
-
-div#map {
-  background: #aaa;
-}
-
-/* the menu-add layout - big form at the top */
-body.add-form div#map { top: 121px; }
-
 /* hide one of the login/logout links */
 body.logged-in a.login { display: none; }
 body.not-logged-in a.logout { display: none; }
 
-/* menu buttons */
-div#menu a, div#menu a:visited {
-  margin: 5px;
-  color: #05b;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-/* form to add POI */
-div#add-poi-box {
-  position: absolute;
-  z-index: 1;
-  top: 36px;
-  display: none;
-  margin: 0;
-  background: #888;
-  opacity: 0.8;
-  font-size: 16pt;
-}
-
-div#info {
-  display: block;
-  margin: 0;
-}
+/* full-page map layout */
 
 body.full-screen div#map {
   position: absolute;
@@ -58,31 +18,42 @@ body.full-screen div#map {
   right: 0;
 }
 
-/* phone-portrait */
-@media screen and (max-width: 480px) and (orientation: portrait) {
-body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
-                        height: 70%; width: 70% }
-ul { font-size: 20px; }
+body.full-screen div#menu {
+  position: absolute;
+  padding: 3px;
+  background: #888;
+  opacity: 0.8;
+  font-size: 15pt;
 }
 
-/* phone-landscape */
-@media screen and (max-width: 480px) and (orientation: landscape) {
-div#menu { font-size: 14px; }
-body.add-form div#add-poi-box { font-size: 13px; }
-body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
-                        height: 100%; width: 40%; top: 26px; }
-p { font-size: 12px; }
-ul { font-size: 12px; }
-h2 { font-size: 16px; }
+body.full-screen div#menu a, body.full-screen div#menu a:visited {
+  margin: 5px;
+  color: #05b;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-/* desktop */
-@media screen and (min-width: 500px) {
-body.poi-page div#map { position: absolute; top: 31px; right: 0;
-                        height: 300px; width: 300px; }
+/* form to add POI */
+body.poi-page div#map {
+  width: 250px;
+  height: 250px;
+  border: 2px solid #bbb;
 }
 
-/* http://openlayers.org/dev/examples/style.mobile.css */
+div#add-poi-box {
+  display: none;
+}
+
+div#add-poi-box form {
+  margin: 0;
+}
+
+div#info {
+  display: block;
+  margin: 0;
+}
+
+/* adjust map controls (http://openlayers.org/dev/examples/style.mobile.css) */
 div.olControlZoomPanel {
     height: 108px
     width: 36px;
