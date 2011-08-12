@@ -20,3 +20,5 @@ setup(
 # Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from
 # http://svn.openstreetmap.org/applications/utils/python_lib/OsmApi/OsmApi.py).
 # Deploying can be done with 'fabric'.
+# imposm.parser needs build-essential, python-dev, protobuf-compiler and
+# libprotobuf-dev.

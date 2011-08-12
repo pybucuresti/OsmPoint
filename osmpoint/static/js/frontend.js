@@ -79,18 +79,51 @@ M.mark_point = function(lon, lat, marker_url, type, name) {
   var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
   var icon = new OpenLayers.Icon(marker_url, size, offset);
-  var marker = new OpenLayers.Marker(center, icon);
+  var base_marker = new OpenLayers.Marker(center, icon);
+
+  var feature = new OpenLayers.Feature(M.point_layer, center, base_marker);
+  feature.closeBox = true;
+  feature.data.overflow = "auto";
+  var border = '<div style="border-style: solid; border-width: 2px;">';
+  feature.data.popupContentHTML = border + name.toString() + '<br>(' +
+                                  type.toString() + ')' + '</div>';
+  feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
+                                        { 'autoSize': true });
+
+  var marker = feature.createMarker();
   M.point_layer.addMarker(marker);
 
-  marker.events.register("mousedown", marker, function() {
-    var message = name.toString() + '<br>(' + type.toString() + ')';
-    var popupsize = new OpenLayers.Size(100,100);
-    popup = new OpenLayers.Popup.AnchoredBubble("popup", center, popupsize,
-                                                message, icon, true);
-    M.map.addPopup(popup);
-  });
+  marker.events.register('click', feature, M.click_marker);
+  marker.events.register('touch', feature, M.click_marker);
+};
 
-}
+M.click_marker = function (evt) {
+  if (this.popup == null) {
+    this.popup = this.createPopup(this.closeBox);
+    M.map.addPopup(this.popup);
+    this.popup.show();
+  } else {
+    this.popup.toggle();
+  }
+};
+
+M.open_popup = function (lon, lat, marker_url, type, name) {
+  var center = M.project(new OpenLayers.LonLat(lon, lat));
+  var size = new OpenLayers.Size(20,20);
+  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+  var icon = new OpenLayers.Icon(marker_url, size, offset);
+  var base_marker = new OpenLayers.Marker(center, icon);
+
+  M.point_layer.addMarker(base_marker);
+  var border = '<div style="border-style: solid; border-width: 2px;">';
+  var message = border + name.toString() + '<br>(' +
+                type.toString() + ')' + '</div>';
+  var popupsize = new OpenLayers.Size(100,100);
+  popup = new OpenLayers.Popup.AnchoredBubble ("popup", center, popupsize,
+                                               message, icon, true);
+  popup.autoSize = true;
+  M.map.addPopup(popup);
+};
 
 M.enable_geolocation = function() {
   M.center_on_next_geolocation = false;
