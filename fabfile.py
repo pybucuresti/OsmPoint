@@ -30,7 +30,7 @@ with open(os.path.join(workdir, 'secret'), 'rb') as f:
 #OSM_API = "www.openstreetmap.org" #main api
 OSM_API = "api06.dev.openstreetmap.org" #development
 
-IMPORTED_POINTS_PATH = '.'
+IMPORTED_POINTS_PATH = os.path.join(workdir, 'points.yaml')
 
 OSMPOINT_ADMINS = [
     # Alex Morega:

@@ -13,7 +13,7 @@ DEBUG = True
 STATIC_CACHE_TIMEOUT = 0
 OSMPOINT_ADMINS = []
 
-IMPORTED_POINTS_PATH = '.'
+IMPORTED_POINTS_PATH = os.path.join(workdir, 'points.yaml')
 
 #Choose API:
 #OSM_API = "www.openstreetmap.org" #main api
