@@ -6,10 +6,11 @@ html, body {
 
 /* default layout - small menu showing links */
 div#menu {
-  height: 25px;
+  position: absolute;
+  z-index: 1;
   padding: 3px;
-  overflow: hidden;
-  background: #8a6;
+  background: #888;
+  opacity: 0.8;
   font-size: 15pt;
 }
 
@@ -18,7 +19,6 @@ div#map {
 }
 
 /* the menu-add layout - big form at the top */
-body.add-form div#add-poi-box { height: 85px; }
 body.add-form div#map { top: 121px; }
 
 /* hide one of the login/logout links */
@@ -35,16 +35,27 @@ div#menu a, div#menu a:visited {
 
 /* form to add POI */
 div#add-poi-box {
+  position: absolute;
+  z-index: 1;
   top: 36px;
   display: none;
   margin: 0;
-  background: #8a6;
+  background: #888;
+  opacity: 0.8;
   font-size: 16pt;
 }
 
 div#info {
   display: block;
   margin: 0;
+}
+
+body.full-screen div#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 /* phone-portrait */
@@ -56,8 +67,8 @@ ul { font-size: 20px; }
 
 /* phone-landscape */
 @media screen and (max-width: 480px) and (orientation: landscape) {
-div#menu { height: 20px; font-size: 14px; }
-body.add-form div#add-poi-box { height: 75px; font-size: 13px; }
+div#menu { font-size: 14px; }
+body.add-form div#add-poi-box { font-size: 13px; }
 body.poi-page div#map { position: absolute; right: 0px; bottom: 0px;
                         height: 100%; width: 40%; top: 26px; }
 p { font-size: 12px; }
@@ -71,16 +82,13 @@ body.poi-page div#map { position: absolute; top: 31px; right: 0;
                         height: 300px; width: 300px; }
 }
 
-body.full-screen div#map { top: 31px; right: 0; bottom: 0; left: 0; }
-
-
 /* http://openlayers.org/dev/examples/style.mobile.css */
 div.olControlZoomPanel {
     height: 108px
     width: 36px;
     position: absolute;
     top: auto;
-    bottom: 220px;
+    bottom: 170px;
     left: 20px;
 }
 div.olControlZoomPanel div {
@@ -100,4 +108,8 @@ div.olControlZoomPanel .olControlZoomToMaxExtentItemInactive {
 div.olControlZoomPanel .olControlZoomOutItemInactive {
     top: 72px;
     background-position: 0 -72px;
+}
+
+div.olcontrolattribution {
+  bottom: 15px;
 }
