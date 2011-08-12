@@ -74,13 +74,13 @@ body.poi-page div#map { position: absolute; top: 31px; right: 0;
 body.full-screen div#map { top: 31px; right: 0; bottom: 0; left: 0; }
 
 
-@media screen and (max-width: 480px) {
 /* http://openlayers.org/dev/examples/style.mobile.css */
 div.olControlZoomPanel {
     height: 108px
     width: 36px;
     position: absolute;
-    top: 20px;
+    top: auto;
+    bottom: 220px;
     left: 20px;
 }
 div.olControlZoomPanel div {
@@ -100,5 +100,4 @@ div.olControlZoomPanel .olControlZoomToMaxExtentItemInactive {
 div.olControlZoomPanel .olControlZoomOutItemInactive {
     top: 72px;
     background-position: 0 -72px;
-}
 }
