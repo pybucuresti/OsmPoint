@@ -33,6 +33,9 @@ M.init_map = function() {
       new OpenLayers.Control.ZoomPanel(),
       new OpenLayers.Control.Attribution()
     ]});
+  M.map.zoomToMaxExtent = function() {
+    M.set_map_position(M.default_position);
+  }
   M.map.addControl(new OpenLayers.Control.TouchNavigation({
     'dragPanOptions': {'enableKinetic': true}
   }));
@@ -44,17 +47,21 @@ M.init_map = function() {
   M.map.events.register("moveend", M.map, M.save_map_position);
 };
 
-M.restore_map_position = function() {
-  var position_json = localStorage['map_position'];
-  //var position;
-  if(position_json) {
-    var position = JSON.parse(position_json);
-  }
-  else {
-    var position = {lon: 26.10, lat: 44.43, zoom: 13};
-  }
+M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
+
+M.set_map_position = function(position) {
   var center = M.project(new OpenLayers.LonLat(position.lon, position.lat));
   M.map.setCenter(center, position.zoom);
+};
+
+M.restore_map_position = function() {
+  var position_json = localStorage['map_position'];
+  if(position_json) {
+    M.set_map_position(JSON.parse(position_json));
+  }
+  else {
+    M.set_map_position(M.default_position);
+  }
 };
 
 M.save_map_position = function(evt) {
