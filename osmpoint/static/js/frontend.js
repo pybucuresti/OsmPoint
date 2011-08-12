@@ -67,13 +67,23 @@ M.save_map_position = function(evt) {
   localStorage['map_position'] = JSON.stringify(position);
 };
 
-M.mark_point = function(lon, lat, marker_url) {
+M.mark_point = function(lon, lat, marker_url, type, name) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
   var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
   var icon = new OpenLayers.Icon(marker_url, size, offset);
-  M.point_layer.addMarker(new OpenLayers.Marker(center, icon));
-};
+  var marker = new OpenLayers.Marker(center, icon);
+  M.point_layer.addMarker(marker);
+
+  marker.events.register("mousedown", marker, function() {
+    var message = name.toString() + '<br>(' + type.toString() + ')';
+    var popupsize = new OpenLayers.Size(100,100);
+    popup = new OpenLayers.Popup.AnchoredBubble("popup", center, popupsize,
+                                                message, icon, true);
+    M.map.addPopup(popup);
+  });
+
+}
 
 M.enable_geolocation = function() {
   M.center_on_next_geolocation = false;

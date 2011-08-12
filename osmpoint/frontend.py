@@ -106,20 +106,33 @@ def thank_you():
 
 @frontend.route("/")
 def homepage():
-    marker_data = []
+    point_data = []
+
+    for p in flask.current_app.config['IMPORTED_POINTS']:
+        url = flask.url_for('static', filename='marker/'+p['amenity']+'.png')
+        point_data.append({
+            'latitude': p['lat'],
+            'longitude': p['lon'],
+            'marker_url': url,
+            'name': p['name'],
+            'type': p['amenity'],
+        })
+
     for p in Point.query.all():
         if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
                          'restaurant', 'theatre', 'cinema']:
             url = flask.url_for('static', filename='marker/'+p.amenity+'.png')
         else:
             url = flask.url_for('static', filename='openlayers/img/marker-blue.png')
-        marker_data.append({
+        point_data.append({
             'latitude': p.latitude,
             'longitude': p.longitude,
             'marker_url': url,
+            'name': p.name,
+            'type': p.amenity,
         })
 
-    return flask.render_template('explore.html', marker_data=marker_data)
+    return flask.render_template('explore.html', point_data=point_data)
 
 @frontend.route("/points")
 def show_points():

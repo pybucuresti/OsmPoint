@@ -13,6 +13,8 @@ DEBUG = True
 STATIC_CACHE_TIMEOUT = 0
 OSMPOINT_ADMINS = []
 
+IMPORTED_POINTS_PATH = '.'
+
 #Choose API:
 #OSM_API = "www.openstreetmap.org" #main api
 OSM_API = "api06.dev.openstreetmap.org" #development
