@@ -4,14 +4,18 @@
 
 <div id="add-poi-box">
 
-    <form method="post" action="{{ url_for('.save_poi') }}">
-      <input type="hidden" name="lat">
-      <input type="hidden" name="lon">
-      Name: <input name="name" size="15" autocorrect="off" autocomplete="off">
-      <br>
-      Choose type:
+  <form method="post" action="{{ url_for('.save_poi') }}">
+
+    <label>
+      <span class="hidden-label">Name</span>
+      <input name="name" size="10" placeholder="name"
+             autocorrect="off" autocomplete="off">
+    </label>
+
+    <label>
+      <span class="hidden-label">Type</span>
       <select name="amenity">
-        <option value="none">---</option>
+        <option>-- type --</option>
         <option value="bar">bar</option>
         <option value="cafe">cafe</option>
         <option value="cinema">cinema</option>
@@ -20,11 +24,20 @@
         <option value="restaurant">restaurant</option>
         <option value="nightclub">nightclub</option>
         <option value="theatre">theatre</option>
+        <option value="_other">other ...</option>
       </select>
-      <input type="submit" value="save">
-      <br>or enter another:
-      <input name="new_amenity" size="15" autocorrect="off" autocomplete="off">
-    </form>
+    </label>
+
+    <input id="enter-type-manually" style="display: none"
+           name="new_amenity" size="15" placeholder="enter manually"
+           autocorrect="off" autocomplete="off">
+
+    <input type="hidden" name="lat">
+    <input type="hidden" name="lon">
+
+    <input type="submit" value="save">
+
+  </form>
 
 </div>
 
@@ -35,6 +48,7 @@
 $(document).ready(function() {
   M.init_map();
   M.enable_geolocation();
+  M.auto_toggle_enter_type_manually();
   M.enable_adding_points();
   M.center_to_gps();
 });

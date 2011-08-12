@@ -169,6 +169,18 @@ M.map_click_to_edit = function(xy) {
   M.draw_marker(lonlat);
 };
 
+M.auto_toggle_enter_type_manually = function() {
+  $('select[name=amenity]').change(function() {
+    var manual_input = $('input#enter-type-manually');
+    if($(this).val() == "_other") {
+      manual_input.show();
+    }
+    else {
+      manual_input.hide();
+    }
+  });
+};
+
 M.enable_adding_points = function() {
   M.points_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.points_layer);

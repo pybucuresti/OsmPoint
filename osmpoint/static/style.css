@@ -50,6 +50,10 @@ div#info {
   margin: 0;
 }
 
+span.hidden-label {
+  display: none;
+}
+
 /* adjust map controls (http://openlayers.org/dev/examples/style.mobile.css) */
 div.olControlZoomPanel {
     height: 108px
