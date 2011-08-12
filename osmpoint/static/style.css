@@ -2,6 +2,7 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 /* hide one of the login/logout links */
@@ -21,16 +22,16 @@ body.full-screen div#map {
 body.full-screen div#menu {
   position: absolute;
   padding: 3px;
-  background: #888;
-  opacity: 0.8;
-  font-size: 15pt;
+  background: #fff;
+  background-color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  border: 1px solid #bbb;
 }
 
 body.full-screen div#menu a, body.full-screen div#menu a:visited {
   margin: 5px;
   color: #05b;
   font-weight: bold;
-  text-decoration: none;
 }
 
 /* form to add POI */
