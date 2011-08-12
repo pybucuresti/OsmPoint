@@ -36,7 +36,10 @@ M.init_map = function() {
   M.map.addControl(new OpenLayers.Control.TouchNavigation({
     'dragPanOptions': {'enableKinetic': true}
   }));
-  M.map.addLayer(new OpenLayers.Layer.OSM());
+  M.map.addLayer(new OpenLayers.Layer.CloudMade("", {
+      key: '87d74b5d089842f98679496ee6aef22e',
+      styleId: 42918
+  }));
   M.restore_map_position();
   M.map.events.register("moveend", M.map, M.save_map_position);
 };
