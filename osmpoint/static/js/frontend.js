@@ -103,11 +103,10 @@ M.draw_geolocation = function(coordinates, accuracy) {
       strokeWidth: 2
   };
   var center_style = {
-    graphicName: 'cross',
     strokeColor: '#00f',
-    strokeWidth: 2,
+    strokeWidth: 1,
     fillOpacity: 0,
-    pointRadius: 10
+    pointRadius: 5
   };
   var point = new OpenLayers.Geometry.Point(coordinates.x, coordinates.y);
   var poly = OpenLayers.Geometry.Polygon.createRegularPolygon(
