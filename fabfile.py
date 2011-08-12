@@ -54,6 +54,14 @@ logging.getLogger('osmpoint').setLevel(logging.INFO)
 def _push_code():
     local("git push -f '%s:%s' HEAD:incoming" % (server_name, server_repo))
 
+def configure():
+    run("mkdir -p '%s'" % server_var)
+    with cd(server_var):
+        if run("test -f secret || echo 'missing'"):
+            run("OSMPOINT_WORKDIR=. ../virtualenv/bin/osmpoint "
+                "generate_secret_key > secret")
+        put(StringIO(PRODUCTION_CONFIG), "config.py")
+
 def install_server():
     run("mkdir -p '%s'" % server_prefix)
     run("mkdir -p '%s/www'" % server_prefix)
@@ -82,12 +90,7 @@ def install_server():
         if run("test -f '%s' || echo 'missing'" % osmapi_filename):
             run("curl -O '%s'" % osmapi_url)
 
-    run("mkdir -p '%s'" % server_var)
-    with cd(server_var):
-        if run("test -f secret || echo 'missing'"):
-            run("OSMPOINT_WORKDIR=. ../virtualenv/bin/osmpoint "
-                "generate_secret_key > secret")
-        put(StringIO(PRODUCTION_CONFIG), "config.py")
+    configure()
 
 def push():
     _push_code()
