@@ -5,10 +5,6 @@ html, body {
   font-family: Helvetica, Arial, sans-serif;
 }
 
-/* hide one of the login/logout links */
-body.logged-in a.login { display: none; }
-body.not-logged-in a.logout { display: none; }
-
 /* full-page map layout */
 
 body.full-screen div#map {

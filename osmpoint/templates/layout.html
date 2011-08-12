@@ -7,15 +7,17 @@
     {% block extra_head %}{% endblock %}
   </head>
 
-  <body class="{% if g.user %}logged-in {% else %}not-logged-in {% endif %}
-               {%- block body_class -%}{%- endblock %}">
+  <body class="{%- block body_class -%}{%- endblock %}">
 
     {%- macro menu() %}
     <a href="/">Explore</a>
     <a href="/addPOI">AddPOI</a>
     <a href="/points">Points</a>
-    <a class="login" href="{{ url_for('.login') }}">Login</a>
+    {% if g.user %}
     <a class="logout" href="{{ url_for('.logout') }}">Logout</a>
+    {% else %}
+    <a class="login" href="{{ url_for('.login') }}">Login</a>
+    {% endif %}
     {% endmacro -%}
 
     {%- block body %}{% endblock -%}
