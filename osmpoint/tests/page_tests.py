@@ -268,6 +268,33 @@ class SubmitPointTest(SetUpTests):
         response = client.post('/points/500/send', data={'id': 500})
         self.assertEqual(response.status_code, 404)
 
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_points_to_osm(self, mock_get_osm_api):
+        import logging
+        self.log_records = log_records = []
+        class TestingHandler(logging.Handler):
+            def emit(self, record):
+                log_records.append(self.format(record))
+        self.log_handler = TestingHandler()
+        self.db_logger = logging.getLogger('osmpoint.database')
+        self.db_logger.addHandler(self.log_handler)
+        self.addCleanup(self.db_logger.removeHandler, self.log_handler)
+
+        mock_osm = mock_get_osm_api.return_value
+        mock_osm.ChangesetCreate.return_value = 999
+        mock_osm.NodeCreate.return_value = {'a': 'b', 'id': 13}
+
+        client = self.app.test_client()
+        p1 = self.add_point(46.06, 24.10, 'Eau de Web',
+                             'link1', 'pub', 'my-open-id')
+        log_records[:] = []
+
+        database.submit_points_to_osm([p1])
+
+        self.assertEqual(len(self.log_records), 4)
+        self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
+        self.assertEqual(self.log_records[1], "OSM point: {'a': 'b', 'id': 13}")
+        self.assertEqual(self.log_records[3], "OSM changeset committed")
 
 
 class EditPointTest(SetUpTests):
@@ -416,7 +443,7 @@ class DbLoggingTest(SetUpTests):
             def emit(self, record):
                 log_records.append(self.format(record))
         self.log_handler = TestingHandler()
-        self.db_logger = logging.getLogger('osmpoint.database.sql')
+        self.db_logger = logging.getLogger('osmpoint.database')
         self.db_logger.addHandler(self.log_handler)
         self.addCleanup(self.db_logger.removeHandler, self.log_handler)
 

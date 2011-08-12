@@ -3,7 +3,7 @@ from flaskext.sqlalchemy import SQLAlchemy
 import flask
 import OsmApi
 
-sql_log = logging.getLogger(__name__ + '.sql')
+log = logging.getLogger(__name__)
 db = SQLAlchemy()
 
 class Point(db.Model):
@@ -44,7 +44,8 @@ def get_osm_api():
 def submit_points_to_osm(point_to_submit):
     osm = get_osm_api()
     osm._api = flask.current_app.config['OSM_API']
-    osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
+    changeset_id = osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
+    log.info("Begin OSM changeset %d", changeset_id)
     for p in point_to_submit:
         node_dict = osm.NodeCreate({u"lon": p.longitude,
                                     u"lat": p.latitude,
@@ -52,9 +53,11 @@ def submit_points_to_osm(point_to_submit):
                                              'amenity': p.amenity,
                                              'website': p.url}})
         p.osm_id = node_dict['id']
+        log.info("OSM point: %r", node_dict)
         db.session.add(p)
     osm.ChangesetClose()
     db.session.commit()
+    log.info("OSM changeset committed")
 
 
 # monkey patch SQLite so we can log statemets just as we like
@@ -75,5 +78,5 @@ from sqlalchemy.engine.default import DefaultDialect
 @monkeypatch_method(DefaultDialect)
 def do_execute(self, cursor, statement, parameters, context=None):
     if any(statement.startswith(s) for s in ['INSERT ', 'UPDATE ', 'DELETE ']):
-        sql_log.info("%s %r", statement, parameters)
+        log.info("%s %r", statement, parameters)
     return self._original_do_execute(cursor, statement, parameters, context)
