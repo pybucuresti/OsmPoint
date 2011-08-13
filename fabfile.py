@@ -67,6 +67,8 @@ def configure():
 def install_server():
     run("mkdir -p '%s'" % server_prefix)
     run("mkdir -p '%s/www'" % server_prefix)
+    with cd('%s/www' % server_prefix):
+        run("test -e static || ln -s '%s/osmpoint/static'" % server_repo)
 
     if not exists(server_repo):
         run("mkdir -p '%s'" % server_repo)
