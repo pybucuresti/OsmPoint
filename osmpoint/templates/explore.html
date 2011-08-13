@@ -11,6 +11,7 @@
 <script>
 $(document).ready(function() {
   M.init_map();
+  M.enable_geolocation();
   M.point_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.point_layer);
   var point_data = {{ point_data|tojson|safe }};

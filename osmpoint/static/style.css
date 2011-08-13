@@ -86,3 +86,18 @@ div.olControlZoomPanel .olControlZoomOutItemInactive {
 div.olControlAttribution {
   bottom: 15px;
 }
+
+div.center-to-gps-control {
+    width: 36px;
+    height: 36px;
+    background-image: url(satellite.png);
+    position: absolute;
+    bottom: 180px;
+    left: 20px;
+}
+
+div.center-to-gps-control div {
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+}

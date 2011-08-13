@@ -151,6 +151,10 @@ M.enable_geolocation = function() {
         M.center_on_next_geolocation = false;
       }
   });
+  M.geolocate.activate();
+  M.center_to_gps_control = M.center_to_gps_control();
+  M.map.addControl(M.center_to_gps_control);
+  M.center_to_gps_control.activate();
 };
 
 M.draw_geolocation = function(coordinates, accuracy) {
@@ -178,8 +182,20 @@ M.draw_geolocation = function(coordinates, accuracy) {
 
 M.center_to_gps = function() {
   M.geolocate.deactivate();
-  //M.center_on_next_geolocation = true;
+  M.center_on_next_geolocation = true;
   M.geolocate.activate();
+};
+
+M.center_to_gps_control = function() {
+  var panel = new OpenLayers.Control.Panel({
+    displayClass: "center-to-gps-control"
+  });
+  var button = new OpenLayers.Control({
+    type: OpenLayers.Control.TYPE_BUTTON,
+    trigger: M.center_to_gps
+  });
+  panel.addControls([button]);
+  return panel;
 };
 
 M.center_to_coordinates = function(lon, lat) {
