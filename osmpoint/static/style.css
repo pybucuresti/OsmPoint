@@ -18,7 +18,6 @@ div#menu a, div#menu a:visited {
 }
 
 /* full-page map layout */
-
 body.full-screen div#map {
   position: absolute;
   top: 0;
@@ -60,30 +59,30 @@ span.hidden-label {
 
 /* adjust map controls (http://openlayers.org/dev/examples/style.mobile.css) */
 div.olControlZoomPanel {
-    height: 108px
-    width: 36px;
-    position: absolute;
-    top: auto;
-    bottom: 150px;
-    left: 10px;
+  height: 108px
+  width: 36px;
+  position: absolute;
+  top: auto;
+  bottom: 150px;
+  left: 10px;
 }
 div.olControlZoomPanel div {
-    width: 36px;
-    height: 36px;
-    background-image: url(mobile-zoombar.png);
-    left: 0;
+  width: 36px;
+  height: 36px;
+  background-image: url(mobile-zoombar.png);
+  left: 0;
 }
 div.olControlZoomPanel .olControlZoomInItemInactive {
-    top: 0;
-    background-position: 0 0;
+  top: 0;
+  background-position: 0 0;
 }
 div.olControlZoomPanel .olControlZoomToMaxExtentItemInactive {
-    top: 36px;
-    background-position: 0 -36px;
+  top: 36px;
+  background-position: 0 -36px;
 }
 div.olControlZoomPanel .olControlZoomOutItemInactive {
-    top: 72px;
-    background-position: 0 -72px;
+  top: 72px;
+  background-position: 0 -72px;
 }
 
 div.olControlAttribution {
@@ -91,16 +90,16 @@ div.olControlAttribution {
 }
 
 div.center-to-gps-control {
-    width: 36px;
-    height: 36px;
-    background-image: url(satellite.png);
-    position: absolute;
-    bottom: 160px;
-    left: 10px;
+  width: 36px;
+  height: 36px;
+  background-image: url(satellite.png);
+  position: absolute;
+  bottom: 160px;
+  left: 10px;
 }
 
 div.center-to-gps-control div {
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
 }
