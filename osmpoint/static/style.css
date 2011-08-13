@@ -11,6 +11,12 @@ div#menu {
   border: 1px solid #bbb;
 }
 
+div#menu a, div#menu a:visited {
+  margin: 5px;
+  color: #05b;
+  font-weight: bold;
+}
+
 /* full-page map layout */
 
 body.full-screen div#map {
@@ -25,12 +31,6 @@ body.full-screen div#menu {
   position: absolute;
   background: #fff;
   background-color: rgba(255, 255, 255, 0.7);
-}
-
-body.full-screen div#menu a, body.full-screen div#menu a:visited {
-  margin: 5px;
-  color: #05b;
-  font-weight: bold;
 }
 
 /* form to add POI */
