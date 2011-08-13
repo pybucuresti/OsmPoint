@@ -19,6 +19,7 @@
     {% else %}
     <a href="{{ url_for('.login') }}">Login</a>
     {% endif %}
+    <span id="debug-button-container"></span>
     {% endmacro -%}
 
     {%- block body %}{% endblock -%}
@@ -39,6 +40,9 @@
   <script src="{{ url_for('static', filename='openlayers/OpenLayers.js') }}"></script>
   <script src="{{ url_for('static', filename='js/cloudmade.js') }}"></script>
   <script src="{{ url_for('static', filename='js/frontend.js') }}"></script>
+  {%- if config['DEBUG'] %}
+  <script src="{{ url_for('static', filename='js/debug.js') }}"></script>
+  {% endif -%}
 
   {% block scripts %}{% endblock %}
 
