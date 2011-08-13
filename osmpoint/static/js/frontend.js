@@ -25,6 +25,18 @@ M.reverse_project = function(point) {
   return point.clone().transform(M.proj_mercator, M.proj_wgs1984);
 };
 
+M.cloudmade_xyz_layer = function(name, key, style_id) {
+  var url = 'http://a.tile.cloudmade.com/' + key + '/' + style_id +
+            '/256/${z}/${x}/${y}.png';
+  return new OpenLayers.Layer.XYZ(name, url, {
+    attribution: "Data &copy; <a href='http://openstreetmap.org/'>" +
+                 "OpenStreetMap</a>. Rendering &copy; " +
+                 "<a href='http://cloudmade.com'>CloudMade</a>.",
+    sphericalMercator: true,
+    wrapDateLine: true
+  });
+};
+
 M.init_map = function() {
   M.map = new OpenLayers.Map({
     'div': "map",
@@ -39,10 +51,8 @@ M.init_map = function() {
   M.map.addControl(new OpenLayers.Control.TouchNavigation({
     'dragPanOptions': {'enableKinetic': true}
   }));
-  M.map.addLayer(new OpenLayers.Layer.CloudMade("", {
-      key: '87d74b5d089842f98679496ee6aef22e',
-      styleId: 42918
-  }));
+  M.map.addLayer(M.cloudmade_xyz_layer("CloudMade",
+    '87d74b5d089842f98679496ee6aef22e', '42918'));
   M.restore_map_position();
   M.map.events.register("moveend", M.map, M.save_map_position);
 };
