@@ -78,10 +78,10 @@ def save_poi():
     form = EditPointForm(flask.request.form)
 
     if form.validate():
-        if form.amenity.data == 'none' and form.new_amenity.data == "":
+        if form.amenity.data == '_other' and form.new_amenity.data == "":
             ok_type = False
         else:
-            if form.amenity.data == 'none':
+            if form.amenity.data == '_other':
                 amenity = form.new_amenity.data
                 form.name.data = '#' + form.name.data
                 marker_url = flask.url_for('static',
@@ -190,10 +190,10 @@ def edit_point(point_id):
         flask.abort(403)
 
     if form.validate():
-        if form.amenity.data == 'none' and form.new_amenity.data == "":
+        if form.amenity.data == '_other' and form.new_amenity.data == "":
             ok_type = False
         else:
-            if form.amenity.data == 'none':
+            if form.amenity.data == '_other':
                 form.amenity.data = form.new_amenity.data
             form.populate_obj(point)
             point.latitude = form.lat.data
