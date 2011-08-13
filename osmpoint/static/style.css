@@ -61,8 +61,8 @@ div.olControlZoomPanel {
     width: 36px;
     position: absolute;
     top: auto;
-    bottom: 170px;
-    left: 20px;
+    bottom: 150px;
+    left: 10px;
 }
 div.olControlZoomPanel div {
     width: 36px;
@@ -92,8 +92,8 @@ div.center-to-gps-control {
     height: 36px;
     background-image: url(satellite.png);
     position: absolute;
-    bottom: 180px;
-    left: 20px;
+    bottom: 160px;
+    left: 10px;
 }
 
 div.center-to-gps-control div {
