@@ -5,6 +5,12 @@ html, body {
   font-family: Helvetica, Arial, sans-serif;
 }
 
+div#menu {
+  padding: 3px;
+  font-size: 21px;
+  border: 1px solid #bbb;
+}
+
 /* full-page map layout */
 
 body.full-screen div#map {
@@ -17,11 +23,8 @@ body.full-screen div#map {
 
 body.full-screen div#menu {
   position: absolute;
-  padding: 3px;
   background: #fff;
   background-color: rgba(255, 255, 255, 0.7);
-  font-size: 21px;
-  border: 1px solid #bbb;
 }
 
 body.full-screen div#menu a, body.full-screen div#menu a:visited {
