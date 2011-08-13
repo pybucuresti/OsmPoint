@@ -37,7 +37,12 @@
   </script>
 
   <script src="{{ url_for('static', filename='js/jquery-1.5.2.min.js') }}"></script>
+  {% if config['FULL_OPENLAYERS'] %}
+  <script src="{{ url_for('static', filename='openlayers/OpenLayers-full.js') }}"></script>
+  <script>OpenLayers._getScriptLocation=function(){return"/static/openlayers/";};</script>
+  {% else %}
   <script src="{{ url_for('static', filename='openlayers/OpenLayers.js') }}"></script>
+  {% endif %}
   <script src="{{ url_for('static', filename='js/frontend.js') }}"></script>
   {%- if config['DEBUG'] %}
   <script src="{{ url_for('static', filename='js/debug.js') }}"></script>
