@@ -15,9 +15,9 @@
     <a href="/addPOI">Add</a>
     <a href="/points">List</a>
     {% if g.user %}
-    <a class="logout" href="{{ url_for('.logout') }}">Logout</a>
+    <a href="{{ url_for('.logout') }}">Logout</a>
     {% else %}
-    <a class="login" href="{{ url_for('.login') }}">Login</a>
+    <a href="{{ url_for('.login') }}">Login</a>
     {% endif %}
     {% endmacro -%}
 
