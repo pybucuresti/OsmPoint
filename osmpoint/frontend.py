@@ -62,10 +62,12 @@ def logout():
 @oid.after_login
 def create_or_login(resp):
     flask.session['openid'] = resp.identity_url
-    return flask.redirect('/')
+    return flask.redirect(oid.get_next_url())
 
 @frontend.route("/addPOI")
 def init():
+    if flask.g.user is None:
+        return flask.redirect('/login?next=/addPOI')
     return flask.render_template('add_poi.html')
 
 @frontend.route("/save_poi", methods=['POST'])
