@@ -2,6 +2,8 @@ from StringIO import StringIO
 from fabric.api import env, local, cd, run, put, settings, hide
 from fabric.contrib.files import exists
 
+osm_login = None
+
 from local_fabfile import *
 
 server_name, server_prefix = server.split(':')
@@ -63,6 +65,8 @@ def configure():
             run("OSMPOINT_WORKDIR=. ../virtualenv/bin/osmpoint "
                 "generate_secret_key > secret")
         put(StringIO(PRODUCTION_CONFIG), "config.py")
+        if osm_login is not None:
+            put(StringIO("%s:%s\n" % osm_login), 'osm-login.txt')
 
 def install_server():
     run("mkdir -p '%s'" % server_prefix)
