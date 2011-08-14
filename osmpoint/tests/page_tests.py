@@ -97,7 +97,7 @@ class SavePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
-                 'url': 'link', 'amenity': 'none', 'new_amenity': 'new_type'}
+                 'url': 'link', 'amenity': '_other', 'new_amenity': 'new_type'}
         response = client.post('/save_poi', data=point)
         self.assertEqual(len(self.get_all_points()), 1)
 
@@ -376,7 +376,7 @@ class EditPointTest(SetUpTests):
         point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': 'new',
-                      'amenity': 'none', 'url': 'url', 'id': point.id}
+                      'amenity': '_other', 'url': 'url', 'id': point.id}
         address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
