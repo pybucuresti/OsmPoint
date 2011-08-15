@@ -226,9 +226,6 @@ def send_point(point_id):
     if point.osm_id is not None:
         flask.abort(400)
 
-    points = []
-    points.append(point)
-
-    submit_points_to_osm(points)
+    submit_points_to_osm([point])
     return flask.render_template('sent.html', id=point.id)
 
