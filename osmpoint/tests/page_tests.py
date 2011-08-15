@@ -203,7 +203,7 @@ class DeletePointTest(SetUpTests):
 class SubmitPointTest(SetUpTests):
 
     @patch('osmpoint.database.get_osm_api')
-    def test_submit_points_to_osm(self, mock_get_osm_api):
+    def test_changesets(self, mock_get_osm_api):
         mock_osm = mock_get_osm_api.return_value
         client = self.app.test_client()
         p1 = self.add_point(46.06, 24.10, 'Eau de Web',
@@ -229,6 +229,34 @@ class SubmitPointTest(SetUpTests):
                                                       'amenity': 'bar'}},),
              {})])
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
+
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_points_to_osm(self, mock_get_osm_api):
+        mock_osm = mock_get_osm_api.return_value
+
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
+
+        p = self.add_point(46.06, 24.10, 'Eau de Web',
+                            'link1', 'pub', 'admin-user')
+
+        mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': '50'}
+
+        address = flask.url_for('.send_point', point_id=p.id)
+        response = client.post(address, data={'id': p.id})
+
+        self.assertEquals(p.osm_id, 50)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
+        self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
+        self.assertEquals(mock_osm.NodeCreate.call_args_list, [
+            (({u'lat': 46.06, u'lon': 24.1, u'tag': {'name': 'Eau de Web',
+                                                     'website': 'link1',
+                                                     'amenity': 'pub'}},),
+              {})])
+
 
     def test_submit_by_non_admin(self):
         self.app.config['OSMPOINT_ADMINS'] = []
@@ -268,7 +296,7 @@ class SubmitPointTest(SetUpTests):
         self.assertEqual(response.status_code, 404)
 
     @patch('osmpoint.database.get_osm_api')
-    def test_submit_points_to_osm(self, mock_get_osm_api):
+    def test_submit_points_log_records(self, mock_get_osm_api):
         import logging
         self.log_records = log_records = []
         class TestingHandler(logging.Handler):
