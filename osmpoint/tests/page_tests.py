@@ -97,7 +97,7 @@ class SavePointTest(SetUpTests):
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
-                 'url': 'link', 'amenity': 'none', 'new_amenity': 'new_type'}
+                 'url': 'link', 'amenity': '_other', 'new_amenity': 'new_type'}
         response = client.post('/save_poi', data=point)
         self.assertEqual(len(self.get_all_points()), 1)
 
@@ -203,7 +203,7 @@ class DeletePointTest(SetUpTests):
 class SubmitPointTest(SetUpTests):
 
     @patch('osmpoint.database.get_osm_api')
-    def test_submit_points_to_osm(self, mock_get_osm_api):
+    def test_changesets(self, mock_get_osm_api):
         mock_osm = mock_get_osm_api.return_value
         client = self.app.test_client()
         p1 = self.add_point(46.06, 24.10, 'Eau de Web',
@@ -230,7 +230,30 @@ class SubmitPointTest(SetUpTests):
              {})])
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
 
-    def test_submit_by_non_admin(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_points_to_osm(self, mock_get_osm_api):
+        mock_osm = mock_get_osm_api.return_value
+
+        client = self.app.test_client()
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+        client.post('/test_login', data={'user_id': 'admin-user'})
+
+        p = self.add_point(46.06, 24.10, 'Eau de Web',
+                            'link1', 'pub', 'admin-user')
+
+        mock_osm.NodeCreate.return_value = {'id': 50}
+
+        address = flask.url_for('.send_point', point_id=p.id)
+        response = client.post(address, data={'id': p.id})
+
+        self.assertEqual(response.status_code, 200)
+
+        ok_data = {u'lat': 46.06, u'lon': 24.1, u'tag': {
+            'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}}
+        mock_osm.NodeCreate.assert_called_once_with(ok_data)
+
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_by_non_admin(self, mock_get_osm_api):
         self.app.config['OSMPOINT_ADMINS'] = []
         client = self.app.test_client()
 
@@ -241,11 +264,13 @@ class SubmitPointTest(SetUpTests):
         address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
 
+        self.assertFalse(mock_get_osm_api.called)
         points = self.get_all_points()
         self.assertEqual(points[0].osm_id, None)
         self.assertEqual(response.status_code, 403)
 
-    def test_submit_already_submitted_point(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_already_submitted_point(self, mock_get_osm_api):
         client = self.app.test_client()
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
@@ -257,18 +282,23 @@ class SubmitPointTest(SetUpTests):
 
         address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
+
+        self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 400)
 
-    def test_submit_nonexistent_point(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_nonexistent_point(self, mock_get_osm_api):
         client = self.app.test_client()
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         response = client.post('/points/500/send', data={'id': 500})
+
+        self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 404)
 
     @patch('osmpoint.database.get_osm_api')
-    def test_submit_points_to_osm(self, mock_get_osm_api):
+    def test_submit_points_log_records(self, mock_get_osm_api):
         import logging
         self.log_records = log_records = []
         class TestingHandler(logging.Handler):
@@ -376,7 +406,7 @@ class EditPointTest(SetUpTests):
         point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': 'new',
-                      'amenity': 'none', 'url': 'url', 'id': point.id}
+                      'amenity': '_other', 'url': 'url', 'id': point.id}
         address = flask.url_for('.edit_point', point_id=point.id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]

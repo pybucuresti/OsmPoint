@@ -24,11 +24,14 @@ class NodesCoords(object):
     def nodes_callback(self, nodes):
         for osm_id, tags, coords in nodes:
             if 44.35 <= coords[1] <= 44.5 and 25.94 <= coords[0] <= 26.24 :
-                 p = {'lon': coords[0],
-                      'lat': coords[1],
-                      'name': tags['name'],
-                      'amenity': tags['amenity']}
-                 self.points.append(p)
+                p = {
+                    'osm_id': osm_id,
+                    'lon': coords[0],
+                    'lat': coords[1],
+                    'name': tags['name'],
+                    'amenity': tags['amenity'],
+                }
+                self.points.append(p)
 
 
 def main():

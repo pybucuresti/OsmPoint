@@ -78,10 +78,10 @@ def save_poi():
     form = EditPointForm(flask.request.form)
 
     if form.validate():
-        if form.amenity.data == 'none' and form.new_amenity.data == "":
+        if form.amenity.data == '_other' and form.new_amenity.data == "":
             ok_type = False
         else:
-            if form.amenity.data == 'none':
+            if form.amenity.data == '_other':
                 amenity = form.new_amenity.data
                 form.name.data = '#' + form.name.data
                 marker_url = flask.url_for('static',
@@ -119,17 +119,9 @@ def about():
 def homepage():
     point_data = []
 
-    for p in flask.current_app.config['IMPORTED_POINTS']:
-        url = flask.url_for('static', filename='marker/'+p['amenity']+'.png')
-        point_data.append({
-            'latitude': p['lat'],
-            'longitude': p['lon'],
-            'marker_url': url,
-            'name': p['name'],
-            'type': p['amenity'],
-        })
+    osm_point_ids = set()
 
-    for p in Point.query.filter(Point.osm_id!=None):
+    for p in Point.query.all():
         if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
                          'restaurant', 'theatre', 'cinema']:
             url = flask.url_for('static', filename='marker/'+p.amenity+'.png')
@@ -141,6 +133,21 @@ def homepage():
             'marker_url': url,
             'name': p.name,
             'type': p.amenity,
+        })
+        if p.osm_id is not None:
+            osm_point_ids.add(p.osm_id)
+
+    for p in flask.current_app.config['IMPORTED_POINTS']:
+        if p['osm_id'] in osm_point_ids:
+            continue
+        osm_point_ids.add(p['osm_id'])
+        url = flask.url_for('static', filename='marker/'+p['amenity']+'.png')
+        point_data.append({
+            'latitude': p['lat'],
+            'longitude': p['lon'],
+            'marker_url': url,
+            'name': p['name'],
+            'type': p['amenity'],
         })
 
     return flask.render_template('explore.html', point_data=point_data)
@@ -189,10 +196,10 @@ def edit_point(point_id):
         flask.abort(403)
 
     if form.validate():
-        if form.amenity.data == 'none' and form.new_amenity.data == "":
+        if form.amenity.data == '_other' and form.new_amenity.data == "":
             ok_type = False
         else:
-            if form.amenity.data == 'none':
+            if form.amenity.data == '_other':
                 form.amenity.data = form.new_amenity.data
             form.populate_obj(point)
             point.latitude = form.lat.data
@@ -225,6 +232,6 @@ def send_point(point_id):
     if point.osm_id is not None:
         flask.abort(400)
 
-    submit_points_to_osm(point)
+    submit_points_to_osm([point])
     return flask.render_template('sent.html', id=point.id)
 
