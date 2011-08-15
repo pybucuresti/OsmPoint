@@ -241,22 +241,16 @@ class SubmitPointTest(SetUpTests):
         p = self.add_point(46.06, 24.10, 'Eau de Web',
                             'link1', 'pub', 'admin-user')
 
-        mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': '50'}
+        mock_osm.NodeCreate.return_value = {'id': 50}
 
         address = flask.url_for('.send_point', point_id=p.id)
         response = client.post(address, data={'id': p.id})
 
-        self.assertEquals(p.osm_id, 50)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
-        self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
-        self.assertEquals(mock_osm.NodeCreate.call_args_list, [
-            (({u'lat': 46.06, u'lon': 24.1, u'tag': {'name': 'Eau de Web',
-                                                     'website': 'link1',
-                                                     'amenity': 'pub'}},),
-              {})])
-
+        ok_data = {u'lat': 46.06, u'lon': 24.1, u'tag': {
+            'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}}
+        mock_osm.NodeCreate.assert_called_once_with(ok_data)
 
     def test_submit_by_non_admin(self):
         self.app.config['OSMPOINT_ADMINS'] = []
