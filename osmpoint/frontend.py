@@ -119,6 +119,8 @@ def about():
 def homepage():
     point_data = []
 
+    osm_point_ids = set()
+
     for p in Point.query.all():
         if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
                          'restaurant', 'theatre', 'cinema']:
@@ -132,17 +134,21 @@ def homepage():
             'name': p.name,
             'type': p.amenity,
         })
+        if p.osm_id is not None:
+            osm_point_ids.add(p.osm_id)
 
     for p in flask.current_app.config['IMPORTED_POINTS']:
+        if p['osm_id'] in osm_point_ids:
+            continue
+        osm_point_ids.add(p['osm_id'])
         url = flask.url_for('static', filename='marker/'+p['amenity']+'.png')
-        point = {'latitude': p['lat'],
-                 'longitude': p['lon'],
-                 'marker_url': url,
-                 'name': p['name'],
-                 'type': p['amenity'],
-                }
-        if point not in point_data:
-            point_data.append(point)
+        point_data.append({
+            'latitude': p['lat'],
+            'longitude': p['lon'],
+            'marker_url': url,
+            'name': p['name'],
+            'type': p['amenity'],
+        })
 
     return flask.render_template('explore.html', point_data=point_data)
 
