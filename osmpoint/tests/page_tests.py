@@ -252,7 +252,8 @@ class SubmitPointTest(SetUpTests):
             'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}}
         mock_osm.NodeCreate.assert_called_once_with(ok_data)
 
-    def test_submit_by_non_admin(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_by_non_admin(self, mock_get_osm_api):
         self.app.config['OSMPOINT_ADMINS'] = []
         client = self.app.test_client()
 
@@ -263,11 +264,13 @@ class SubmitPointTest(SetUpTests):
         address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
 
+        self.assertFalse(mock_get_osm_api.called)
         points = self.get_all_points()
         self.assertEqual(points[0].osm_id, None)
         self.assertEqual(response.status_code, 403)
 
-    def test_submit_already_submitted_point(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_already_submitted_point(self, mock_get_osm_api):
         client = self.app.test_client()
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
@@ -279,14 +282,19 @@ class SubmitPointTest(SetUpTests):
 
         address = flask.url_for('.send_point', point_id=point.id)
         response = client.post(address, data={'id': point.id})
+
+        self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 400)
 
-    def test_submit_nonexistent_point(self):
+    @patch('osmpoint.database.get_osm_api')
+    def test_submit_nonexistent_point(self, mock_get_osm_api):
         client = self.app.test_client()
         self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         response = client.post('/points/500/send', data={'id': 500})
+
+        self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 404)
 
     @patch('osmpoint.database.get_osm_api')
