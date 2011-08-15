@@ -132,3 +132,8 @@ def deploy():
     push()
     configure()
     restart()
+
+def put_points(dump_path):
+    with cd(server_var):
+        with open(dump_path, 'rb') as f:
+            put(f, "points.yaml")
