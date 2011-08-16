@@ -37,32 +37,50 @@ M.cloudmade_xyz_layer = function(name, key, style_id) {
   });
 };
 
-M.init_map = function() {
-  M.map = new OpenLayers.Map({
-    'div': "map",
+M.new_map = function(div_id) {
+  /*
+  Constructor for `map` objects that encapsulate an `OpenLayers.Map` and
+  some methods.
+  */
+  var map = {};
+
+  map.olmap = new OpenLayers.Map({
+    'div': div_id,
     'controls': [
       new OpenLayers.Control.Navigation(),
       new OpenLayers.Control.ZoomPanel(),
       new OpenLayers.Control.Attribution()
-    ]});
-  M.map.zoomToMaxExtent = function() {
-    M.set_map_position(M.default_position);
-  }
-  M.map.addControl(new OpenLayers.Control.TouchNavigation({
+    ]
+  });
+
+  map.olmap.addControl(new OpenLayers.Control.TouchNavigation({
     'dragPanOptions': {'enableKinetic': true}
   }));
-  M.map.addLayer(M.cloudmade_xyz_layer("CloudMade",
+
+  map.olmap.addLayer(M.cloudmade_xyz_layer("CloudMade",
     '87d74b5d089842f98679496ee6aef22e', '42918'));
+
+  map.set_position = function(position) {
+    var center = M.project(new OpenLayers.LonLat(position.lon, position.lat));
+    map.olmap.setCenter(center, position.zoom);
+  };
+
+  map.olmap.zoomToMaxExtent = function() {
+    map.set_position(M.default_position);
+  };
+
+  return map;
+};
+
+M.init_map = function() {
+  M.fullscreen_map = M.new_map('map');
+  M.map = M.fullscreen_map.olmap;
+  M.set_map_position = M.fullscreen_map.set_position;
   M.restore_map_position();
   M.map.events.register("moveend", M.map, M.save_map_position);
 };
 
 M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
-
-M.set_map_position = function(position) {
-  var center = M.project(new OpenLayers.LonLat(position.lon, position.lat));
-  M.map.setCenter(center, position.zoom);
-};
 
 M.restore_map_position = function() {
   var position_json = localStorage['map_position'];
