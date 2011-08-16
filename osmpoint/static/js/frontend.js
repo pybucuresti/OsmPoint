@@ -39,6 +39,18 @@ M.cloudmade_xyz_layer = function(name, key, style_id) {
 
 M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
 
+M.new_center_to_gps_control = function(callback) {
+  var panel = new OpenLayers.Control.Panel({
+    displayClass: "center-to-gps-control"
+  });
+  var button = new OpenLayers.Control({
+    type: OpenLayers.Control.TYPE_BUTTON,
+    trigger: callback
+  });
+  panel.addControls([button]);
+  return panel;
+};
+
 M.new_map = function(div_id) {
   /*
   Constructor for `map` objects that encapsulate an `OpenLayers.Map` and
@@ -96,6 +108,57 @@ M.new_map = function(div_id) {
     map.olmap.events.register("moveend", map.olmap, map.save_position);
   };
 
+  map.enable_geolocation = function() {
+    M.center_on_next_geolocation = false;
+    map.geolocate_control = new OpenLayers.Control.Geolocate({
+      bind: false, watch: true,
+      geolocationOptions: {enableHighAccuracy: true}
+    });
+    M.map.addControl(map.geolocate_control);
+    M.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
+    M.map.addLayer(M.geolocation_layer);
+    map.geolocate_control.events.register("locationupdated", null, function(evt) {
+        M.draw_geolocation(evt.point, evt.position.coords.accuracy);
+        if (M.center_on_next_geolocation) {
+          M.map.zoomToExtent(M.geolocation_layer.getDataExtent());
+          M.center_on_next_geolocation = false;
+        }
+    });
+    map.geolocate_control.activate();
+    M.center_to_gps_control = M.new_center_to_gps_control(center_to_gps);
+    M.map.addControl(M.center_to_gps_control);
+    M.center_to_gps_control.activate();
+
+    function center_to_gps() {
+      map.geolocate_control.deactivate();
+      M.center_on_next_geolocation = true;
+      map.geolocate_control.activate();
+    };
+  };
+
+  M.draw_geolocation = function(coordinates, accuracy) {
+    M.geolocation_layer.removeAllFeatures();
+    var circle_style = {
+        fillColor: '#00f',
+        fillOpacity: 0.3,
+        strokeColor: '#00f',
+        strokeOpacity: 0.5,
+        strokeWidth: 2
+    };
+    var center_style = {
+      strokeColor: '#00f',
+      strokeWidth: 1,
+      fillOpacity: 0,
+      pointRadius: 5
+    };
+    var point = new OpenLayers.Geometry.Point(coordinates.x, coordinates.y);
+    var poly = OpenLayers.Geometry.Polygon.createRegularPolygon(
+          point, accuracy/2, 40, 0);
+    var circle = new OpenLayers.Feature.Vector(poly, {}, circle_style);
+    var center = new OpenLayers.Feature.Vector(coordinates, {}, center_style);
+    M.geolocation_layer.addFeatures([center, circle]);
+  };
+
   return map;
 };
 
@@ -109,6 +172,7 @@ M.init_fullscreen_map = function() {
   M.fullscreen_map = M.new_map('map');
   M.map = M.fullscreen_map.olmap;
   M.fullscreen_map.enable_position_memory();
+  M.fullscreen_map.enable_geolocation();
 };
 
 M.mark_point = function(lon, lat, marker_url, type, name) {
@@ -160,69 +224,6 @@ M.open_popup = function (lon, lat, marker_url, type, name) {
                                                message, icon, true);
   popup.autoSize = true;
   M.map.addPopup(popup);
-};
-
-M.enable_geolocation = function() {
-  M.center_on_next_geolocation = false;
-  M.geolocate = new OpenLayers.Control.Geolocate({
-    bind: false, watch: true,
-    geolocationOptions: {enableHighAccuracy: true}
-  });
-  M.map.addControl(M.geolocate);
-  M.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
-  M.map.addLayer(M.geolocation_layer);
-  M.geolocate.events.register("locationupdated", M.geolocate, function(evt) {
-      M.draw_geolocation(evt.point, evt.position.coords.accuracy);
-      if (M.center_on_next_geolocation) {
-        M.map.zoomToExtent(M.geolocation_layer.getDataExtent());
-        M.center_on_next_geolocation = false;
-      }
-  });
-  M.geolocate.activate();
-  M.center_to_gps_control = M.center_to_gps_control();
-  M.map.addControl(M.center_to_gps_control);
-  M.center_to_gps_control.activate();
-};
-
-M.draw_geolocation = function(coordinates, accuracy) {
-  M.geolocation_layer.removeAllFeatures();
-  var circle_style = {
-      fillColor: '#00f',
-      fillOpacity: 0.3,
-      strokeColor: '#00f',
-      strokeOpacity: 0.5,
-      strokeWidth: 2
-  };
-  var center_style = {
-    strokeColor: '#00f',
-    strokeWidth: 1,
-    fillOpacity: 0,
-    pointRadius: 5
-  };
-  var point = new OpenLayers.Geometry.Point(coordinates.x, coordinates.y);
-  var poly = OpenLayers.Geometry.Polygon.createRegularPolygon(
-        point, accuracy/2, 40, 0);
-  var circle = new OpenLayers.Feature.Vector(poly, {}, circle_style);
-  var center = new OpenLayers.Feature.Vector(coordinates, {}, center_style);
-  M.geolocation_layer.addFeatures([center, circle]);
-};
-
-M.center_to_gps = function() {
-  M.geolocate.deactivate();
-  M.center_on_next_geolocation = true;
-  M.geolocate.activate();
-};
-
-M.center_to_gps_control = function() {
-  var panel = new OpenLayers.Control.Panel({
-    displayClass: "center-to-gps-control"
-  });
-  var button = new OpenLayers.Control({
-    type: OpenLayers.Control.TYPE_BUTTON,
-    trigger: M.center_to_gps
-  });
-  panel.addControls([button]);
-  return panel;
 };
 
 M.center_to_coordinates = function(lon, lat) {
