@@ -259,24 +259,6 @@ M.click_marker = function (evt) {
   }
 };
 
-M.open_popup = function (lon, lat, marker_url, type, name) {
-  var center = M.project(new OpenLayers.LonLat(lon, lat));
-  var size = new OpenLayers.Size(20,20);
-  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(marker_url, size, offset);
-  var base_marker = new OpenLayers.Marker(center, icon);
-
-  M.point_layer.addMarker(base_marker);
-  var border = '<div style="border-style: solid; border-width: 2px;">';
-  var message = border + name.toString() + '<br>(' +
-                type.toString() + ')' + '</div>';
-  var popupsize = new OpenLayers.Size(100,100);
-  popup = new OpenLayers.Popup.AnchoredBubble ("popup", center, popupsize,
-                                               message, icon, true);
-  popup.autoSize = true;
-  M.map.addPopup(popup);
-};
-
 M.show_one_point = function(lon, lat) {
   M.single_map.set_position({lon: lon, lat: lat, zoom: 16});
   var markers = M.single_map.new_markers_collection("Markers");
