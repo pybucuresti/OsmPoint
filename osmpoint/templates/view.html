@@ -67,7 +67,8 @@
 <script>
   $(document).ready(function() {
     var map = M.init_map();
-    M.show_one_point({{ point.longitude|tojson }}, {{ point.latitude|tojson }});
+    M.show_one_point(map, {{ point.longitude|tojson }},
+                          {{ point.latitude|tojson }});
 
     if($('#edit-poi-box').length > 0) {
       M.enable_editing_point(map);

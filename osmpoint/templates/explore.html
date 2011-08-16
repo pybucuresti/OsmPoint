@@ -11,16 +11,11 @@
 {{ super() }}
 <script>
 $(document).ready(function() {
-  M.init_fullscreen_map();
-  M.point_layer = new OpenLayers.Layer.Markers("Markers");
-  M.map.addLayer(M.point_layer);
+  var map = M.init_fullscreen_map();
+  var collection = map.new_markers_collection("Locations");
   var point_data = {{ point_data|tojson|safe }};
   $.each(point_data, function(i, point_info) {
-    M.mark_point(point_info['longitude'],
-                 point_info['latitude'],
-                 point_info['marker_url'],
-                 point_info['type'],
-                 point_info['name']);
+    M.show_location(map, collection, point_info);
   });
 });
 </script>

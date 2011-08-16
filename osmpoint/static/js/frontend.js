@@ -171,9 +171,10 @@ M.new_map = function(div_id) {
   };
 
   map.new_markers_collection = function(name) {
-    var collection = {};
     var layer = new OpenLayers.Layer.Markers(name);
     map.olmap.addLayer(layer);
+
+    var collection = {map: map, layer: layer};
 
     collection.new_marker = function(lon, lat, icon) {
       var center = M.project(new OpenLayers.LonLat(lon, lat));
@@ -212,56 +213,57 @@ M.new_map = function(div_id) {
 };
 
 M.init_map = function() {
-  M.single_map = M.new_map('map');
-  M.map = M.single_map.olmap;
-  M.single_map.set_position(M.default_position);
-  return M.single_map;
+  var map = M.new_map('map');
+  M.map = map.olmap;
+  map.set_position(M.default_position);
+  return map;
 };
 
 M.init_fullscreen_map = function() {
-  M.fullscreen_map = M.new_map('map');
-  M.map = M.fullscreen_map.olmap;
-  M.fullscreen_map.enable_position_memory();
-  M.fullscreen_map.enable_geolocation();
-  return M.fullscreen_map;
+  var map = M.new_map('map');
+  M.map = map.olmap;
+  map.enable_position_memory();
+  map.enable_geolocation();
+  return map;
 };
 
-M.mark_point = function(lon, lat, marker_url, type, name) {
-  var center = M.project(new OpenLayers.LonLat(lon, lat));
+M.show_location = function(map, collection, point_info) {
+  var xy = M.project(new OpenLayers.LonLat(point_info['longitude'],
+                                           point_info['latitude']));
   var size = new OpenLayers.Size(18,18);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(marker_url, size, offset);
-  var base_marker = new OpenLayers.Marker(center, icon);
+  var icon = new OpenLayers.Icon(point_info['marker_url'], size, offset);
+  var base_marker = new OpenLayers.Marker(xy, icon);
 
-  var feature = new OpenLayers.Feature(M.point_layer, center, base_marker);
+  var feature = new OpenLayers.Feature(collection.layer, xy, base_marker);
   feature.closeBox = true;
   feature.data.overflow = "auto";
   var border = '<div style="border-style: solid; border-width: 2px;">';
-  feature.data.popupContentHTML = border + name.toString() + '<br>(' +
-                                  type.toString() + ')' + '</div>';
+  feature.data.popupContentHTML = border + point_info['name'] + '<br>(' +
+                                  point_info['type'] + ')' + '</div>';
   feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
                                         { 'autoSize': true });
 
   var marker = feature.createMarker();
-  M.point_layer.addMarker(marker);
+  collection.layer.addMarker(marker);
 
-  marker.events.register('click', feature, M.click_marker);
-  marker.events.register('touch', feature, M.click_marker);
-};
+  marker.events.register('click', feature, marker_clicked);
+  marker.events.register('touch', feature, marker_clicked);
 
-M.click_marker = function (evt) {
-  if (this.popup == null) {
-    this.popup = this.createPopup(this.closeBox);
-    M.map.addPopup(this.popup);
-    this.popup.show();
-  } else {
-    this.popup.toggle();
+  function marker_clicked() {
+    if (feature.popup == null) {
+      feature.popup = feature.createPopup(feature.closeBox);
+      collection.map.olmap.addPopup(feature.popup);
+      feature.popup.show();
+    } else {
+      feature.popup.toggle();
+    }
   }
 };
 
-M.show_one_point = function(lon, lat) {
-  M.single_map.set_position({lon: lon, lat: lat, zoom: 16});
-  var markers = M.single_map.new_markers_collection("Markers");
+M.show_one_point = function(map, lon, lat) {
+  map.set_position({lon: lon, lat: lat, zoom: 16});
+  var markers = map.new_markers_collection("Markers");
   markers.new_marker(lon, lat, M.config['generic_icon']);
 };
 
