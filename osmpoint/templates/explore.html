@@ -11,7 +11,7 @@
 {{ super() }}
 <script>
 $(document).ready(function() {
-  M.init_map();
+  M.init_fullscreen_map();
   M.enable_geolocation();
   M.point_layer = new OpenLayers.Layer.Markers("Markers");
   M.map.addLayer(M.point_layer);

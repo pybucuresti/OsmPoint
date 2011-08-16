@@ -37,6 +37,8 @@ M.cloudmade_xyz_layer = function(name, key, style_id) {
   });
 };
 
+M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
+
 M.new_map = function(div_id) {
   /*
   Constructor for `map` objects that encapsulate an `OpenLayers.Map` and
@@ -69,37 +71,44 @@ M.new_map = function(div_id) {
     map.set_position(M.default_position);
   };
 
+  map.restore_position = function() {
+    var position_json = localStorage['map_position'];
+    if(position_json) {
+      map.set_position(JSON.parse(position_json));
+    }
+    else {
+      map.set_position(M.default_position);
+    }
+  };
+
+  map.save_position = function(evt) {
+    var center = M.reverse_project(map.olmap.center);
+    var position = {
+      lat: center.lat,
+      lon: center.lon,
+      zoom: map.olmap.zoom
+    };
+    localStorage['map_position'] = JSON.stringify(position);
+  };
+
+  map.enable_position_memory = function() {
+    map.restore_position();
+    map.olmap.events.register("moveend", map.olmap, map.save_position);
+  };
+
   return map;
 };
 
 M.init_map = function() {
   M.fullscreen_map = M.new_map('map');
   M.map = M.fullscreen_map.olmap;
-  M.set_map_position = M.fullscreen_map.set_position;
-  M.restore_map_position();
-  M.map.events.register("moveend", M.map, M.save_map_position);
+  M.fullscreen_map.set_position(M.default_position);
 };
 
-M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
-
-M.restore_map_position = function() {
-  var position_json = localStorage['map_position'];
-  if(position_json) {
-    M.set_map_position(JSON.parse(position_json));
-  }
-  else {
-    M.set_map_position(M.default_position);
-  }
-};
-
-M.save_map_position = function(evt) {
-  var center = M.reverse_project(M.map.center);
-  var position = {
-    lat: center.lat,
-    lon: center.lon,
-    zoom: M.map.zoom
-  };
-  localStorage['map_position'] = JSON.stringify(position);
+M.init_fullscreen_map = function() {
+  M.fullscreen_map = M.new_map('map');
+  M.map = M.fullscreen_map.olmap;
+  M.fullscreen_map.enable_position_memory();
 };
 
 M.mark_point = function(lon, lat, marker_url, type, name) {
