@@ -214,14 +214,12 @@ M.new_map = function(div_id) {
 
 M.init_map = function() {
   var map = M.new_map('map');
-  M.map = map.olmap;
   map.set_position(M.default_position);
   return map;
 };
 
 M.init_fullscreen_map = function() {
   var map = M.new_map('map');
-  M.map = map.olmap;
   map.enable_position_memory();
   map.enable_geolocation();
   return map;
