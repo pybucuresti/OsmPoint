@@ -163,9 +163,9 @@ M.new_map = function(div_id) {
 };
 
 M.init_map = function() {
-  M.fullscreen_map = M.new_map('map');
-  M.map = M.fullscreen_map.olmap;
-  M.fullscreen_map.set_position(M.default_position);
+  M.single_map = M.new_map('map');
+  M.map = M.single_map.olmap;
+  M.single_map.set_position(M.default_position);
 };
 
 M.init_fullscreen_map = function() {
@@ -228,7 +228,7 @@ M.open_popup = function (lon, lat, marker_url, type, name) {
 
 M.center_to_coordinates = function(lon, lat) {
   var center = M.project(new OpenLayers.LonLat(lon, lat));
-  M.map.setCenter(center, 16);
+  M.single_map.set_position({lon: lon, lat: lat, zoom: 16});
 
   var size = new OpenLayers.Size(21,25);
   var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
