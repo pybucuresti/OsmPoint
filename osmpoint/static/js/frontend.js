@@ -39,6 +39,17 @@ M.cloudmade_xyz_layer = function(name, key, style_id) {
 
 M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
 
+M.offset = {
+  bottom: function(w, h) { return new OpenLayers.Pixel(-w/2, -h); },
+  center: function(w, h) { return new OpenLayers.Pixel(-w/2, -h/2); }
+};
+
+M.new_icon = function(path, width, height, offset_name) {
+  var size = new OpenLayers.Size(width, height);
+  var offset = M.offset[offset_name](width, height);
+  return new OpenLayers.Icon(path, size, offset);
+};
+
 M.new_center_to_gps_control = function(callback) {
   var panel = new OpenLayers.Control.Panel({
     displayClass: "center-to-gps-control"
@@ -159,6 +170,19 @@ M.new_map = function(div_id) {
     map.geolocation_layer.addFeatures([center, circle]);
   };
 
+  map.new_markers_collection = function(name) {
+    var collection = {};
+    var layer = new OpenLayers.Layer.Markers(name);
+    map.olmap.addLayer(layer);
+    collection.new_marker = function(lon, lat, icon) {
+      var center = M.project(new OpenLayers.LonLat(lon, lat));
+      var marker = new OpenLayers.Marker(center, icon)
+      layer.addMarker(marker);
+      return marker;
+    };
+    return collection;
+  };
+
   return map;
 };
 
@@ -226,17 +250,10 @@ M.open_popup = function (lon, lat, marker_url, type, name) {
   M.map.addPopup(popup);
 };
 
-M.center_to_coordinates = function(lon, lat) {
-  var center = M.project(new OpenLayers.LonLat(lon, lat));
+M.show_one_point = function(lon, lat) {
   M.single_map.set_position({lon: lon, lat: lat, zoom: 16});
-
-  var size = new OpenLayers.Size(21,25);
-  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(M.config['poi_marker'], size, offset);
-
-  M.init_points_layer = new OpenLayers.Layer.Markers("Markers");
-  M.map.addLayer(M.init_points_layer);
-  M.init_points_layer.addMarker(new OpenLayers.Marker(center, icon));
+  var markers = M.single_map.new_markers_collection("Markers");
+  markers.new_marker(lon, lat, M.config['generic_icon']);
 };
 
 M.enable_editing_point = function() {

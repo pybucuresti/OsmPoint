@@ -30,9 +30,7 @@
         logged_in: {{ (True if g.user else False)|tojson|safe }},
         is_admin: {{ (True if is_admin else False)|tojson|safe }},
         marker_image_src: {{ url_for('static',
-            filename='marker/crosshair.png')|tojson|safe }},
-        poi_marker: {{ url_for('static',
-             filename='openlayers/img/marker.png')|tojson|safe }}
+            filename='marker/crosshair.png')|tojson|safe }}
     }};
   </script>
 
@@ -47,6 +45,11 @@
   {%- if config['DEBUG'] %}
   <script src="{{ url_for('static', filename='js/debug.js') }}"></script>
   {% endif -%}
+
+  <script>
+    M.config['generic_icon'] = M.new_icon({{ url_for('static',
+      filename='openlayers/img/marker.png')|tojson|safe }}, 21, 25, 'bottom');
+  </script>
 
   {% block scripts %}{% endblock %}
 
