@@ -174,13 +174,38 @@ M.new_map = function(div_id) {
     var collection = {};
     var layer = new OpenLayers.Layer.Markers(name);
     map.olmap.addLayer(layer);
+
     collection.new_marker = function(lon, lat, icon) {
       var center = M.project(new OpenLayers.LonLat(lon, lat));
       var marker = new OpenLayers.Marker(center, icon)
       layer.addMarker(marker);
       return marker;
     };
+
+    collection.empty = function() {
+      layer.clearMarkers();
+    };
+
     return collection;
+  };
+
+  map.enable_coordinates_selector = function(callback) {
+    var selection_layer = map.new_markers_collection('Select coordinates');
+    var add_point = new OpenLayers.Control.Click(map_clicked);
+    map.olmap.addControl(add_point);
+    add_point.activate();
+
+    function map_clicked(xy) {
+      var lonlat = M.reverse_project(map.olmap.getLonLatFromViewPortPx(xy));
+      var lon = lonlat.lon, lat = lonlat.lat;
+
+      selection_layer.empty();
+      selection_layer.new_marker(lon, lat, M.config['crosshair_icon']);
+      map.olmap.panTo(M.project(lonlat));
+
+      map.center_on_next_geolocation = false;
+      callback(lonlat);
+    };
   };
 
   return map;
@@ -190,6 +215,7 @@ M.init_map = function() {
   M.single_map = M.new_map('map');
   M.map = M.single_map.olmap;
   M.single_map.set_position(M.default_position);
+  return M.single_map;
 };
 
 M.init_fullscreen_map = function() {
@@ -197,6 +223,7 @@ M.init_fullscreen_map = function() {
   M.map = M.fullscreen_map.olmap;
   M.fullscreen_map.enable_position_memory();
   M.fullscreen_map.enable_geolocation();
+  return M.fullscreen_map;
 };
 
 M.mark_point = function(lon, lat, marker_url, type, name) {
@@ -256,21 +283,14 @@ M.show_one_point = function(lon, lat) {
   markers.new_marker(lon, lat, M.config['generic_icon']);
 };
 
-M.enable_editing_point = function() {
-  M.points_layer = new OpenLayers.Layer.Markers("Markers");
-  M.map.addLayer(M.points_layer);
-  var add_point = new OpenLayers.Control.Click(M.map_click_to_edit);
-  M.map.addControl(add_point);
-  add_point.activate();
-};
+M.enable_editing_point = function(map) {
+  map.enable_coordinates_selector(updated_coordinates_value);
 
-M.map_click_to_edit = function(xy) {
-  var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
-  var edit_poi_box = $('#edit-poi-box');
-  $('form input[name=lat]', edit_poi_box).val(lonlat.lat);
-  $('form input[name=lon]', edit_poi_box).val(lonlat.lon);
-  M.map.updateSize();
-  M.draw_marker(lonlat);
+  function updated_coordinates_value(lonlat) {
+    var edit_poi_box = $('#edit-poi-box');
+    $('form input[name=lat]', edit_poi_box).val(lonlat.lat);
+    $('form input[name=lon]', edit_poi_box).val(lonlat.lon);
+  }
 };
 
 M.auto_toggle_enter_type_manually = function() {
@@ -285,39 +305,15 @@ M.auto_toggle_enter_type_manually = function() {
   });
 };
 
-M.enable_adding_points = function() {
-  M.points_layer = new OpenLayers.Layer.Markers("Markers");
-  M.map.addLayer(M.points_layer);
-  var add_point = new OpenLayers.Control.Click(M.map_clicked);
-  M.map.addControl(add_point);
-  add_point.activate();
-};
+M.enable_adding_points = function(map) {
+  map.enable_coordinates_selector(updated_coordinates_value);
 
-M.map_clicked = function(xy) {
-  if(! M.config['logged_in']) {
-    $('#add-poi-box').text("To add points, please log in.").show();
-    M.map.updateSize();
-    return;
+  function updated_coordinates_value(lonlat) {
+    var add_poi_box = $('#add-poi-box');
+    $('form input[name=lat]', add_poi_box).val(lonlat.lat);
+    $('form input[name=lon]', add_poi_box).val(lonlat.lon);
+    add_poi_box.show();
   }
-
-  M.fullscreen_map.center_on_next_geolocation = false;
-  var lonlat = M.reverse_project(M.map.getLonLatFromViewPortPx(xy));
-  var add_poi_box = $('#add-poi-box');
-  $('form input[name=lat]', add_poi_box).val(lonlat.lat);
-  $('form input[name=lon]', add_poi_box).val(lonlat.lon);
-  add_poi_box.show();
-  M.map.updateSize();
-  M.draw_marker(lonlat);
-};
-
-M.draw_marker = function(lonlat) {
-  var map_coords = M.project(lonlat);
-  var size = new OpenLayers.Size(32, 32);
-  var offset = new OpenLayers.Pixel(-(size.w/2), -(size.h/2));
-  var icon = new OpenLayers.Icon(M.config['marker_image_src'], size, offset);
-  M.points_layer.clearMarkers();
-  M.points_layer.addMarker(new OpenLayers.Marker(map_coords, icon));
-  M.map.panTo(map_coords);
 };
 
 })();

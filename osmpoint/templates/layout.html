@@ -28,9 +28,7 @@
 
   <script>window.M = {config: {
         logged_in: {{ (True if g.user else False)|tojson|safe }},
-        is_admin: {{ (True if is_admin else False)|tojson|safe }},
-        marker_image_src: {{ url_for('static',
-            filename='marker/crosshair.png')|tojson|safe }}
+        is_admin: {{ (True if is_admin else False)|tojson|safe }}
     }};
   </script>
 
@@ -49,6 +47,8 @@
   <script>
     M.config['generic_icon'] = M.new_icon({{ url_for('static',
       filename='openlayers/img/marker.png')|tojson|safe }}, 21, 25, 'bottom');
+    M.config['crosshair_icon'] = M.new_icon({{ url_for('static',
+      filename='marker/crosshair.png')|tojson|safe }}, 32, 32, 'center');
   </script>
 
   {% block scripts %}{% endblock %}
