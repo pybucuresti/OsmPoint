@@ -16,7 +16,6 @@
 <script>
   $(document).ready(function() {
     M.init_map();
-    var new_point = {{ new_point|tojson|safe }};
     M.point_layer = new OpenLayers.Layer.Markers("Markers");
     M.map.addLayer(M.point_layer);
   });

@@ -80,23 +80,23 @@ def save_poi():
     if form.validate():
         if form.amenity.data == '_other' and form.new_amenity.data == "":
             ok_type = False
+
         else:
             if form.amenity.data == '_other':
                 amenity = form.new_amenity.data
                 form.name.data = '#' + form.name.data
-                marker_url = flask.url_for('static',
-                                    filename='openlayers/img/marker-blue.png')
+
             else:
                 amenity = form.amenity.data
-                marker_url = flask.url_for('static',
-                                    filename='marker/'+amenity+'.png')
+
             add_point(form.lat.data, form.lon.data, form.name.data,
                       form.url.data, amenity, flask.g.user)
             new_point = { 'latitude': form.lat.data,
                           'longitude': form.lon.data,
-                          'marker_url': marker_url,
+                          'marker': marker_for_amenity(amenity),
                           'name': form.name.data,
                           'type': amenity }
+
             return flask.render_template('thank_you.html', new_point=new_point)
 
     try:
@@ -115,6 +115,13 @@ def save_poi():
 def about():
     return flask.render_template('info.html')
 
+def marker_for_amenity(amenity):
+    if amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
+                   'restaurant', 'theatre', 'cinema']:
+        return amenity + '.png'
+    else:
+        return 'marker-blue.png'
+
 @frontend.route("/")
 def homepage():
     point_data = []
@@ -122,15 +129,10 @@ def homepage():
     osm_point_ids = set()
 
     for p in Point.query.all():
-        if p.amenity in ['pub', 'cafe', 'bar', 'fuel', 'nightclub',
-                         'restaurant', 'theatre', 'cinema']:
-            url = flask.url_for('static', filename='marker/'+p.amenity+'.png')
-        else:
-            url = flask.url_for('static', filename='openlayers/img/marker-blue.png')
         point_data.append({
             'latitude': p.latitude,
             'longitude': p.longitude,
-            'marker_url': url,
+            'marker': marker_for_amenity(p.amenity),
             'name': p.name,
             'type': p.amenity,
         })
@@ -141,11 +143,10 @@ def homepage():
         if p['osm_id'] in osm_point_ids:
             continue
         osm_point_ids.add(p['osm_id'])
-        url = flask.url_for('static', filename='marker/'+p['amenity']+'.png')
         point_data.append({
             'latitude': p['lat'],
             'longitude': p['lon'],
-            'marker_url': url,
+            'marker': marker_for_amenity(p['amenity']),
             'name': p['name'],
             'type': p['amenity'],
         })

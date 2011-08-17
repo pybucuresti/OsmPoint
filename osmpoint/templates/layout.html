@@ -28,7 +28,8 @@
 
   <script>window.M = {config: {
         logged_in: {{ (True if g.user else False)|tojson|safe }},
-        is_admin: {{ (True if is_admin else False)|tojson|safe }}
+        is_admin: {{ (True if is_admin else False)|tojson|safe }},
+        marker_prefix: {{ url_for('static', filename='marker/')|tojson|safe }}
     }};
   </script>
 

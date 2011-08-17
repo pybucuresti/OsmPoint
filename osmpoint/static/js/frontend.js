@@ -176,11 +176,38 @@ M.new_map = function(div_id) {
 
     var collection = {map: map, layer: layer};
 
-    collection.new_marker = function(lon, lat, icon) {
+    collection.show_marker = function(lon, lat, icon) {
       var center = M.project(new OpenLayers.LonLat(lon, lat));
       var marker = new OpenLayers.Marker(center, icon)
       layer.addMarker(marker);
       return marker;
+    };
+
+    collection.show_marker_with_popup = function(lon, lat, icon, popup_html) {
+      var xy = M.project(new OpenLayers.LonLat(lon, lat));
+      var base_marker = new OpenLayers.Marker(xy, icon);
+      var feature = new OpenLayers.Feature(collection.layer, xy, base_marker);
+      feature.closeBox = true;
+      feature.data.overflow = "auto";
+      feature.data.popupContentHTML = popup_html;
+      feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
+                                            { 'autoSize': true });
+
+      var marker = feature.createMarker();
+      layer.addMarker(marker);
+
+      marker.events.register('click', null, marker_clicked);
+      marker.events.register('touch', null, marker_clicked);
+
+      function marker_clicked() {
+        if (feature.popup == null) {
+          feature.popup = feature.createPopup(feature.closeBox);
+          collection.map.olmap.addPopup(feature.popup);
+          feature.popup.show();
+        } else {
+          feature.popup.toggle();
+        }
+      }
     };
 
     collection.empty = function() {
@@ -201,7 +228,7 @@ M.new_map = function(div_id) {
       var lon = lonlat.lon, lat = lonlat.lat;
 
       selection_layer.empty();
-      selection_layer.new_marker(lon, lat, M.config['crosshair_icon']);
+      selection_layer.show_marker(lon, lat, M.config['crosshair_icon']);
       map.olmap.panTo(M.project(lonlat));
 
       map.center_on_next_geolocation = false;
@@ -226,43 +253,18 @@ M.init_fullscreen_map = function() {
 };
 
 M.show_location = function(map, collection, point_info) {
-  var xy = M.project(new OpenLayers.LonLat(point_info['longitude'],
-                                           point_info['latitude']));
-  var size = new OpenLayers.Size(18,18);
-  var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  var icon = new OpenLayers.Icon(point_info['marker_url'], size, offset);
-  var base_marker = new OpenLayers.Marker(xy, icon);
-
-  var feature = new OpenLayers.Feature(collection.layer, xy, base_marker);
-  feature.closeBox = true;
-  feature.data.overflow = "auto";
-  var border = '<div style="border-style: solid; border-width: 2px;">';
-  feature.data.popupContentHTML = border + point_info['name'] + '<br>(' +
-                                  point_info['type'] + ')' + '</div>';
-  feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
-                                        { 'autoSize': true });
-
-  var marker = feature.createMarker();
-  collection.layer.addMarker(marker);
-
-  marker.events.register('click', feature, marker_clicked);
-  marker.events.register('touch', feature, marker_clicked);
-
-  function marker_clicked() {
-    if (feature.popup == null) {
-      feature.popup = feature.createPopup(feature.closeBox);
-      collection.map.olmap.addPopup(feature.popup);
-      feature.popup.show();
-    } else {
-      feature.popup.toggle();
-    }
-  }
+  var icon_url = M.config['marker_prefix'] + point_info['marker']
+  var icon = M.new_icon(icon_url, 18, 18, 'center');
+  var popup_html = '<div style="border-style: solid; border-width: 2px;">' +
+      point_info['name'] + '<br>(' + point_info['type'] + ')' + '</div>';
+  collection.show_marker_with_popup(
+      point_info['longitude'], point_info['latitude'], icon, popup_html);
 };
 
 M.show_one_point = function(map, lon, lat) {
   map.set_position({lon: lon, lat: lat, zoom: 16});
   var markers = map.new_markers_collection("Markers");
-  markers.new_marker(lon, lat, M.config['generic_icon']);
+  markers.show_marker(lon, lat, M.config['generic_icon']);
 };
 
 M.enable_editing_point = function(map) {
