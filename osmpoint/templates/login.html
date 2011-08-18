@@ -3,38 +3,24 @@
 {% block content %}
 
 <h1>Log in with OpenID</h1>
-<form action="" method="post">
-  {% if error %}<p class="error"><strong>Error:</strong> {{ error }}</p>{% endif %}
+
+{% if error %}
+  <p class="error"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
+
+<form method="post">
+  <input type="hidden" name="openid"
+         value="https://www.google.com/accounts/o8/id">
+  <input type="hidden" name="next" value="{{ next }}">
   <p>
-    <p>
-      Sign in <a class="google-openid">with your Google account</a>
-      or <a class="manual-openid">enter OpenID manually</a>.
-    </p>
-    <input type="text" name="openid" size="30" style="display: none;"
-     autocorrect="off" autocomplete="off" autocapitalize="off">
-    <p><a href="http://openstreetmap.org/">OpenStreetMap</a> is open data, licensed under the Creative Commons Attribution-ShareAlike 2.0s.<br>
-    By signing in, you agree to the <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA</a> license agreement.</p>
-    <input type="submit" value="Sign in">
-    <input type="hidden" name="next" value="{{ next }}">
+    Information entered via this website is submitted to OpenStreetMap using
+    the <a href="http://www.osmfoundation.org/wiki/License/Contributor_Terms"
+    >contributor terms</a>.
+  </p>
+  <p>
+    If you agree, <input type="submit" value="sign in">
+    with your Google account.
+  </p>
 </form>
 
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/jquery-1.5.2.js') }}"></script>
-<script>
-  $('a.google-openid').attr('href', '#').click(function(evt) {
-    evt.preventDefault();
-    $('input[name=openid]').val('https://www.google.com/accounts/o8/id');
-    $('form').submit();
-  });
-  $('a.manual-openid').attr('href', '#').click(function(evt) {
-    evt.preventDefault();
-    $('input[name=openid]').show();
-  });
-  $('form').submit(function(evt) {
-    var button = $('input[type=submit]', this);
-    button.attr('disabled', 'disabled').val("please wait...");
-  });
-</script>
 {% endblock %}
