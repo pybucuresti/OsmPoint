@@ -57,6 +57,10 @@ span.hidden-label {
   display: none;
 }
 
+div.poi-selected {
+  outline: 2px solid #7b8;
+}
+
 /* adjust map controls (http://openlayers.org/dev/examples/style.mobile.css) */
 div.olControlZoomPanel {
   height: 108px

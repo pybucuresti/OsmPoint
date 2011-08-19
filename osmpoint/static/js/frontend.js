@@ -187,7 +187,6 @@ M.new_map = function(div_id) {
       var xy = M.project(new OpenLayers.LonLat(lon, lat));
       var base_marker = new OpenLayers.Marker(xy, icon);
       var feature = new OpenLayers.Feature(collection.layer, xy, base_marker);
-      feature.closeBox = true;
       feature.data.overflow = "auto";
       feature.data.popupContentHTML = popup_html;
       feature.popupClass = OpenLayers.Class(OpenLayers.Popup.AnchoredBubble,
@@ -195,18 +194,38 @@ M.new_map = function(div_id) {
 
       var marker = feature.createMarker();
       layer.addMarker(marker);
+      M._mark = marker
 
       marker.events.register('click', null, marker_clicked);
-      marker.events.register('touch', null, marker_clicked);
+      marker.events.register('touchstart', null, marker_clicked);
 
-      function marker_clicked() {
-        if (feature.popup == null) {
-          feature.popup = feature.createPopup(feature.closeBox);
-          collection.map.olmap.addPopup(feature.popup);
-          feature.popup.show();
-        } else {
-          feature.popup.toggle();
+      function marker_clicked(evt) {
+        evt.preventDefault();
+        if (feature.popup != null) {
+          close_popup();
+          return;
         }
+        if(M.close_current_popup != null) {
+          M.close_current_popup();
+        }
+        create_popup();
+      }
+
+      function create_popup() {
+        var popup = feature.createPopup(false);
+        popup.setBackgroundColor('#7b8');
+        popup.setOpacity(0.9);
+        collection.map.olmap.addPopup(popup);
+        popup.show();
+        popup.events.register('click', null, close_popup);
+        $(feature.marker.icon.imageDiv).addClass('poi-selected');
+        M.close_current_popup = close_popup;
+      }
+
+      function close_popup() {
+        $(feature.marker.icon.imageDiv).removeClass('poi-selected');
+        feature.destroyPopup();
+        M.close_current_popup = null;
       }
     };
 
@@ -255,8 +274,7 @@ M.init_fullscreen_map = function() {
 M.show_location = function(map, collection, point_info) {
   var icon_url = M.config['marker_prefix'] + point_info['marker']
   var icon = M.new_icon(icon_url, 18, 18, 'center');
-  var popup_html = '<div style="border-style: solid; border-width: 2px;">' +
-      point_info['name'] + '<br>(' + point_info['type'] + ')' + '</div>';
+  var popup_html = point_info['name'] + ' (' + point_info['type'] + ')';
   collection.show_marker_with_popup(
       point_info['longitude'], point_info['latitude'], icon, popup_html);
 };
