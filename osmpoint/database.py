@@ -51,6 +51,7 @@ def submit_points_to_osm(point_to_submit):
         tags = {
             'name': p.name,
             'amenity': p.amenity,
+            'source': "poi.grep.ro",
         }
         if p.url:
             tags['website'] = p.url

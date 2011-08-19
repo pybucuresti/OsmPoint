@@ -220,8 +220,9 @@ class SubmitPointTest(SetUpTests):
         self.assertEquals(p1.osm_id, 13)
         self.assertEquals(p2.osm_id, 45)
         self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
-        tags1 = {'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}
-        tags2 = {'name': 'blabla', 'amenity': 'bar'}
+        tags1 = {'name': 'Eau de Web', 'website': 'link1',
+                 'amenity': 'pub', 'source': 'poi.grep.ro'}
+        tags2 = {'name': 'blabla', 'amenity': 'bar', 'source': 'poi.grep.ro'}
         self.assertEquals(mock_osm.NodeCreate.call_args_list, [
             (({u'lat': 46.06, u'lon': 24.1, u'tag': tags1},), {}),
             (({u'lat': 46.07, u'lon': 24.11, u'tag': tags2},), {})])
@@ -248,7 +249,8 @@ class SubmitPointTest(SetUpTests):
 
         tags = {'name': 'Eau de Web',
                 'website': 'link1',
-                'amenity': 'pub'}
+                'amenity': 'pub',
+                'source': 'poi.grep.ro'}
         ok_data = {u'lat': 46.06, u'lon': 24.1, u'tag': tags}
         mock_osm.NodeCreate.assert_called_once_with(ok_data)
 
