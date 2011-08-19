@@ -28,9 +28,7 @@ SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(workdir, 'db.sqlite3')
 with open(os.path.join(workdir, 'secret'), 'rb') as f:
     SECRET_KEY = f.read().strip()
 
-# Choose API:
-#OSM_API = "www.openstreetmap.org" #main api
-OSM_API = "api06.dev.openstreetmap.org" #development
+OSM_API = "www.openstreetmap.org"
 
 IMPORTED_POINTS_PATH = os.path.join(workdir, 'points.yaml')
 
