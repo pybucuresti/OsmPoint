@@ -335,6 +335,22 @@ class SubmitPointTest(SetUpTests):
         self.assertEqual(self.log_records[1], "OSM point: {'a': 'b', 'id': 13}")
         self.assertEqual(self.log_records[3], "OSM changeset committed")
 
+    def test_submitted_point_url(self):
+        self.app.config['OSM_API'] = 'fake.api.example.com'
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
+
+        point = self.add_point(46.06, 24.10, 'EdW', '', 'pub', 'my-open-id')
+        point_id = point.id
+        point.osm_id = 1234
+        self.db.session.add(point)
+        self.db.session.commit()
+
+        client = self.app.test_client()
+        client.post('/test_login', data={'user_id': 'admin-user'})
+        response = client.get('/points/%d' % point_id)
+        url = 'http://fake.api.example.com/browse/node/1234'
+        self.assertIn('<a href="%s">' % url, response.data)
+
 
 class EditPointTest(SetUpTests):
 
