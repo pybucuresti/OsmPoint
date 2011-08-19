@@ -202,6 +202,14 @@ class DeletePointTest(SetUpTests):
 
 class SubmitPointTest(SetUpTests):
 
+    @patch('OsmApi.OsmApi')
+    def test_api_url_and_login(self, mock_osm_api):
+        self.app.config['OSM_PASSWORD_PATH'] = 'some-path'
+        self.app.config['OSM_API'] = 'the-api-url'
+        api = database.get_osm_api()
+        mock_osm_api.assert_called_once_with(passwordfile='some-path',
+                                             api='the-api-url')
+
     @patch('osmpoint.database.get_osm_api')
     def test_changesets(self, mock_get_osm_api):
         mock_osm = mock_get_osm_api.return_value
