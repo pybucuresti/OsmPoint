@@ -48,14 +48,6 @@
         <input type="hidden" name="confirm" value="none">
       </form>
 
-      {% if point.osm_id %}
-      <p>
-        In OSM database:
-        <a href="http://{{ config['OSM_API'] }}/browse/node/{{ point.osm_id }}">
-          {{- point.osm_id }}</a>
-      </p>
-      {% endif %}
-
     </div>
 
 {% else %}
@@ -65,6 +57,14 @@
       Type: {{ point.amenity }}<br>
     </div>
 
+{% endif %}
+
+{% if point.osm_id %}
+<p>
+  In OSM database:
+  <a href="http://{{ config['OSM_API'] }}/browse/node/{{ point.osm_id }}">
+    {{- point.osm_id }}</a>
+</p>
 {% endif %}
 
 <div id="map"></div>
