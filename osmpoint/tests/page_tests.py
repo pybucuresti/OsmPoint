@@ -209,8 +209,9 @@ class SubmitPointTest(SetUpTests):
         p1 = self.add_point(46.06, 24.10, 'Eau de Web',
                              'link1', 'pub', 'my-open-id')
         p2 = self.add_point(46.07, 24.11, 'blabla',
-                             'link2', 'bar', 'my-open-id')
+                             '', 'bar', 'my-open-id')
         values = [13, 45]
+        mock_osm.ChangesetCreate.return_value = 13
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
         database.submit_points_to_osm([p1, p2])
@@ -219,15 +220,11 @@ class SubmitPointTest(SetUpTests):
         self.assertEquals(p1.osm_id, 13)
         self.assertEquals(p2.osm_id, 45)
         self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
+        tags1 = {'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}
+        tags2 = {'name': 'blabla', 'amenity': 'bar'}
         self.assertEquals(mock_osm.NodeCreate.call_args_list, [
-            (({u'lat': 46.06, u'lon': 24.1, u'tag': {'name': 'Eau de Web',
-                                                     'website': 'link1',
-                                                     'amenity': 'pub'}},),
-             {}),
-            (({u'lat': 46.07, u'lon': 24.11, u'tag': {'name': 'blabla',
-                                                      'website': 'link2',
-                                                      'amenity': 'bar'}},),
-             {})])
+            (({u'lat': 46.06, u'lon': 24.1, u'tag': tags1},), {}),
+            (({u'lat': 46.07, u'lon': 24.11, u'tag': tags2},), {})])
         self.assertEquals(mock_osm.ChangesetClose.call_count, 1)
 
     @patch('osmpoint.database.get_osm_api')
@@ -241,6 +238,7 @@ class SubmitPointTest(SetUpTests):
         p = self.add_point(46.06, 24.10, 'Eau de Web',
                             'link1', 'pub', 'admin-user')
 
+        mock_osm.ChangesetCreate.return_value = 13
         mock_osm.NodeCreate.return_value = {'id': 50}
 
         address = flask.url_for('.send_point', point_id=p.id)
@@ -248,8 +246,10 @@ class SubmitPointTest(SetUpTests):
 
         self.assertEqual(response.status_code, 200)
 
-        ok_data = {u'lat': 46.06, u'lon': 24.1, u'tag': {
-            'name': 'Eau de Web', 'website': 'link1', 'amenity': 'pub'}}
+        tags = {'name': 'Eau de Web',
+                'website': 'link1',
+                'amenity': 'pub'}
+        ok_data = {u'lat': 46.06, u'lon': 24.1, u'tag': tags}
         mock_osm.NodeCreate.assert_called_once_with(ok_data)
 
     @patch('osmpoint.database.get_osm_api')

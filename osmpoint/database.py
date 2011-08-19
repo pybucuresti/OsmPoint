@@ -46,15 +46,25 @@ def submit_points_to_osm(point_to_submit):
     osm._api = flask.current_app.config['OSM_API']
     changeset_id = osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
     log.info("Begin OSM changeset %d", changeset_id)
+
     for p in point_to_submit:
-        node_dict = osm.NodeCreate({u"lon": p.longitude,
-                                    u"lat": p.latitude,
-                                    u"tag": {'name': p.name,
-                                             'amenity': p.amenity,
-                                             'website': p.url}})
+        tags = {
+            'name': p.name,
+            'amenity': p.amenity,
+        }
+        if p.url:
+            tags['website'] = p.url
+
+        node_dict = osm.NodeCreate({
+            u"lon": p.longitude,
+            u"lat": p.latitude,
+            u"tag": tags,
+        })
+
         p.osm_id = node_dict['id']
-        log.info("OSM point: %r", node_dict)
         db.session.add(p)
+        log.info("OSM point: %r", node_dict)
+
     osm.ChangesetClose()
     db.session.commit()
     log.info("OSM changeset committed")
