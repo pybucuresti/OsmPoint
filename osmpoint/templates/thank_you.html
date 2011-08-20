@@ -15,9 +15,9 @@
 {% block scripts %}
 <script>
   $(document).ready(function() {
-    M.init_map();
-    M.point_layer = new OpenLayers.Layer.Markers("Markers");
-    M.map.addLayer(M.point_layer);
+    var map = M.init_map();
+    M.show_one_point(map, {{ new_point.longitude|tojson }},
+                          {{ new_point.latitude|tojson }});
   });
 </script>
 {% endblock %}
