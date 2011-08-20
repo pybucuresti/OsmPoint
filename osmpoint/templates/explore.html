@@ -7,17 +7,17 @@
 </div>
 
 <div id="add-filter">
-  Add filter:<br>
   <form>
+    <p>Filter locations:</p>
 
-    <input type="checkbox" checked name="bar">bars
-    <input type="checkbox" checked name="pub">pubs
-    <input type="checkbox" checked name="cafe">cafes<br>
-    <input type="checkbox" checked name="nightclub">nightclubs
-    <input type="checkbox" checked name="restaurant">restaurants<br>
-    <input type="checkbox" checked name="theatre">theatres
-    <input type="checkbox" checked name="cinema">cinemas<br>
-    <input type="checkbox" checked name="fuel">fuel stations<br>
+    <label><input type="checkbox" checked name="bar">bars</label>
+    <label><input type="checkbox" checked name="pub">pubs</label>
+    <label><input type="checkbox" checked name="cafe">cafes</label><br>
+    <label><input type="checkbox" checked name="nightclub">nightclubs</label>
+    <label><input type="checkbox" checked name="restaurant">restaurants</label><br>
+    <label><input type="checkbox" checked name="theatre">theatres</label>
+    <label><input type="checkbox" checked name="cinema">cinemas</label><br>
+    <label><input type="checkbox" checked name="fuel">fuel stations</label><br>
 
     <input type="button" value="Apply Filter" onClick="$('#add-filter').hide();
                                                        add_filter(this.form);">
