@@ -44,14 +44,19 @@ $(document).ready(function() {
   var map = M.init_fullscreen_map();
   var collection = map.new_markers_collection("Locations");
   var point_data = {{ point_data|tojson|safe }};
-  $.each(point_data, function(i, point_info) {
-    M.show_location(map, collection, point_info);
-  });
 
-  add_filter = function(form_input) {
+  show_points(point_data);
+
+  window.add_filter = function(form_input) {
     collection.empty();
-    M.apply_filter(map, new_collection, form_input, point_data);
+    show_points(M.apply_filter(form_input, point_data));
   };
+
+  function show_points(points_list) {
+    $.each(points_list, function(i, point_info) {
+      M.show_location(map, collection, point_info);
+    });
+  }
 });
 </script>
 {% endblock %}
