@@ -45,8 +45,7 @@ $(document).ready(function() {
   });
 
   add_filter = function(form_input) {
-    map.olmap.layers.pop().destroy();
-    var new_collection = map.new_markers_collection("Filtered locations");
+    collection.empty();
     M.apply_filter(map, new_collection, form_input, point_data);
   };
 });
