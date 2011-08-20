@@ -99,7 +99,13 @@ class SavePointTest(SetUpTests):
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
                  'url': 'link', 'amenity': '_other', 'new_amenity': 'new_type'}
         response = client.post('/save_poi', data=point)
-        self.assertEqual(len(self.get_all_points()), 1)
+
+        all_points = self.get_all_points()
+        self.assertEqual(len(all_points), 1)
+
+        point = all_points[0]
+        self.assertEqual(point.name, 'no-type')
+        self.assertEqual(point.amenity, '#new_type')
 
     def test_name_is_mandatory(self):
         client = self.app.test_client()

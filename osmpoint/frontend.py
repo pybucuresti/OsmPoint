@@ -83,8 +83,7 @@ def save_poi():
 
         else:
             if form.amenity.data == '_other':
-                amenity = form.new_amenity.data
-                form.name.data = '#' + form.name.data
+                amenity = '#' + form.new_amenity.data
 
             else:
                 amenity = form.amenity.data
