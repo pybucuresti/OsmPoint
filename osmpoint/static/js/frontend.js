@@ -24,6 +24,7 @@ M.project = function(point) {
 M.reverse_project = function(point) {
   return point.clone().transform(M.proj_mercator, M.proj_wgs1984);
 };
+M.geolocation_accuracy_threshold = 2000;
 
 M.cloudmade_xyz_layer = function(name, key, style_id) {
   var url = 'http://a.tile.cloudmade.com/' + key + '/' + style_id +
@@ -129,6 +130,9 @@ M.new_map = function(div_id) {
     map.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
     map.olmap.addLayer(map.geolocation_layer);
     map.geolocate_control.events.register("locationupdated", null, function(evt) {
+        if(evt.position.coords.accuracy > M.geolocation_accuracy_threshold) {
+            return;
+        }
         map.draw_geolocation(evt.point, evt.position.coords.accuracy);
         if (map.center_on_next_geolocation) {
           map.olmap.zoomToExtent(map.geolocation_layer.getDataExtent());
