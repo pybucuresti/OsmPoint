@@ -5,6 +5,32 @@
   OSM points of interest
   (<a href="/about">about</a>)
 </div>
+
+<div id="add-filter">
+  Add filter:<br>
+  <form>
+
+    <input type="checkbox" checked name="bar">bars
+    <input type="checkbox" checked name="pub">pubs
+    <input type="checkbox" checked name="cafe">cafes<br>
+    <input type="checkbox" checked name="nightclub">nightclubs
+    <input type="checkbox" checked name="restaurant">restaurants<br>
+    <input type="checkbox" checked name="theatre">theatres
+    <input type="checkbox" checked name="cinema">cinemas<br>
+    <input type="checkbox" checked name="fuel">fuel stations<br>
+
+    <input type="button" value="Apply Filter" onClick="$('#add-filter').hide();
+                                                       add_filter(this.form);">
+
+  <form>
+</div>
+
+<div id="filter-button">
+  <form>
+    <input type="button" value="Filter" onClick="$('#add-filter').toggle();">
+  </form>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -17,6 +43,12 @@ $(document).ready(function() {
   $.each(point_data, function(i, point_info) {
     M.show_location(map, collection, point_info);
   });
+
+  add_filter = function(form_input) {
+    map.olmap.layers.pop().destroy();
+    var new_collection = map.new_markers_collection("Filtered locations");
+    M.apply_filter(map, new_collection, form_input, point_data);
+  };
 });
 </script>
 {% endblock %}

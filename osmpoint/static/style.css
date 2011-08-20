@@ -53,6 +53,16 @@ div#info {
   margin: 0;
 }
 
+div#add-filter {
+  display: none;
+}
+
+div#filter-button {
+  position: fixed;
+  right: 10px;
+  bottom: 20px;
+}
+
 span.hidden-label {
   display: none;
 }

@@ -322,4 +322,21 @@ M.enable_adding_points = function(map) {
   }
 };
 
+M.apply_filter = function(map, collection, form_input, point_data) {
+  var checked_options = [];
+
+  for(var i=0; i<form_input.length - 1; i++) {
+    if(form_input[i].checked) {
+      checked_options.push(form_input[i].name);
+    }
+  }
+
+  checked_options.toString();
+  $.each(point_data, function(i, point_info) {
+    if(checked_options.indexOf(point_info['type']) != -1) {
+      M.show_location(map, collection, point_info);
+    }
+  });
+};
+
 })();
