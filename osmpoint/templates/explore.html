@@ -37,6 +37,10 @@
 {{ super() }}
 <script>
 $(document).ready(function() {
+  $('div#add-filter').bind('touchstart', function(evt) {
+      evt.stopPropagation();
+  });
+
   var map = M.init_fullscreen_map();
   var collection = map.new_markers_collection("Locations");
   var point_data = {{ point_data|tojson|safe }};
