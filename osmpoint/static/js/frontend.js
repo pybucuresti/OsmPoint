@@ -339,16 +339,15 @@ M.apply_filter = function(form_input, point_data) {
   });
 };
 
-M.find_point = function(map, form_input, point_data) {
+M.find_point = function(form_input, point_data) {
   $('#message').show();
 
-  $.each(point_data, function(i, point_info) {
-      if(point_info['name'] == form_input[9].value) {
-         $('#search-box').hide();
-         $('#message').hide();
-         map.olmap.panTo(M.project(new OpenLayers.LonLat(point_info['longitude'],
-                                                         point_info['latitude'])));
-      }
+  return $.map(point_data, function(point_info) {
+    if(point_info['name'] == form_input[9].value) {
+      $('#search-box').hide();
+      $('#message').hide();
+      return point_info;
+    }
   });
 };
 
