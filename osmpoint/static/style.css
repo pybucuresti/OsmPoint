@@ -57,7 +57,15 @@ div#add-filter {
   display: none;
 }
 
-div#filter-button {
+div#search-box {
+  display: none;
+}
+
+div#message {
+  display: none;
+}
+
+div#homepage-buttons {
   position: fixed;
   right: 10px;
   bottom: 20px;

@@ -25,9 +25,26 @@
   <form>
 </div>
 
-<div id="filter-button">
+<div id="search-box">
   <form>
-    <input type="button" value="Filter" onClick="$('#add-filter').toggle();">
+    <input type="search" size="20" autocorrect="off" autocomplete="off"
+                                   placeholder="enter location name">
+    <input type="button" value="Find" onClick="search(this.form);">
+  <form>
+</div>
+
+<div id="message">
+  Point not found.
+</div>
+
+<div id="homepage-buttons">
+  <form>
+    <input type="button" value="Search" onClick="$('#search-box').toggle();
+                                                 $('#message').hide();
+                                                 $('#add-filter').hide();"><br>
+    <input type="button" value="Filter" onClick="$('#add-filter').toggle();
+                                                 $('#search-box').hide();
+                                                 $('#message').hide();">
   </form>
 </div>
 
@@ -50,6 +67,10 @@ $(document).ready(function() {
   window.add_filter = function(form_input) {
     collection.empty();
     show_points(M.apply_filter(form_input, point_data));
+  };
+
+  window.search = function(form_input) {
+    M.find_point(map, form_input, point_data);
   };
 
   function show_points(points_list) {
