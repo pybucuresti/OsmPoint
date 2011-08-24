@@ -1,25 +1,21 @@
-Mapping party pentru poi.grep.ro
-================================
+Mapping party!
+==============
 
 .. image:: screenshot.png
 
+Adică se întâlnesc un număr de persoane în scopul cartografierii unei
+zone. În cazul nostru, zona este centrul vechi, și vrem să marcăm pe
+hartă toate cafenelele, restaurantele și barurile.
 
-Ce se întâmplă sâmbătă?
------------------------
-
-Mapping party! Adică se întâlnesc un număr de persoane în scopul
-cartografierii unei zone. În cazul nostru, zona este centrul vechi, și
-vrem să marcăm pe hartă toate cafenelele, restaurantele și barurile.
-
-Cu ocazia asta vrem să testăm `site-ul`_ "pe teren", în special interfața
-de adăugat locații. Vom pregăti și hărți pe hârtie pentru marcarea
-analogică (cu creionul) și digitizare ulterioară, deci posesia de
-smartphone NU este obligatorie!
+Cu ocazia asta vrem să testăm site-ul `poi.grep.ro`_ "pe teren", în
+special interfața de adăugat locații. Vom pregăti și hărți pe hârtie
+pentru marcarea analogică (cu creionul) și digitizare ulterioară, deci
+posesia de smartphone este opțională :)
 
 Ne întâlnim la cafeneaua Carada_, sâmbătă 27 august, ora 17:00. Rog dați
 un mail_ dacă veniți.
 
-.. _`site-ul`: http://poi.grep.ro/
+.. _`poi.grep.ro`: http://poi.grep.ro/
 .. _Carada: http://metropotam.ro/Unde-iesim/Cafenea-Carada-art4284552409/
 .. _mail: mailto:alex@grep.ro
 
