@@ -68,7 +68,7 @@ div#message {
 div#homepage-buttons {
   position: fixed;
   right: 10px;
-  bottom: 20px;
+  bottom: 40px;
 }
 
 span.hidden-label {
