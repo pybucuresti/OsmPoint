@@ -39,12 +39,8 @@
 
 <div id="homepage-buttons">
   <form>
-    <input type="button" value="Search" onClick="$('#search-box').toggle();
-                                                 $('#message').hide();
-                                                 $('#add-filter').hide();"><br>
-    <input type="button" value="Filter" onClick="$('#add-filter').toggle();
-                                                 $('#search-box').hide();
-                                                 $('#message').hide();">
+    <input type="button" value="Search"><br>
+    <input type="button" value="Filter">
   </form>
 </div>
 
@@ -84,6 +80,18 @@ $(document).ready(function() {
 
     }
   };
+
+  $('#homepage-buttons input[value=Search]').click(function(evt) {
+    $('#search-box').toggle();
+    $('#message').hide();
+    $('#add-filter').hide();
+  });
+
+  $('#homepage-buttons input[value=Filter]').click(function(evt) {
+    $('#add-filter').toggle();
+    $('#search-box').hide();
+    $('#message').hide();
+  });
 
   function show_points(points_list) {
     $.each(points_list, function(i, point_info) {
