@@ -322,18 +322,21 @@ M.enable_adding_points = function(map) {
   }
 };
 
-M.apply_filter = function(form_input, point_data) {
-  var checked_options = {};
-
-  for(var i=0; i<form_input.length - 1; i++) {
-    if(form_input[i].checked) {
-      checked_options[form_input[i].name] = true;
-    }
-  }
-
-  checked_options.toString();
+M.apply_filter = function(form_data, point_data) {
   return $.map(point_data, function(point_info) {
-    if(checked_options[point_info['type']]) {
+    if($.inArray(point_info['type'], form_data['amenity']) > -1) {
+      return point_info;
+    }
+  });
+};
+
+M.find_point = function(form_data, point_data) {
+  $('#message').show();
+
+  return $.map(point_data, function(point_info) {
+    if(point_info['name'] == form_data['name']) {
+      $('#search-box').hide();
+      $('#message').hide();
       return point_info;
     }
   });

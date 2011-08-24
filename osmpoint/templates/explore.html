@@ -10,24 +10,45 @@
   <form>
     <p>Filter locations:</p>
 
-    <label><input type="checkbox" checked name="bar">bars</label>
-    <label><input type="checkbox" checked name="pub">pubs</label>
-    <label><input type="checkbox" checked name="cafe">cafes</label><br>
-    <label><input type="checkbox" checked name="nightclub">nightclubs</label>
-    <label><input type="checkbox" checked name="restaurant">restaurants</label><br>
-    <label><input type="checkbox" checked name="theatre">theatres</label>
-    <label><input type="checkbox" checked name="cinema">cinemas</label><br>
-    <label><input type="checkbox" checked name="fuel">fuel stations</label><br>
+    <label><input type="checkbox" checked
+                  name="amenity" value="bar">bars</label>
+    <label><input type="checkbox" checked
+                  name="amenity" value="pub">pubs</label>
+    <label><input type="checkbox" checked
+                  name="amenity" value="cafe">cafes</label><br>
+    <label><input type="checkbox" checked
+                  name="amenity" value="nightclub">nightclubs</label>
+    <label><input type="checkbox" checked
+                  name="amenity" value="restaurant">restaurants</label><br>
+    <label><input type="checkbox" checked
+                  name="amenity" value="theatre">theatres</label>
+    <label><input type="checkbox" checked
+                  name="amenity" value="cinema">cinemas</label><br>
+    <label><input type="checkbox" checked
+                  name="amenity" value="fuel">fuel stations</label><br>
 
-    <input type="button" value="Apply Filter" onClick="$('#add-filter').hide();
-                                                       add_filter(this.form);">
+    <input type="submit" value="Apply Filter">
 
-  <form>
+  </form>
 </div>
 
-<div id="filter-button">
+<div id="search-box">
   <form>
-    <input type="button" value="Filter" onClick="$('#add-filter').toggle();">
+    <input type="search" size="20" name="name"
+           autocorrect="off" autocomplete="off"
+           placeholder="enter location name">
+    <input type="submit" value="Find">
+  </form>
+</div>
+
+<div id="message">
+  Point not found.
+</div>
+
+<div id="homepage-buttons">
+  <form>
+    <input type="button" value="Search">
+    <input type="button" value="Filter">
   </form>
 </div>
 
@@ -47,10 +68,48 @@ $(document).ready(function() {
 
   show_points(point_data);
 
-  window.add_filter = function(form_input) {
+  $('#add-filter form').submit(function(evt) {
+    evt.preventDefault();
+    $('#add-filter').hide();
+    var form_data = {
+      amenity: $('input[name=amenity]:checked', this).map(function(n, i) {
+        return $(i).val();
+      })
+    };
+
     collection.empty();
-    show_points(M.apply_filter(form_input, point_data));
-  };
+    show_points(M.apply_filter(form_data, point_data));
+  });
+
+  $('#search-box form').submit(function(evt) {
+    evt.preventDefault();
+    var form_data = {name: $('input[name=name]', this).val()};
+    var found_points = M.find_point(form_data, point_data);
+    if (found_points.length) {
+      collection.empty();
+      show_points(found_points);
+
+      if (found_points.length == 1) {
+        $.each(found_points, function(i, point) {
+          map.olmap.panTo(M.project(new OpenLayers.LonLat(point['longitude'],
+                                                          point['latitude'])));
+        });
+      }
+
+    }
+  });
+
+  $('#homepage-buttons input[value=Search]').click(function(evt) {
+    $('#search-box').toggle();
+    $('#message').hide();
+    $('#add-filter').hide();
+  });
+
+  $('#homepage-buttons input[value=Filter]').click(function(evt) {
+    $('#add-filter').toggle();
+    $('#search-box').hide();
+    $('#message').hide();
+  });
 
   function show_points(points_list) {
     $.each(points_list, function(i, point_info) {
