@@ -1,3 +1,4 @@
+import os.path
 from StringIO import StringIO
 from fabric.api import env, local, cd, run, put, settings, hide
 from fabric.contrib.files import exists
@@ -6,6 +7,7 @@ osm_login = None
 
 from local_fabfile import *
 
+local_repo = os.path.dirname(__file__)
 server_name, server_prefix = server.split(':')
 server_repo = "%s/src/OsmPoint" % server_prefix
 server_virtualenv = "%s/virtualenv" % server_prefix
@@ -135,3 +137,27 @@ def put_points(dump_path):
     with cd(server_var):
         with open(dump_path, 'rb') as f:
             put(f, "points.yaml")
+
+def map_party():
+    rst = os.path.join(local_repo, 'mapping-party', 'index.rst')
+    html = os.path.join(local_repo, 'mapping-party', 'index.html')
+    img = os.path.join(local_repo, 'mapping-party', 'screenshot.png')
+    local("/usr/local/bin/rst2plainhtml < '%s' > '%s'" % (rst, html))
+    with open(html, 'rb') as f:
+        data = f.read()
+    css = ('<style>'
+           'body {font-size: 14pt} '
+           'a {color: #05B} '
+           'img {display:block; float:right; margin: 2em; border: 2px solid #888} '
+           '</style>')
+    data = data.replace('</head>', '%s</head>' % css)
+    with open(html, 'wb') as f:
+        f.write(data)
+
+    folder = '%s/www/mapping-party' % server_prefix
+    run("mkdir -p '%s'" % folder)
+    with cd(folder):
+        put(html, '.')
+        put(img, '.')
+
+    os.unlink(html)
