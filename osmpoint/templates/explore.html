@@ -27,9 +27,10 @@
 
 <div id="search-box">
   <form>
-    <input type="search" size="20" autocorrect="off" autocomplete="off"
-                                   placeholder="enter location name">
-    <input type="button" value="Find" onClick="search(this.form);">
+    <input type="search" size="20" name="name"
+           autocorrect="off" autocomplete="off"
+           placeholder="enter location name">
+    <input type="submit" value="Find">
   </form>
 </div>
 
@@ -65,8 +66,10 @@ $(document).ready(function() {
     show_points(M.apply_filter(form_input, point_data));
   };
 
-  window.search = function(form_input) {
-    var found_points = M.find_point(form_input, point_data);
+  $('#search-box form').submit(function(evt) {
+    evt.preventDefault();
+    var form_data = {name: $('input[name=name]', this).val()};
+    var found_points = M.find_point(form_data, point_data);
     if (found_points.length) {
       collection.empty();
       show_points(found_points);
@@ -79,7 +82,7 @@ $(document).ready(function() {
       }
 
     }
-  };
+  });
 
   $('#homepage-buttons input[value=Search]').click(function(evt) {
     $('#search-box').toggle();

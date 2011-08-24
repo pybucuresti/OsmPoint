@@ -339,11 +339,11 @@ M.apply_filter = function(form_input, point_data) {
   });
 };
 
-M.find_point = function(form_input, point_data) {
+M.find_point = function(form_data, point_data) {
   $('#message').show();
 
   return $.map(point_data, function(point_info) {
-    if(point_info['name'] == form_input[9].value) {
+    if(point_info['name'] == form_data['name']) {
       $('#search-box').hide();
       $('#message').hide();
       return point_info;
