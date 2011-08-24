@@ -47,6 +47,8 @@ OSMPOINT_ADMINS = [
 
 CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
 
+GOOGLE_ANALYTICS_ID = "UA-25325838-1"
+
 logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
                     level=logging.INFO)
 logging.getLogger('osmpoint').setLevel(logging.INFO)
