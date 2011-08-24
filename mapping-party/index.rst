@@ -1,6 +1,8 @@
 Mapping party pentru poi.grep.ro
 ================================
 
+.. image:: screenshot.png
+
 
 Ce se întâmplă sâmbătă?
 -----------------------
