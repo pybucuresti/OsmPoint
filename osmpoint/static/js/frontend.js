@@ -334,7 +334,7 @@ M.find_point = function(form_data, point_data) {
   $('#message').show();
 
   return $.map(point_data, function(point_info) {
-    if(point_info['name'] == form_data['name']) {
+    if(point_info['name'].toLowerCase().indexOf(form_data['name'].toLowerCase()) > -1) {
       $('#search-box').hide();
       $('#message').hide();
       return point_info;
