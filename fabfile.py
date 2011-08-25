@@ -140,6 +140,10 @@ def put_points(dump_path):
         with open(dump_path, 'rb') as f:
             put(f, "points.yaml")
 
+def parse_points(dump_path="."):
+    local("curl http://download.geofabrik.de/osm/europe/romania.osm.pbf > dump.pbf")
+    local("parser dump.pbf > %s/points.yaml" % dump_path)
+
 def map_party():
     rst = os.path.join(local_repo, 'mapping-party', 'index.rst')
     html = os.path.join(local_repo, 'mapping-party', 'index.html')
