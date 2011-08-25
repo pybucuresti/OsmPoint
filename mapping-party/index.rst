@@ -29,7 +29,7 @@ pentru browsere mobile și poate folosi senzorul GPS.
 
 Proiectul este non-profit, locațiile și harta sunt preluate din
 OpenStreetMap_, și dacă o locație lipsește, poate fi adăugată ușor de
-oricine. Locațiile trec printr-o fază de aprobare și sunt contribuite
+oricine. Locațiile noi trec printr-o fază de aprobare și sunt trimise
 înapoi în baza de date OpenStreetMap.
 
 .. _OpenStreetMap: http://www.openstreetmap.org/
