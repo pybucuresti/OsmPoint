@@ -42,7 +42,7 @@ OSMPOINT_ADMINS = [
     # Groza Camelia:
     'http://camelia-groza.myopenid.com/',
     ('https://www.google.com/accounts/o8/id?'
-     'id=AItOawkmpwuvvH5diF-QG_ExmxGV6Cj-0vdEIKQ'),
+     'id=AItOawnOOhuS0-AQvEC1EYyAc2zKzcRl0LV5OBU'),
 ]
 
 CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
