@@ -8,6 +8,9 @@
     height: 40%;
     border: 1px solid #555;
   }
+  span.json {
+    display: none;
+  }
 </style>
 {% endblock %}
 
@@ -25,6 +28,7 @@
       <label>
         <input type="checkbox" name="point_id" value="{{ p.id }}">
         {{ p.name }}
+        <span class="json">{{ p|tojson }}</span>
       </label>
     </li>
   {% endfor %}
@@ -46,6 +50,23 @@ $(function() {
 
   var map = M.new_map('moderate-map');
   map.set_position(M.default_position);
+
+  var collection = map.new_markers_collection("Locations");
+  var points_ul = $('form ul.points-list');
+  $('input[name=point_id]', points_ul).change(function(evt) {
+    collection.empty();
+    var checked = $('input[name=point_id]:checked', points_ul);
+    var points = checked.map(function(n, checkbox) {
+      return JSON.parse($('span.json', $(checkbox).parents('li')).text());
+    });
+    show_points(points);
+  });
+
+  function show_points(points_list) {
+    $.each(points_list, function(i, point_info) {
+      M.show_location(map, collection, point_info);
+    });
+  }
 
 });
 </script>
