@@ -348,6 +348,21 @@ class SubmitPointTest(SetUpTests):
         self.assertIn('<a href="%s">' % url, response.data)
 
 
+class ModerationPageTest(SetUpTests):
+
+    def setUp(self):
+        super(ModerationPageTest, self).setUp()
+        self.p1_id = self.add_point(10., 10., 'NameOne', '', 'pub', 'user1').id
+        self.p2_id = self.add_point(20., 20., 'NameTwo', '', 'pub', 'user2').id
+        self.client = self.app.test_client()
+        self.client.post('/test_login', data={'user_id': 'admin-user'})
+
+    def test_view(self):
+        response = self.client.get('/moderate')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('NameOne', response.data)
+
+
 class EditPointTest(SetUpTests):
 
     def test_edit_point(self):

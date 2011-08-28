@@ -4,4 +4,12 @@
 
 <h2>Moderate</h2>
 
+  <ul class="points-list">
+  {% for p in points %}
+    <li>
+      {{ p.name }}
+    </li>
+  {% endfor %}
+  </ul>
+
 {% endblock %}

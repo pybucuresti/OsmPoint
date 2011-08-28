@@ -239,4 +239,8 @@ def send_point(point_id):
 def moderate_view():
     if not is_admin():
         flask.abort(403)
-    return flask.render_template('moderate.html')
+
+    form_data = {
+        'points': Point.query.filter(Point.osm_id==None).all(),
+    }
+    return flask.render_template('moderate.html', **form_data)
