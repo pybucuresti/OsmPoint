@@ -235,3 +235,8 @@ def send_point(point_id):
     submit_points_to_osm([point])
     return flask.render_template('sent.html', id=point.id)
 
+@frontend.route("/moderate")
+def moderate_view():
+    if not is_admin():
+        flask.abort(403)
+    return flask.render_template('moderate.html')
