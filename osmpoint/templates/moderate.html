@@ -4,12 +4,21 @@
 
 <h2>Moderate</h2>
 
+<form method="post">
+
   <ul class="points-list">
   {% for p in points %}
     <li>
-      {{ p.name }}
+      <label>
+        <input type="checkbox" name="point_id" value="{{ p.id }}">
+        {{ p.name }}
+      </label>
     </li>
   {% endfor %}
   </ul>
+
+  <input type="submit" value="Upload to OSM">
+
+</form>
 
 {% endblock %}

@@ -235,10 +235,19 @@ def send_point(point_id):
     submit_points_to_osm([point])
     return flask.render_template('sent.html', id=point.id)
 
-@frontend.route("/moderate")
+@frontend.route("/moderate", methods=['GET', 'POST'])
 def moderate_view():
     if not is_admin():
         flask.abort(403)
+
+    if flask.request.method == 'POST':
+        point_id_list = flask.request.form.getlist('point_id')
+        point_list = [Point.query.get_or_404(i) for i in point_id_list]
+
+        submit_points_to_osm(point_list)
+
+        text = "%d points uploaded to OSM" % len(point_list)
+        return flask.render_template('message.html', text=text)
 
     form_data = {
         'points': Point.query.filter(Point.osm_id==None).all(),

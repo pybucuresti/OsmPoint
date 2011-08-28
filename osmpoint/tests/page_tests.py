@@ -3,7 +3,7 @@ import unittest2
 from osmpoint import database
 import py
 
-from mock import patch
+from mock import patch, Mock
 
 class SetUpTests(unittest2.TestCase):
 
@@ -357,10 +357,34 @@ class ModerationPageTest(SetUpTests):
         self.client = self.app.test_client()
         self.client.post('/test_login', data={'user_id': 'admin-user'})
 
+    def _mock_osm_api(self):
+        mock_osm = Mock()
+
+        mock_osm.ChangesetCreate.return_value = 13
+
+        self.osm_nodes = []
+        def mock_create_node(data):
+            self.osm_nodes.append(data);
+            return {'id': len(self.osm_nodes)}
+
+        mock_osm.NodeCreate.side_effect = mock_create_node
+
+        return mock_osm
+
     def test_view(self):
         response = self.client.get('/moderate')
         self.assertEqual(response.status_code, 200)
         self.assertIn('NameOne', response.data)
+
+    @patch('osmpoint.database.get_osm_api')
+    def test_upload_to_osm(self, mock_get_osm_api):
+        mock_get_osm_api.return_value = self._mock_osm_api()
+
+        response = self.client.post('/moderate', data={
+            'point_id': [self.p1_id, self.p2_id]})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("2 points uploaded to OSM", response.data)
+        self.assertEqual(len(self.osm_nodes), 2)
 
 
 class EditPointTest(SetUpTests):
