@@ -1,8 +1,21 @@
 {% extends "layout-plain.html" %}
 
+{% block extra_head %}
+<style>
+  div#moderate-map {
+    margin: 2% 5%;
+    width: 90%;
+    height: 40%;
+    border: 1px solid #555;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <h2>Moderate</h2>
+
+<div id="moderate-map"></div>
 
 <form method="post">
 
@@ -20,5 +33,21 @@
   <input type="submit" value="Upload to OSM">
 
 </form>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+{{ super() }}
+
+<script>
+$(function() {
+
+  var map = M.new_map('moderate-map');
+  map.set_position(M.default_position);
+
+});
+</script>
 
 {% endblock %}
