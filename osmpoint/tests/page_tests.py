@@ -23,6 +23,7 @@ IMPORTED_POINTS_PATH = '.'
         self._ctx = self.app.test_request_context()
         self._ctx.push()
         self.addCleanup(self._ctx.pop)
+        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
 
         @self.app.route('/test_login', methods=['POST'])
         def test_login():
@@ -83,7 +84,6 @@ class SavePointTest(SetUpTests):
 
     def test_amenity_is_mandatory(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
@@ -93,7 +93,6 @@ class SavePointTest(SetUpTests):
 
     def test_enter_new_amenity(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': 'no-type',
@@ -109,7 +108,6 @@ class SavePointTest(SetUpTests):
 
     def test_name_is_mandatory(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = {'lat': 45, 'lon': 20, 'name': '',
@@ -157,7 +155,6 @@ class DeletePointTest(SetUpTests):
         self.assertEquals(len(points), 0)
 
     def test_delete_by_non_admin(self):
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client = self.app.test_client()
 
         client.post('/test_login', data={'user_id': 'non-admin'})
@@ -172,7 +169,6 @@ class DeletePointTest(SetUpTests):
 
     def test_confirm_delete_point(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
@@ -186,7 +182,6 @@ class DeletePointTest(SetUpTests):
 
     def test_delete_nonexistent_point(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         response = client.post('/points/10/delete', data={'id': 10})
@@ -194,7 +189,6 @@ class DeletePointTest(SetUpTests):
 
     def test_cancel_deletion(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
@@ -247,7 +241,6 @@ class SubmitPointTest(SetUpTests):
         mock_osm = mock_get_osm_api.return_value
 
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         p = self.add_point(46.06, 24.10, 'Eau de Web',
@@ -288,7 +281,6 @@ class SubmitPointTest(SetUpTests):
     @patch('osmpoint.database.get_osm_api')
     def test_submit_already_submitted_point(self, mock_get_osm_api):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = database.Point(45, 25, 'name', 'url', 'type', 'admin-user')
@@ -305,7 +297,6 @@ class SubmitPointTest(SetUpTests):
     @patch('osmpoint.database.get_osm_api')
     def test_submit_nonexistent_point(self, mock_get_osm_api):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         response = client.post('/points/500/send', data={'id': 500})
@@ -343,7 +334,6 @@ class SubmitPointTest(SetUpTests):
 
     def test_submitted_point_url(self):
         self.app.config['OSM_API'] = 'fake.api.example.com'
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
 
         point = self.add_point(46.06, 24.10, 'EdW', '', 'pub', 'my-open-id')
         point_id = point.id
@@ -362,7 +352,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_point(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
@@ -380,7 +369,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_nonexistent_point(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong', 'id': 500}
@@ -403,7 +391,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_point_with_wrong_coords(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
@@ -418,7 +405,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_point_with_no_amenity(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
@@ -432,7 +418,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_point_with_another_amenity(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
@@ -446,7 +431,6 @@ class EditPointTest(SetUpTests):
 
     def test_edit_point_with_no_name(self):
         client = self.app.test_client()
-        self.app.config['OSMPOINT_ADMINS'] = ['admin-user']
         client.post('/test_login', data={'user_id': 'admin-user'})
 
         point = self.add_point(45, 25, 'old_name', 'url', 'type', 'admin-user')
