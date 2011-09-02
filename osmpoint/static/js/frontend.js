@@ -39,6 +39,7 @@ M.cloudmade_xyz_layer = function(name, key, style_id) {
 };
 
 M.default_position = {lon: 26.10, lat: 44.43, zoom: 13};
+M.max_gps_zoom = 17;
 
 M.offset = {
   bottom: function(w, h) { return new OpenLayers.Pixel(-w/2, -h); },
@@ -135,7 +136,11 @@ M.new_map = function(div_id) {
         }
         map.draw_geolocation(evt.point, evt.position.coords.accuracy);
         if (map.center_on_next_geolocation) {
-          map.olmap.zoomToExtent(map.geolocation_layer.getDataExtent());
+          var bounds = map.geolocation_layer.getDataExtent();
+          var center = bounds.getCenterLonLat();
+          var zoom = Math.min(map.olmap.getZoomForExtent(bounds), M.max_gps_zoom);
+          map.olmap.setCenter(center, zoom);
+
           map.center_on_next_geolocation = false;
         }
     });
