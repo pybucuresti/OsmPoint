@@ -5,20 +5,25 @@ import py
 
 from mock import patch, Mock
 
+def app_for_testing():
+    from osmpoint.application import create_app
+
+    tmp_dir = py.path.local.mkdtemp()
+    config_for_tests = ("OSM_API = 'api06.dev.openstreetmap.org'\n"
+                        "SECRET_KEY = 'my-secret-key'\n"
+                        "IMPORTED_POINTS_PATH = '.'\n")
+    tmp_dir.join('config.py').write(config_for_tests)
+    cleanup = tmp_dir.remove
+
+    app = create_app(str(tmp_dir))
+
+    return app, cleanup
+
 class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
-        from osmpoint.application import create_app
-
-        self._tmp_dir = py.path.local.mkdtemp()
-        config_for_tests="""\
-OSM_API = 'api06.dev.openstreetmap.org'
-SECRET_KEY = 'my-secret-key'
-IMPORTED_POINTS_PATH = '.'
-        """
-        self._tmp_dir.join('config.py').write(config_for_tests)
-        self.addCleanup(self._tmp_dir.remove)
-        self.app = create_app(str(self._tmp_dir))
+        self.app, _cleanup = app_for_testing()
+        self.addCleanup(_cleanup)
         self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()

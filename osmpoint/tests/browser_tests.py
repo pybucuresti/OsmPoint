@@ -23,6 +23,9 @@ def _start_server():
 def _stop_server():
     _httpd.stop()
 
+def _set_app(app):
+    _httpd.wsgi_app = app
+
 
 def setUpModule():
     global browser
@@ -34,6 +37,20 @@ def tearDownModule():
     _stop_server()
 
 
-def test_wsgiref():
-    browser.get('http://127.0.0.1:57909/')
-    assert browser.execute_script('return 13') == 13
+class BrowsingTest(unittest2.TestCase):
+
+    def setUp(self):
+        from page_tests import app_for_testing
+        self.app, _cleanup = app_for_testing()
+        self.addCleanup(_cleanup)
+        _set_app(self.app)
+
+        from osmpoint import database
+        self.db = database.db
+        self._ctx = self.app.test_request_context()
+        self._ctx.push()
+        self.addCleanup(self._ctx.pop)
+
+    def test_about_page(self):
+        browser.get('http://127.0.0.1:57909/about')
+        self.assertIn("find the code", browser.page_source)
