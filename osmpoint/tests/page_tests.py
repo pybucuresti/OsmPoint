@@ -11,7 +11,8 @@ def app_for_testing():
     tmp_dir = py.path.local.mkdtemp()
     config_for_tests = ("OSM_API = 'api06.dev.openstreetmap.org'\n"
                         "SECRET_KEY = 'my-secret-key'\n"
-                        "IMPORTED_POINTS_PATH = '.'\n")
+                        "SQLALCHEMY_DATABASE_URI = 'sqlite:///%s/db.sqlite'\n"
+                        "IMPORTED_POINTS_PATH = '.'\n") % tmp_dir
     tmp_dir.join('config.py').write(config_for_tests)
     cleanup = tmp_dir.remove
 
