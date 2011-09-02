@@ -174,11 +174,14 @@ M.new_map = function(div_id) {
     map.geolocation_layer.addFeatures([center, circle]);
   };
 
+  M.collections = {};
+
   map.new_markers_collection = function(name) {
     var layer = new OpenLayers.Layer.Markers(name);
     map.olmap.addLayer(layer);
 
     var collection = {map: map, layer: layer};
+    M.collections[name] = collection;
 
     collection.show_marker = function(lon, lat, icon) {
       var center = M.project(new OpenLayers.LonLat(lon, lat));

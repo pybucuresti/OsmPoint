@@ -1,6 +1,8 @@
 import unittest2
 from selenium import webdriver
 
+from osmpoint import database
+
 
 def _start_server():
     from cherrypy.wsgiserver import CherryPyWSGIServer
@@ -26,6 +28,9 @@ def _stop_server():
 def _set_app(app):
     _httpd.wsgi_app = app
 
+def js(cmd):
+    return browser.execute_script("return (" + cmd + ")")
+
 
 def setUpModule():
     global browser
@@ -45,7 +50,6 @@ class BrowsingTest(unittest2.TestCase):
         self.addCleanup(_cleanup)
         _set_app(self.app)
 
-        from osmpoint import database
         self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()
@@ -54,3 +58,11 @@ class BrowsingTest(unittest2.TestCase):
     def test_about_page(self):
         browser.get('http://127.0.0.1:57909/about')
         self.assertIn("find the code", browser.page_source)
+
+    def test_homepage_marker_balloon(self):
+        point_id = database.add_point(44.4324, 26.1020, 'S.A.L.T.',
+                                      None, 'pub', 'my-open-id')
+        browser.get('http://127.0.0.1:57909/')
+        js("$('img', M.collections['Locations'].layer.markers[0]"
+           ".icon.imageDiv)[0]").click()
+        self.assertIn("S.A.L.T. (pub)", js("$('.olPopupContent').text()"))
