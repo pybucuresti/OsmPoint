@@ -13,15 +13,3 @@
 </div>
 
 {%- endblock %}
-
-{% block scripts %}
-<script>
-// remove iOS browser bar
-if(navigator.userAgent.search('iPhone OS') > -1) {
-  if(screen.height == 480) {
-    $('#map').height(420);
-    setTimeout(function(){ window.scrollTo(0, 1); }, 0);
-  }
-}
-</script>
-{% endblock %}
