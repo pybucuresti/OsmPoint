@@ -124,3 +124,8 @@ div.center-to-gps-control div {
   height: 36px;
   cursor: pointer;
 }
+
+form[name=feedback] textarea {
+  width: 95%;
+  margin: 0 2%;
+}
