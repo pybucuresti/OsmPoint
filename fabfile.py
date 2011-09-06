@@ -49,6 +49,10 @@ CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
 
 GOOGLE_ANALYTICS_ID = "UA-25325838-1"
 
+MAIL_SERVER = 'localhost'
+MAIL_FROM = 'osmpoint@grep.ro'
+MAIL_ADMIN = 'osmpoint@grep.ro'
+
 logdir = os.path.join(workdir, 'log')
 _log_format = '%(asctime)s %(levelname)s %(name)s %(message)s'
 logging.basicConfig(filename=os.path.join(logdir, 'osmpoint.log'),

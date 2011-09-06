@@ -12,6 +12,9 @@ def app_for_testing():
     config_for_tests = ("OSM_API = 'api06.dev.openstreetmap.org'\n"
                         "SECRET_KEY = 'my-secret-key'\n"
                         "SQLALCHEMY_DATABASE_URI = 'sqlite:///%s/db.sqlite'\n"
+                        "MAIL_SERVER = 'my_mailhost'\n"
+                        "MAIL_FROM = 'server@example.com'\n"
+                        "MAIL_ADMIN = 'me@example.com'\n"
                         "IMPORTED_POINTS_PATH = '.'\n") % tmp_dir
     tmp_dir.join('config.py').write(config_for_tests)
     cleanup = tmp_dir.remove

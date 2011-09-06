@@ -263,3 +263,14 @@ def moderate_view():
                    Point.query.filter(Point.osm_id==None)],
     }
     return flask.render_template('moderate.html', **form_data)
+
+@frontend.route("/feedback", methods=['GET', 'POST'])
+def feedback_view():
+    if flask.request.method == 'POST':
+        from mails import send_feedback_mail
+        send_feedback_mail(flask.request.form['text'])
+        text = "Thank you for your feedback"
+        return flask.render_template('message.html', text=text)
+
+    else:
+        return flask.render_template('feedback.html')

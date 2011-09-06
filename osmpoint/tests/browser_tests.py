@@ -1,3 +1,5 @@
+# encoding: utf-8
+from time import sleep
 import unittest2
 try:
     from selenium import webdriver
@@ -35,6 +37,9 @@ def _set_app(app):
 def js(cmd):
     return browser.execute_script("return (" + cmd + ")")
 
+def css(selector):
+    return browser.find_element_by_css_selector(selector)
+
 
 def setUpModule():
     global browser
@@ -70,3 +75,21 @@ class BrowsingTest(unittest2.TestCase):
         js("$('img', M.collections['Locations'].layer.markers[0]"
            ".icon.imageDiv)[0]").click()
         self.assertIn("S.A.L.T. (pub)", js("$('.olPopupContent').text()"))
+
+    def test_feedback(self):
+        from mail_tests import MailTesting
+        self.mails = MailTesting()
+        self.mails.start()
+        self.addCleanup(self.mails.stop)
+
+        browser.get('http://127.0.0.1:57909/')
+        browser.find_element_by_link_text('Feedback').click()
+        js(u"$('form[name=feedback] textarea').val('fix your damn bugș ♣')")
+        js("$('form[name=feedback]')[0]").submit()
+        sleep(1)
+
+        # TODO must be logged in
+
+        msg = self.mails[0]
+        self.assertEqual(msg.get_payload(decode=True).decode('utf-8'),
+                         u"fix your damn bugș ♣")
