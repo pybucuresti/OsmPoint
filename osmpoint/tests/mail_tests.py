@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+from email.parser import Parser
 import flask
 import unittest2
 
@@ -15,11 +15,15 @@ class MailTests(unittest2.TestCase):
         self._ctx.push()
         self.addCleanup(self._ctx.pop)
         self.app.config['MAIL_SERVER'] = 'my_mailhost'
-        self.app.config['MAIL_FROM'] = 'me@example.com'
+        self.app.config['MAIL_FROM'] = 'server@example.com'
+        self.app.config['MAIL_ADMIN'] = 'me@example.com'
         smtp_patch = patch('osmpoint.mails.smtplib')
         self.mock_smtplib = smtp_patch.start()
         self.addCleanup(smtp_patch.stop)
         self.smtp = self.mock_smtplib.SMTP.return_value
+
+    def get_message(self):
+        return Parser().parsestr(self.smtp.sendmail.call_args[0][2])
 
     def test_send_mail(self):
         from osmpoint.mails import send_mail
@@ -30,13 +34,23 @@ class MailTests(unittest2.TestCase):
 
         smtp_args = self.smtp.sendmail.call_args[0]
         raw_msg = smtp_args[2]
-        ok_smtp_args = ('me@example.com', ['target@example.com'], raw_msg)
+        ok_smtp_args = ('server@example.com', ['target@example.com'], raw_msg)
         self.assertEqual(smtp_args, ok_smtp_args)
 
-        from email.parser import Parser
         msg = Parser().parsestr(raw_msg)
-        self.assertEqual(msg['From'], 'me@example.com')
+        self.assertEqual(msg['From'], 'server@example.com')
         self.assertEqual(msg['To'], 'target@example.com')
         self.assertEqual(msg['Subject'], u"Hi there")
         self.assertEqual(msg.get_payload(decode=True).decode('utf-8'),
                          u"Blah șmth ♣")
+
+    def test_feedback(self):
+        from osmpoint.mails import send_feedback_mail
+
+        send_feedback_mail(u"This app is awesome! ♣")
+
+        msg = self.get_message()
+        self.assertEqual(msg['To'], 'me@example.com')
+        self.assertEqual(msg['Subject'], u"Feedback")
+        self.assertEqual(msg.get_payload(decode=True).decode('utf-8'),
+                         u"This app is awesome! ♣")

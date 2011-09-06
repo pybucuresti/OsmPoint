@@ -1,6 +1,10 @@
 from email.mime.text import MIMEText
 import smtplib
+import logging
 import flask
+
+
+log = logging.getLogger(__name__)
 
 
 def send_mail(msg_to, msg_subject, msg_body):
@@ -15,3 +19,8 @@ def send_mail(msg_to, msg_subject, msg_body):
     conn = smtplib.SMTP(app.config['MAIL_SERVER'])
     conn.sendmail(msg_from, msg_to, msg.as_string())
     conn.quit()
+
+def send_feedback_mail(text):
+    app = flask.current_app
+    log.info("Feedback message: %r", text)
+    send_mail([app.config['MAIL_ADMIN']], u"Feedback", text)
