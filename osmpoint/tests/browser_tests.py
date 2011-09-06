@@ -1,5 +1,9 @@
 import unittest2
-from selenium import webdriver
+try:
+    from selenium import webdriver
+except ImportError:
+    from nose import SkipTest
+    raise SkipTest
 
 from osmpoint import database
 
