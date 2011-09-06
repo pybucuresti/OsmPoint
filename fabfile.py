@@ -49,10 +49,12 @@ CLOUDMADE_API_KEY = "87d74b5d089842f98679496ee6aef22e"
 
 GOOGLE_ANALYTICS_ID = "UA-25325838-1"
 
-logging.basicConfig(filename=os.path.join(workdir, 'osmpoint.log'),
-                    level=logging.INFO)
+logdir = os.path.join(workdir, 'log')
+_log_format = '%(asctime)s %(levelname)s %(name)s %(message)s'
+logging.basicConfig(filename=os.path.join(logdir, 'osmpoint.log'),
+                    level=logging.INFO, format=_log_format)
 logging.getLogger('osmpoint').setLevel(logging.INFO)
-data_log_handler = logging.FileHandler(os.path.join(workdir, 'data.log'))
+data_log_handler = logging.FileHandler(os.path.join(logdir, 'data.log'))
 logging.getLogger('osmpoint.database').addHandler(data_log_handler)
 """
 
@@ -113,14 +115,14 @@ def start():
     with cd(server_var):
         run("OSMPOINT_WORKDIR=. "
             "../virtualenv/bin/osmpoint runfcgi "
-            "--socket fcgi.socket "
-            "--pidfile fcgi.pid "
+            "--socket run/fcgi.socket "
+            "--pidfile run/fcgi.pid "
             "--daemonize")
-        run("chmod 777 fcgi.socket")
+        run("chmod 777 run/fcgi.socket")
 
 def stop():
     with cd(server_var):
-        run("kill `cat fcgi.pid` && rm fcgi.pid && rm fcgi.socket")
+        run("kill `cat run/fcgi.pid` && rm run/fcgi.pid && rm run/fcgi.socket")
 
 def restart():
     try:
