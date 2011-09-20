@@ -40,6 +40,7 @@
   {% else %}
   <script src="{{ url_for('static', filename='openlayers/OpenLayers.js') }}"></script>
   {% endif %}
+  <script src="{{ url_for('.coffeescripts') }}"></script>
   <script src="{{ url_for('static', filename='js/frontend.js') }}"></script>
   {%- if config['DEBUG'] %}
   <script src="{{ url_for('static', filename='js/debug.js') }}"></script>

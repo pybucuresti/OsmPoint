@@ -1,6 +1,7 @@
 import flask
 import yaml
 import os
+import subprocess
 from flaskext.openid import OpenID
 from wtforms import BooleanField, TextField, FloatField, HiddenField
 from wtforms import SelectField, Form, validators
@@ -263,3 +264,17 @@ def moderate_view():
                    Point.query.filter(Point.osm_id==None)],
     }
     return flask.render_template('moderate.html', **form_data)
+
+@frontend.route("/coffeescripts")
+def coffeescripts():
+    parent = os.path.join(os.path.dirname(__file__), 'static', 'coffee')
+    coffee_src_files = [os.path.join(parent, name)
+                        for name in os.listdir(parent)]
+    try:
+        data = subprocess.check_output(['coffee', '-p'] + coffee_src_files,
+                                       stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError, failure:
+        from werkzeug.exceptions import InternalServerError
+        from werkzeug.utils import escape
+        raise InternalServerError('<pre>' + escape(failure.output) + '</pre>')
+    return flask.Response(data, mimetype="application/javascript")
