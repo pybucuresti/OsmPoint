@@ -110,10 +110,13 @@ class RedisDb(object):
         self._r = Redis(unix_socket_path=sock_path)
 
     def add(self, name, data):
+        ob_id = self._r.incr('%s:next_id' % name)
+        return self.put(name, ob_id, data)
+
+    def put(self, name, ob_id, data):
         model_cls = self.model[name]
         model = model_cls(data)
         flat = dict(model.flatten())
-        ob_id = self._r.incr('%s:next_id' % name)
         data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
         self._r.mset(data)
         return ob_id

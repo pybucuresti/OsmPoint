@@ -57,3 +57,10 @@ class RedisDataTest(unittest.TestCase):
         p_id_2 = self.rdb.add('point', {'lat': 31, 'lon': 14})
         self.assertEqual(p_id_1, 1)
         self.assertEqual(p_id_2, 2)
+
+    def test_update(self):
+        p_id = self.rdb.add('point', {'lat': 13, 'lon': 22})
+        self.rdb.put('point', p_id, {'lat': 15, 'lon': 44})
+        p = self.rdb.get('point', p_id)
+        self.assertEqual(p['lat'], 15)
+        self.assertEqual(p['lon'], 44)
