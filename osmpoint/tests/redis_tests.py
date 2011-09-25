@@ -5,35 +5,15 @@ import string
 
 log = logging.getLogger(__name__)
 
-redis_config = string.Template("""\
-port 0
-unixsocket ${sock}
-logfile /dev/null
-""")
 
 def set_up_redis(tmp, addCleanup):
-    import time
-    import subprocess
-    redis_socket_path = tmp/'redis.sock'
-    p = subprocess.Popen(['redis-server', '-'], stdin=subprocess.PIPE)
-    p.stdin.write(redis_config.substitute(sock=redis_socket_path))
-    p.stdin.close()
-    log.info("started redis with pid %d", p.pid)
-    def shut_down_redis():
-        log.info("asking redis to shut down")
-        p.terminate()
-        p.wait()
-        log.info("redis has stopped with return code %d", p.returncode)
-    addCleanup(shut_down_redis)
-
-    for c in xrange(500):
-        if redis_socket_path.check():
-            break
-        time.sleep(.01)
-    else:
-        raise RuntimeError("Redis socket did not show up")
-
-    return redis_socket_path
+    from osmpoint.database import redis_server_process
+    sock_path = tmp/'redis.sock'
+    data_path = tmp/'redis.db'
+    p = redis_server_process(str(sock_path), str(data_path))
+    p.__enter__()
+    addCleanup(lambda: p.__exit__(None, None, None))
+    return sock_path
 
 
 class RedisDataTest(unittest.TestCase):
