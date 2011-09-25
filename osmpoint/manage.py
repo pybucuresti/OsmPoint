@@ -13,7 +13,7 @@ def migrate_to_redis_cmd(app):
 
 
 def maybe_redis_server(app):
-    if app.config['REDIS_RUN']:
+    if app.config['REDIS_RUN'] and 'WERKZEUG_RUN_MAIN' not in os.environ:
         from database import redis_server_process
         return redis_server_process(app.config['REDIS_SOCKET_PATH'],
                                     app.config['REDIS_DATA_PATH'])
