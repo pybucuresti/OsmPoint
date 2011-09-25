@@ -12,6 +12,7 @@ setup(
         'py',
         'pytest', # not sure why this is needed
         'PyYAML',
+        'redis',
     ],
     entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main',
                                       'parser = pbf_parser:main']},

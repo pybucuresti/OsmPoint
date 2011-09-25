@@ -92,3 +92,20 @@ def do_execute(self, cursor, statement, parameters, context=None):
     if any(statement.startswith(s) for s in ['INSERT ', 'UPDATE ', 'DELETE ']):
         log.info("%s %r", statement, parameters)
     return self._original_do_execute(cursor, statement, parameters, context)
+
+
+class RedisDb(object):
+
+    def __init__(self, sock_path):
+        from redis import Redis
+        self._r = Redis(unix_socket_path=sock_path)
+
+    def add_point(self, **data):
+        p_id = self._r.incr('point:next_id')
+        for k in data:
+            self._r.set('point:%d:%s' % (p_id, k), data[k])
+        return p_id
+
+    def get_point(self, p_id):
+        return {k: float(self._r.get('point:%d:%s' % (p_id, k)))
+                for k in ['lat', 'lon']}
