@@ -115,9 +115,18 @@ class RedisDb(object):
         self._r.mset(data)
         return ob_id
 
+    def get(self, model_cls, ob_id):
+        name = model_cls.db_name
+        field_names = [c.name for c in model_cls().all_children]
+        query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
+        result = self._r.mget(query)
+        data = zip(field_names, result)
+        model = PointModel.from_flat(data)
+        return model
+
     def add_point(self, **data):
         return self.add(PointModel(data))
 
     def get_point(self, p_id):
-        return {k: float(self._r.get('point:%d:%s' % (p_id, k)))
-                for k in ['lat', 'lon']}
+        model = self.get(PointModel, p_id)
+        return model.value
