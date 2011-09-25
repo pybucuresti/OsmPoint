@@ -96,27 +96,30 @@ def do_execute(self, cursor, statement, parameters, context=None):
 
 
 class PointModel(fl.Form):
-    db_name = 'point'
     lat = fl.Float
     lon = fl.Float
 
 
 class RedisDb(object):
+    model = {
+        'point': PointModel,
+    }
 
     def __init__(self, sock_path):
         from redis import Redis
         self._r = Redis(unix_socket_path=sock_path)
 
-    def add(self, model):
-        name = model.db_name
+    def add(self, name, data):
+        model_cls = self.model[name]
+        model = model_cls(data)
         flat = dict(model.flatten())
         ob_id = self._r.incr('%s:next_id' % name)
         data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
         self._r.mset(data)
         return ob_id
 
-    def get(self, model_cls, ob_id):
-        name = model_cls.db_name
+    def get(self, name, ob_id):
+        model_cls = self.model[name]
         field_names = [c.name for c in model_cls().all_children]
         query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
         result = self._r.mget(query)
@@ -125,8 +128,8 @@ class RedisDb(object):
         return model
 
     def add_point(self, **data):
-        return self.add(PointModel(data))
+        return self.add('point', data)
 
     def get_point(self, p_id):
-        model = self.get(PointModel, p_id)
+        model = self.get('point', p_id)
         return model.value
