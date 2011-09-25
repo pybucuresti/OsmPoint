@@ -33,7 +33,23 @@ def add_point(latitude, longitude, name, url, amenity, user_open_id):
     point = Point(latitude, longitude, name, url, amenity, user_open_id)
     db.session.add(point)
     db.session.commit()
+    rdb = flask.current_app.rdb
+    p_id = point.id
+    rdb.put_object('point', p_id, {
+        'lat': latitude,
+        'lon': longitude,
+        'name': name,
+        'url': url,
+        'amenity': amenity,
+        'user_open_id': user_open_id,
+    })
+    rdb.r.rpush('point:index', p_id)
     return point.id
+
+def get_all_points():
+    rdb = flask.current_app.rdb
+    for p_id in rdb.r.lrange('point:index', 0, -1):
+        yield rdb.get_object('point', int(p_id))
 
 def del_point(point):
     db.session.delete(point)

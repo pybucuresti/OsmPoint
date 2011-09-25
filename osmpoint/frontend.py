@@ -6,6 +6,7 @@ from wtforms import BooleanField, TextField, FloatField, HiddenField
 from wtforms import SelectField, Form, validators
 from .database import db, Point
 from .database import add_point, del_point, submit_points_to_osm
+import database
 
 
 oid = OpenID()
@@ -126,16 +127,16 @@ def points_for_homepage():
 
     osm_point_ids = set()
 
-    for p in Point.query.all():
+    for p in database.get_all_points():
         point_data.append({
-            'latitude': p.latitude,
-            'longitude': p.longitude,
-            'marker': marker_for_amenity(p.amenity),
-            'name': p.name,
-            'type': p.amenity,
+            'latitude': p['lat'],
+            'longitude': p['lon'],
+            'marker': marker_for_amenity(p['amenity']),
+            'name': p['name'],
+            'type': p['amenity'],
         })
-        if p.osm_id is not None:
-            osm_point_ids.add(p.osm_id)
+        if p['osm_id'] is not None:
+            osm_point_ids.add(p['osm_id'])
 
     for p in flask.current_app.config['IMPORTED_POINTS']:
         if p['osm_id'] in osm_point_ids:
