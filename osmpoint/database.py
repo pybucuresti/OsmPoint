@@ -143,6 +143,7 @@ class RedisDb(object):
             return ob_id
         except:
             rlog.error("failed during SET %s[%d]", name, ob_id)
+            raise
 
     def get_object(self, name, ob_id):
         model_cls = self.model[name]

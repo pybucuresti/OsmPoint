@@ -45,3 +45,7 @@ class RedisDataTest(unittest.TestCase):
         p = self.rdb.get_object('point', p_id)
         self.assertEqual(p['lat'], 15)
         self.assertEqual(p['lon'], 44)
+
+    def test_unknown_field(self):
+        data = {'no_such_key': 13}
+        self.assertRaises(KeyError, self.rdb.put_object, 'point', None, data)
