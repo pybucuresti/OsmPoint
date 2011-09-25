@@ -13,6 +13,7 @@ setup(
         'pytest', # not sure why this is needed
         'PyYAML',
         'redis',
+        'flatland',
     ],
     entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main',
                                       'parser = pbf_parser:main']},

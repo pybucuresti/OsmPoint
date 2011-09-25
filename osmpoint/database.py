@@ -2,6 +2,7 @@ import logging
 from flaskext.sqlalchemy import SQLAlchemy
 import flask
 import OsmApi
+import flatland as fl
 
 log = logging.getLogger(__name__)
 db = SQLAlchemy()
@@ -94,17 +95,28 @@ def do_execute(self, cursor, statement, parameters, context=None):
     return self._original_do_execute(cursor, statement, parameters, context)
 
 
+class PointModel(fl.Form):
+    db_name = 'point'
+    lat = fl.Float
+    lon = fl.Float
+
+
 class RedisDb(object):
 
     def __init__(self, sock_path):
         from redis import Redis
         self._r = Redis(unix_socket_path=sock_path)
 
+    def add(self, model):
+        name = model.db_name
+        flat = dict(model.flatten())
+        ob_id = self._r.incr('%s:next_id' % name)
+        data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
+        self._r.mset(data)
+        return ob_id
+
     def add_point(self, **data):
-        p_id = self._r.incr('point:next_id')
-        for k in data:
-            self._r.set('point:%d:%s' % (p_id, k), data[k])
-        return p_id
+        return self.add(PointModel(data))
 
     def get_point(self, p_id):
         return {k: float(self._r.get('point:%d:%s' % (p_id, k)))
