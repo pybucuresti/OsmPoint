@@ -24,6 +24,7 @@ def _app_for_testing(addCleanup):
     addCleanup(tmp_dir.remove)
 
     app = create_app(str(tmp_dir))
+    app.try_trigger_before_first_request_functions()
     return app
 
 class SetUpTests(unittest2.TestCase):
