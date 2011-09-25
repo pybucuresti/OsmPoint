@@ -5,6 +5,7 @@ import OsmApi
 import flatland as fl
 
 log = logging.getLogger(__name__)
+rlog = logging.getLogger(__name__ + '.redis')
 db = SQLAlchemy()
 
 class Point(db.Model):
@@ -109,12 +110,16 @@ class RedisDb(object):
     def put(self, name, ob_id, data):
         if ob_id is None:
             ob_id = self._r.incr('%s:next_id' % name)
-        model_cls = self.model[name]
-        model = model_cls(data)
-        flat = dict(model.flatten())
-        data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
-        self._r.mset(data)
-        return ob_id
+        rlog.info("SET %s[%d] %r", name, ob_id, data)
+        try:
+            model_cls = self.model[name]
+            model = model_cls(data)
+            flat = dict(model.flatten())
+            data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
+            self._r.mset(data)
+            return ob_id
+        except:
+            rlog.error("failed during SET %s[%d]", name, ob_id)
 
     def get(self, name, ob_id):
         model_cls = self.model[name]
