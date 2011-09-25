@@ -51,6 +51,7 @@ class RedisDataTest(unittest.TestCase):
         p = self.rdb.get('point', p_id)
         self.assertEqual(p['lat'], 13)
         self.assertEqual(p['lon'], 22)
+        self.assertEqual(p['name'], None)
 
     def test_autoincrement(self):
         p_id_1 = self.rdb.put('point', None, {'lat': 13, 'lon': 22})

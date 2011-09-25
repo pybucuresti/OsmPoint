@@ -99,6 +99,10 @@ def do_execute(self, cursor, statement, parameters, context=None):
 class PointModel(fl.Form):
     lat = fl.Float
     lon = fl.Float
+    name = fl.String
+    url = fl.String
+    amenity = fl.String
+    user_open_id = fl.String
 
 
 class RedisDb(object):
@@ -115,7 +119,8 @@ class RedisDb(object):
             model_cls = self.model[name]
             model = model_cls(data)
             flat = dict(model.flatten())
-            data = {'%s:%d:%s' % (name, ob_id, key): flat[key] for key in flat}
+            data = {'%s:%d:%s' % (name, ob_id, key): flat[key]
+                    for key in flat if not model[key].is_empty}
             self._r.mset(data)
             return ob_id
         except:
