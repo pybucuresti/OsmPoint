@@ -108,12 +108,12 @@ class PointModel(fl.Form):
 class RedisDb(object):
 
     def __init__(self, r, model_map):
-        self._r = r
+        self.r = r
         self.model = model_map
 
-    def put(self, name, ob_id, data):
+    def put_object(self, name, ob_id, data):
         if ob_id is None:
-            ob_id = self._r.incr('%s:next_id' % name)
+            ob_id = self.r.incr('%s:next_id' % name)
         rlog.info("SET %s[%d] %r", name, ob_id, data)
         try:
             model_cls = self.model[name]
@@ -121,16 +121,16 @@ class RedisDb(object):
             flat = dict(model.flatten())
             data = {'%s:%d:%s' % (name, ob_id, key): flat[key]
                     for key in flat if not model[key].is_empty}
-            self._r.mset(data)
+            self.r.mset(data)
             return ob_id
         except:
             rlog.error("failed during SET %s[%d]", name, ob_id)
 
-    def get(self, name, ob_id):
+    def get_object(self, name, ob_id):
         model_cls = self.model[name]
         field_names = [c.name for c in model_cls().all_children]
         query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
-        result = self._r.mget(query)
+        result = self.r.mget(query)
         data = zip(field_names, result)
         model = PointModel.from_flat(data)
         return model.value

@@ -47,21 +47,21 @@ class RedisDataTest(unittest.TestCase):
         self.rdb = open_redis_db(str(redis_socket_path))
 
     def test_add_get_point(self):
-        p_id = self.rdb.put('point', None, {'lat': 13, 'lon': 22})
-        p = self.rdb.get('point', p_id)
+        p_id = self.rdb.put_object('point', None, {'lat': 13, 'lon': 22})
+        p = self.rdb.get_object('point', p_id)
         self.assertEqual(p['lat'], 13)
         self.assertEqual(p['lon'], 22)
         self.assertEqual(p['name'], None)
 
     def test_autoincrement(self):
-        p_id_1 = self.rdb.put('point', None, {'lat': 13, 'lon': 22})
-        p_id_2 = self.rdb.put('point', None, {'lat': 31, 'lon': 14})
+        p_id_1 = self.rdb.put_object('point', None, {'lat': 13, 'lon': 22})
+        p_id_2 = self.rdb.put_object('point', None, {'lat': 31, 'lon': 14})
         self.assertEqual(p_id_1, 1)
         self.assertEqual(p_id_2, 2)
 
     def test_update(self):
-        p_id = self.rdb.put('point', None, {'lat': 13, 'lon': 22})
-        self.rdb.put('point', p_id, {'lat': 15, 'lon': 44})
-        p = self.rdb.get('point', p_id)
+        p_id = self.rdb.put_object('point', None, {'lat': 13, 'lon': 22})
+        self.rdb.put_object('point', p_id, {'lat': 15, 'lon': 44})
+        p = self.rdb.get_object('point', p_id)
         self.assertEqual(p['lat'], 15)
         self.assertEqual(p['lon'], 44)
