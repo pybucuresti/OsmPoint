@@ -101,13 +101,10 @@ class PointModel(fl.Form):
 
 
 class RedisDb(object):
-    model = {
-        'point': PointModel,
-    }
 
-    def __init__(self, sock_path):
-        from redis import Redis
-        self._r = Redis(unix_socket_path=sock_path)
+    def __init__(self, r, model_map):
+        self._r = r
+        self.model = model_map
 
     def put(self, name, ob_id, data):
         if ob_id is None:
@@ -127,3 +124,8 @@ class RedisDb(object):
         data = zip(field_names, result)
         model = PointModel.from_flat(data)
         return model.value
+
+def open_redis_db(sock_path, model_map={'point': PointModel}):
+    from redis import Redis
+    r = Redis(unix_socket_path=sock_path)
+    return RedisDb(r, model_map)

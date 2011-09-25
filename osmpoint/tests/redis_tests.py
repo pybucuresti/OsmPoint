@@ -43,8 +43,8 @@ class RedisDataTest(unittest.TestCase):
         log.info("temp folder %r", tmp)
         self.addCleanup(tmp.remove)
         redis_socket_path = set_up_redis(tmp, self.addCleanup)
-        from osmpoint.database import RedisDb
-        self.rdb = RedisDb(str(redis_socket_path))
+        from osmpoint.database import open_redis_db
+        self.rdb = open_redis_db(str(redis_socket_path))
 
     def test_add_get_point(self):
         p_id = self.rdb.put('point', None, {'lat': 13, 'lon': 22})
