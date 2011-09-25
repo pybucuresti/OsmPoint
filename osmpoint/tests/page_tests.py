@@ -5,29 +5,31 @@ import py
 
 from mock import patch, Mock
 
-def app_for_testing():
+def _app_for_testing(addCleanup):
     from osmpoint.application import create_app
 
     tmp_dir = py.path.local.mkdtemp()
+    from redis_tests import set_up_redis
+    redis_socket_path = set_up_redis(tmp_dir, addCleanup)
     config_for_tests = ("OSM_API = 'api06.dev.openstreetmap.org'\n"
                         "SECRET_KEY = 'my-secret-key'\n"
                         "SQLALCHEMY_DATABASE_URI = 'sqlite:///%s/db.sqlite'\n"
                         "MAIL_SERVER = 'my_mailhost'\n"
                         "MAIL_FROM = 'server@example.com'\n"
                         "MAIL_ADMIN = 'me@example.com'\n"
-                        "IMPORTED_POINTS_PATH = '.'\n") % tmp_dir
+                        "IMPORTED_POINTS_PATH = '.'\n"
+                        "REDIS_SOCKET_PATH = '%s'\n"
+                       ) % (tmp_dir, redis_socket_path)
     tmp_dir.join('config.py').write(config_for_tests)
-    cleanup = tmp_dir.remove
+    addCleanup(tmp_dir.remove)
 
     app = create_app(str(tmp_dir))
-
-    return app, cleanup
+    return app
 
 class SetUpTests(unittest2.TestCase):
 
     def setUp(self):
-        self.app, _cleanup = app_for_testing()
-        self.addCleanup(_cleanup)
+        self.app = _app_for_testing(self.addCleanup)
         self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()

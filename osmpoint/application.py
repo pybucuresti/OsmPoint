@@ -40,4 +40,9 @@ def create_app(workdir):
 
     configure_app(app, workdir)
 
+    from database import open_redis_db
+    redis_socket_path = app.config.get('REDIS_SOCKET_PATH')
+    if redis_socket_path is not None:
+        app.rdb = open_redis_db(redis_socket_path)
+
     return app
