@@ -103,6 +103,7 @@ class PointModel(fl.Form):
     url = fl.String
     amenity = fl.String
     user_open_id = fl.String
+    osm_id = fl.Integer
 
 
 class RedisDb(object):
