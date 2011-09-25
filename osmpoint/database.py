@@ -228,4 +228,4 @@ def redis_server_process(sock_path, data_path, persist=True):
         rslog.info("asking redis to shut down")
         p.terminate()
         p.wait()
-        rslog.info("redis has stopped with return code %d", p.returncode)
+        rslog.info("redis has stopped with exit code %d", p.returncode)
