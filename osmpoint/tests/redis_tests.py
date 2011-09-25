@@ -10,7 +10,7 @@ def set_up_redis(tmp, addCleanup):
     from osmpoint.database import redis_server_process
     sock_path = tmp/'redis.sock'
     data_path = tmp/'redis.db'
-    p = redis_server_process(str(sock_path), str(data_path))
+    p = redis_server_process(str(sock_path), str(data_path), persist=False)
     p.__enter__()
     addCleanup(lambda: p.__exit__(None, None, None))
     return sock_path

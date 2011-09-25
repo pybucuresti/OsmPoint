@@ -165,9 +165,13 @@ unixsocket ${sock_path}
 dir ${data_path}
 logfile /dev/null
 """
+redis_config_persist = """\
+appendonly yes
+appendfsync always
+"""
 
 @contextmanager
-def redis_server_process(sock_path, data_path):
+def redis_server_process(sock_path, data_path, persist=True):
     import os.path
     import time
     import subprocess
@@ -184,6 +188,8 @@ def redis_server_process(sock_path, data_path):
             sock_path=sock_path,
             data_path=data_path,
         ))
+        if persist:
+            p.stdin.write(redis_config_persist)
         p.stdin.close()
         rslog.info("started redis with pid %d", p.pid)
 
