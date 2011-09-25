@@ -109,11 +109,9 @@ class RedisDb(object):
         from redis import Redis
         self._r = Redis(unix_socket_path=sock_path)
 
-    def add(self, name, data):
-        ob_id = self._r.incr('%s:next_id' % name)
-        return self.put(name, ob_id, data)
-
     def put(self, name, ob_id, data):
+        if ob_id is None:
+            ob_id = self._r.incr('%s:next_id' % name)
         model_cls = self.model[name]
         model = model_cls(data)
         flat = dict(model.flatten())
