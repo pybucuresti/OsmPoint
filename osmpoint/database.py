@@ -54,6 +54,18 @@ def get_all_points():
 
 def migrate_to_redis():
     empty_redis_db()
+    rdb = flask.current_app.rdb
+    for p in Point.query.all():
+        rdb.put_object('point', p.id, {
+            'lat': p.latitude,
+            'lon': p.longitude,
+            'name': p.name,
+            'url': p.url,
+            'amenity': p.amenity,
+            'osm_id': p.osm_id,
+            'user_open_id': p.user_open_id,
+        })
+        rdb.r.rpush('point:index', p.id)
 
 def empty_redis_db():
     rdb = flask.current_app.rdb
