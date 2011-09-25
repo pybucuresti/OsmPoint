@@ -27,7 +27,6 @@ def configure_app(app, workdir):
 
     app.config['OSMPOINT_ADMINS'] = []
     app.config['IMPORTED_POINTS_PATH'] = None
-    app.config['REDIS_RUN'] = False
 
     config_file = os.path.join(workdir, 'config.py')
     app.config.from_pyfile(config_file, silent=False)

@@ -1,3 +1,4 @@
+import sys
 import os
 from flaskext.actions import Manager
 from application import create_app
@@ -12,8 +13,8 @@ def migrate_to_redis_cmd(app):
     return cmd
 
 
-def maybe_redis_server(app):
-    if app.config['REDIS_RUN'] and 'WERKZEUG_RUN_MAIN' not in os.environ:
+def maybe_redis_server(app, redis_requested):
+    if redis_requested and 'WERKZEUG_RUN_MAIN' not in os.environ:
         from database import redis_server_process
         return redis_server_process(app.config['REDIS_SOCKET_PATH'],
                                     app.config['REDIS_DATA_PATH'])
@@ -26,10 +27,17 @@ def maybe_redis_server(app):
 
 
 def main():
+    if '--redis-server' in sys.argv:
+        redis_requested = True
+        sys.argv.remove('--redis-server')
+    else:
+        redis_requested = False
+
     app = create_app(os.environ['OSMPOINT_WORKDIR'])
     manager = Manager(app, default_server_actions=True)
     manager.add_action('migrate_to_redis', migrate_to_redis_cmd)
-    with maybe_redis_server(app):
+
+    with maybe_redis_server(app, redis_requested):
         manager.run()
 
 if __name__ == '__main__':
