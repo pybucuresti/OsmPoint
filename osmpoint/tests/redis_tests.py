@@ -1,5 +1,4 @@
 import unittest
-import subprocess
 import py.path
 import logging
 import string
@@ -12,28 +11,42 @@ unixsocket ${sock}
 logfile /dev/null
 """)
 
+def set_up_redis(tmp, addCleanup):
+    import time
+    import subprocess
+    redis_socket_path = tmp/'redis.sock'
+    p = subprocess.Popen(['redis-server', '-'], stdin=subprocess.PIPE)
+    p.stdin.write(redis_config.substitute(sock=redis_socket_path))
+    p.stdin.close()
+    log.info("started redis with pid %d", p.pid)
+    def shut_down_redis():
+        log.info("asking redis to shut down")
+        p.terminate()
+        p.wait()
+        log.info("redis has stopped with return code %d", p.returncode)
+    addCleanup(shut_down_redis)
+
+    for c in xrange(500):
+        if redis_socket_path.check():
+            break
+        time.sleep(.01)
+    else:
+        raise RuntimeError("Redis socket did not show up")
+
+    return redis_socket_path
+
+
 class RedisDataTest(unittest.TestCase):
 
     def setUp(self):
         tmp = py.path.local.mkdtemp()
         log.info("temp folder %r", tmp)
         self.addCleanup(tmp.remove)
-
-        self.redis_socket_path = '%s/redis.sock' % tmp
-        p = subprocess.Popen(['redis-server', '-'], stdin=subprocess.PIPE)
-        p.stdin.write(redis_config.substitute(sock=self.redis_socket_path))
-        p.stdin.close()
-        log.info("started redis with pid %d", p.pid)
-        def shut_down_redis():
-            log.info("asking redis to shut down")
-            p.terminate()
-            p.wait()
-            log.info("redis has stopped with return code %d", p.returncode)
-        self.addCleanup(shut_down_redis)
+        self.redis_socket_path = set_up_redis(tmp, self.addCleanup)
 
     def test_add_get_point(self):
         from osmpoint.database import RedisDb
-        rdb = RedisDb(self.redis_socket_path)
+        rdb = RedisDb(str(self.redis_socket_path))
         p_id = rdb.add_point(lat=13, lon=22)
         p = rdb.get_point(p_id)
         self.assertEqual(p['lat'], 13)
