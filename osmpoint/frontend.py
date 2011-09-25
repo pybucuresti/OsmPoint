@@ -121,8 +121,7 @@ def marker_for_amenity(amenity):
     else:
         return 'marker-blue.png'
 
-@frontend.route("/")
-def homepage():
+def points_for_homepage():
     point_data = []
 
     osm_point_ids = set()
@@ -150,6 +149,11 @@ def homepage():
             'type': p['amenity'],
         })
 
+    return point_data
+
+@frontend.route("/")
+def homepage():
+    point_data = points_for_homepage()
     return flask.render_template('explore.html', point_data=point_data)
 
 @frontend.route("/points")
