@@ -3,6 +3,15 @@ from flaskext.actions import Manager
 from application import create_app
 
 
+def migrate_to_redis_cmd(app):
+    def cmd():
+        import database
+        app.try_trigger_before_first_request_functions()
+        with app.test_request_context():
+            database.migrate_to_redis()
+    return cmd
+
+
 def maybe_redis_server(app):
     if app.config['REDIS_RUN']:
         from database import redis_server_process
@@ -19,6 +28,7 @@ def maybe_redis_server(app):
 def main():
     app = create_app(os.environ['OSMPOINT_WORKDIR'])
     manager = Manager(app, default_server_actions=True)
+    manager.add_action('migrate_to_redis', migrate_to_redis_cmd)
     with maybe_redis_server(app):
         manager.run()
 

@@ -52,6 +52,16 @@ def get_all_points():
     for p_id in rdb.r.lrange('point:index', 0, -1):
         yield rdb.get_object('point', int(p_id))
 
+def migrate_to_redis():
+    empty_redis_db()
+
+def empty_redis_db():
+    rdb = flask.current_app.rdb
+    all_keys = rdb.r.keys('*')
+    for key in all_keys:
+        rdb.r.delete(key)
+    rlog.info("deleted %d keys", len(all_keys))
+
 def del_point(point):
     db.session.delete(point)
     db.session.commit()
