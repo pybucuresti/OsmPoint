@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from flaskext.sqlalchemy import SQLAlchemy
 import flask
 import OsmApi
@@ -156,3 +157,46 @@ def open_redis_db(sock_path, model_map={'point': PointModel}):
     from redis import Redis
     r = Redis(unix_socket_path=sock_path)
     return RedisDb(r, model_map)
+
+redis_config_tmpl = """\
+port 0
+unixsocket ${sock_path}
+dir ${data_path}
+logfile /dev/null
+"""
+
+@contextmanager
+def redis_server_process(sock_path, data_path):
+    import os.path
+    import time
+    import subprocess
+    from string import Template
+    rslog = logging.getLogger(__name__ + '.redis-server')
+
+    if not os.path.isdir(data_path):
+        os.makedirs(data_path)
+
+    p = subprocess.Popen(['redis-server', '-'], stdin=subprocess.PIPE)
+
+    try:
+        p.stdin.write(Template(redis_config_tmpl).substitute(
+            sock_path=sock_path,
+            data_path=data_path,
+        ))
+        p.stdin.close()
+        rslog.info("started redis with pid %d", p.pid)
+
+        for c in xrange(500):
+            if os.path.exists(sock_path):
+                break
+            time.sleep(.01)
+        else:
+            raise RuntimeError("Redis socket did not show up")
+
+        yield
+
+    finally:
+        rslog.info("asking redis to shut down")
+        p.terminate()
+        p.wait()
+        rslog.info("redis has stopped with return code %d", p.returncode)
