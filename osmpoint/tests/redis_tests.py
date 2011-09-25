@@ -47,15 +47,15 @@ class RedisDataTest(unittest.TestCase):
     def test_add_get_point(self):
         from osmpoint.database import RedisDb
         rdb = RedisDb(str(self.redis_socket_path))
-        p_id = rdb.add_point(lat=13, lon=22)
-        p = rdb.get_point(p_id)
+        p_id = rdb.add('point', {'lat': 13, 'lon': 22})
+        p = rdb.get('point', p_id)
         self.assertEqual(p['lat'], 13)
         self.assertEqual(p['lon'], 22)
 
     def test_autoincrement(self):
         from osmpoint.database import RedisDb
         rdb = RedisDb(str(self.redis_socket_path))
-        p_id_1 = rdb.add_point(lat=13, lon=22)
-        p_id_2 = rdb.add_point(lat=31, lon=14)
+        p_id_1 = rdb.add('point', {'lat': 13, 'lon': 22})
+        p_id_2 = rdb.add('point', {'lat': 31, 'lon': 14})
         self.assertEqual(p_id_1, 1)
         self.assertEqual(p_id_2, 2)

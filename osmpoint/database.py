@@ -125,11 +125,4 @@ class RedisDb(object):
         result = self._r.mget(query)
         data = zip(field_names, result)
         model = PointModel.from_flat(data)
-        return model
-
-    def add_point(self, **data):
-        return self.add('point', data)
-
-    def get_point(self, p_id):
-        model = self.get('point', p_id)
         return model.value
