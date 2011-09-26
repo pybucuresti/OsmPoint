@@ -127,7 +127,7 @@ def points_for_homepage():
 
     osm_point_ids = set()
 
-    for p in database.get_all_points():
+    for p_id, p in database.get_all_points():
         point_data.append({
             'latitude': p['lat'],
             'longitude': p['lon'],
@@ -161,7 +161,8 @@ def homepage():
 def show_points():
     local_points = []
     sent_points = []
-    for point in database.get_all_points():
+    for p_id, point in database.get_all_points():
+        point['id'] = p_id
         if point['osm_id'] is None:
             local_points.append(point)
         else:

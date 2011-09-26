@@ -49,7 +49,7 @@ def add_point(latitude, longitude, name, url, amenity, user_open_id):
 def get_all_points():
     rdb = flask.current_app.rdb
     for p_id in rdb.object_ids('point'):
-        yield rdb.get_object('point', int(p_id))
+        yield p_id, rdb.get_object('point', int(p_id))
 
 def migrate_to_redis():
     empty_redis_db()
