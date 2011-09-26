@@ -55,6 +55,7 @@ def get_all_points():
 def migrate_to_redis():
     empty_redis_db()
     rdb = flask.current_app.rdb
+    max_id = 0
     for p in Point.query.all():
         rdb.put_object('point', p.id, {
             'lat': p.latitude,
@@ -66,6 +67,8 @@ def migrate_to_redis():
             'user_open_id': p.user_open_id,
         })
         rdb.r.rpush('point:index', p.id)
+        max_id = max([max_id, p.id])
+    rdb.r.set('point:last_id', max_id)
 
 def empty_redis_db():
     rdb = flask.current_app.rdb
@@ -153,7 +156,7 @@ class RedisDb(object):
 
     def put_object(self, name, ob_id, data):
         if ob_id is None:
-            ob_id = self.r.incr('%s:next_id' % name)
+            ob_id = self.r.incr('%s:last_id' % name)
         rlog.info("SET %s[%d] %r", name, ob_id, data)
         try:
             model_cls = self.model[name]
