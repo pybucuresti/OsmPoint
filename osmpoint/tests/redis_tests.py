@@ -1,3 +1,4 @@
+# encoding: utf-8
 import unittest
 import py.path
 import logging
@@ -74,3 +75,8 @@ class RedisDataTest(unittest.TestCase):
 
         self.rdb.del_object('point', p2)
         self.assertItemsEqual(self.rdb.object_ids('point'), [])
+
+    def test_unicode(self):
+        p_id = self.rdb.put_object('point', None, {'name': u"♣"})
+        p = self.rdb.get_object('point', p_id)
+        self.assertEqual(p['name'], u"♣")

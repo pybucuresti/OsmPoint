@@ -181,7 +181,8 @@ class RedisDb(object):
         field_names = [c.name for c in model_cls().all_children]
         query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
         result = self.r.mget(query)
-        data = zip(field_names, result)
+        decode = lambda v: None if v is None else v.decode('utf-8')
+        data = zip(field_names, (decode(v) for v in result))
         model = PointModel.from_flat(data)
         return model.value
 
