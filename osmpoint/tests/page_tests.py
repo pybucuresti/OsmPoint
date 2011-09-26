@@ -45,12 +45,6 @@ class SetUpTests(unittest2.TestCase):
     def tearDown(self):
         self.db.session.remove()
 
-    def add_point(self, *args, **kwargs):
-        point = database.Point(*args, **kwargs)
-        self.db.session.add(point)
-        self.db.session.commit()
-        return point
-
     def get_all_points(self):
         return database.Point.query.all()
 
@@ -80,8 +74,8 @@ class SavePointTest(SetUpTests):
         self.assertEquals(point.user_open_id, 'my-open-id')
 
     def test_point_is_stored(self):
-        self.add_point(46.06, 24.10, 'Eau de Web',
-                       'website', 'business', 'my-open-id')
+        database.add_point(46.06, 24.10, 'Eau de Web',
+                           'website', 'business', 'my-open-id')
 
         points = self.get_all_points()
         self.assertEquals(len(points), 1)
@@ -159,9 +153,9 @@ class SavePointTest(SetUpTests):
 class DeletePointTest(SetUpTests):
 
     def test_del_point(self):
-        point = self.add_point(1, 2, 'X', 'Y', 'Z', 'W')
+        p_id = database.add_point(1, 2, 'X', 'Y', 'Z', 'W')
 
-        database.del_point(point)
+        database.del_point(database.Point.query.get(p_id))
 
         points = self.get_all_points()
         self.assertEquals(len(points), 0)
@@ -171,10 +165,10 @@ class DeletePointTest(SetUpTests):
 
         client.post('/test_login', data={'user_id': 'non-admin'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
-        address = flask.url_for('.delete_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id, 'confirm': 'true'})
+        address = flask.url_for('.delete_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id, 'confirm': 'true'})
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 403)
@@ -183,10 +177,10 @@ class DeletePointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
-        address = flask.url_for('.delete_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id, 'confirm': 'true'})
+        address = flask.url_for('.delete_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id, 'confirm': 'true'})
 
         self.assertEqual(response.status_code, 200)
         points = self.get_all_points()
@@ -203,10 +197,10 @@ class DeletePointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
-        address = flask.url_for('.delete_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id, 'confirm': 'false'})
+        address = flask.url_for('.delete_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id, 'confirm': 'false'})
 
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
@@ -226,14 +220,16 @@ class SubmitPointTest(SetUpTests):
     def test_changesets(self, mock_get_osm_api):
         mock_osm = mock_get_osm_api.return_value
         client = self.app.test_client()
-        p1 = self.add_point(46.06, 24.10, 'Eau de Web',
-                             'link1', 'pub', 'my-open-id')
-        p2 = self.add_point(46.07, 24.11, 'blabla',
-                             '', 'bar', 'my-open-id')
+        p1_id = database.add_point(46.06, 24.10, 'Eau de Web',
+                                   'link1', 'pub', 'my-open-id')
+        p2_id = database.add_point(46.07, 24.11, 'blabla',
+                                   '', 'bar', 'my-open-id')
         values = [13, 45]
         mock_osm.ChangesetCreate.return_value = 13
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
+        p1 = database.Point.query.get(p1_id)
+        p2 = database.Point.query.get(p2_id)
         database.submit_points_to_osm([p1, p2])
         self.db.session.commit()
 
@@ -255,14 +251,14 @@ class SubmitPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        p = self.add_point(46.06, 24.10, 'Eau de Web',
-                            'link1', 'pub', 'admin-user')
+        p_id = database.add_point(46.06, 24.10, 'Eau de Web',
+                                  'link1', 'pub', 'admin-user')
 
         mock_osm.ChangesetCreate.return_value = 13
         mock_osm.NodeCreate.return_value = {'id': 50}
 
-        address = flask.url_for('.send_point', point_id=p.id)
-        response = client.post(address, data={'id': p.id})
+        address = flask.url_for('.send_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id})
 
         self.assertEqual(response.status_code, 200)
 
@@ -280,10 +276,10 @@ class SubmitPointTest(SetUpTests):
 
         client.post('/test_login', data={'user_id': 'non-admin'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
-        address = flask.url_for('.send_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id})
+        address = flask.url_for('.send_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id})
 
         self.assertFalse(mock_get_osm_api.called)
         points = self.get_all_points()
@@ -333,11 +329,11 @@ class SubmitPointTest(SetUpTests):
         mock_osm.NodeCreate.return_value = {'a': 'b', 'id': 13}
 
         client = self.app.test_client()
-        p1 = self.add_point(46.06, 24.10, 'Eau de Web',
-                             'link1', 'pub', 'my-open-id')
+        p_id = database.add_point(46.06, 24.10, 'Eau de Web',
+                                  'link1', 'pub', 'my-open-id')
         log_records[:] = []
 
-        database.submit_points_to_osm([p1])
+        database.submit_points_to_osm([database.Point.query.get(p_id)])
 
         self.assertEqual(len(self.log_records), 4)
         self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
@@ -347,15 +343,15 @@ class SubmitPointTest(SetUpTests):
     def test_submitted_point_url(self):
         self.app.config['OSM_API'] = 'fake.api.example.com'
 
-        point = self.add_point(46.06, 24.10, 'EdW', '', 'pub', 'my-open-id')
-        point_id = point.id
-        point.osm_id = 1234
-        self.db.session.add(point)
+        p_id = database.add_point(46.06, 24.10, 'EdW', '', 'pub', 'my-open-id')
+        p = database.Point.query.get(p_id)
+        p.osm_id = 1234
+        self.db.session.add(p)
         self.db.session.commit()
 
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
-        response = client.get('/points/%d' % point_id)
+        response = client.get('/points/%d' % p_id)
         url = 'http://fake.api.example.com/browse/node/1234'
         self.assertIn('<a href="%s">' % url, response.data)
 
@@ -364,8 +360,8 @@ class ModerationPageTest(SetUpTests):
 
     def setUp(self):
         super(ModerationPageTest, self).setUp()
-        self.p1_id = self.add_point(10., 10., 'NameOne', '', 'pub', 'user1').id
-        self.p2_id = self.add_point(20., 20., 'NameTwo', '', 'pub', 'user2').id
+        self.p1_id = database.add_point(10., 10., 'NameOne', '', 'pub', 'user1')
+        self.p2_id = database.add_point(20., 20., 'NameTwo', '', 'pub', 'user2')
         self.client = self.app.test_client()
         self.client.post('/test_login', data={'user_id': 'admin-user'})
 
@@ -405,11 +401,11 @@ class EditPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'new_name',
-                      'url': 'new_url', 'amenity': 'pub', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'url': 'new_url', 'amenity': 'pub', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 40)
@@ -431,12 +427,12 @@ class EditPointTest(SetUpTests):
         self.app.config['OSMPOINT_ADMINS'] = []
         client.post('/test_login', data={'user_id': 'non-admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url',
-                                'type', 'non-admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url',
+                                  'type', 'non-admin-user')
 
         point_data = {'lat': 40, 'lon': 20, 'name': 'wrong',
-                      'url': 'url', 'type': 'type', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'url': 'url', 'type': 'type', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         self.assertEqual(response.status_code, 403)
 
@@ -444,11 +440,11 @@ class EditPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         point_data = {'lat': 91, 'lon': 181, 'name': 'wrong',
-                      'url': 'url', 'type': 'pub', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'url': 'url', 'type': 'pub', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.latitude, 45)
@@ -458,11 +454,11 @@ class EditPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': '',
-                      'amenity': 'none', 'url': 'url', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'amenity': 'none', 'url': 'url', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.amenity, 'old_type')
@@ -471,11 +467,11 @@ class EditPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
+        p_id = database.add_point(45, 25, 'name', 'url', 'old_type', 'admin-user')
 
         point_data = {'lat': 45, 'lon': 25, 'name': 'wrong', 'new_amenity': 'new',
-                      'amenity': '_other', 'url': 'url', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'amenity': '_other', 'url': 'url', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.amenity, 'new')
@@ -484,11 +480,11 @@ class EditPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = self.add_point(45, 25, 'old_name', 'url', 'type', 'admin-user')
+        p_id = database.add_point(45, 25, 'old_name', 'url', 'type', 'admin-user')
 
         point_data = {'lat': 45, 'lon': 25, 'amenity': 'new_type',
-                      'name': '', 'url': 'url', 'id': point.id}
-        address = flask.url_for('.edit_point', point_id=point.id)
+                      'name': '', 'url': 'url', 'id': p_id}
+        address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
         self.assertEqual(point.name, 'old_name')
@@ -517,7 +513,7 @@ class UserPageTest(SetUpTests):
     def test_show_map(self):
         client = self.app.test_client()
 
-        self.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         response = client.get('/points/1')
         self.assertEqual(response.status_code, 200)
