@@ -179,6 +179,13 @@ class RedisDb(object):
         model = PointModel.from_flat(data)
         return model.value
 
+    def del_object(self, name, ob_id):
+        model_cls = self.model[name]
+        field_names = [c.name for c in model_cls().all_children]
+        query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
+        self.r.delete(*query)
+
+
 def open_redis_db(sock_path, model_map={'point': PointModel}):
     from redis import Redis
     r = Redis(unix_socket_path=sock_path)
