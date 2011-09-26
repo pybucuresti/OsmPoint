@@ -59,3 +59,18 @@ class RedisDataTest(unittest.TestCase):
         self.rdb.del_object('point', p_id)
         p = self.rdb.get_object('point', p_id)
         self.assertEqual(p['lat'], None)
+
+    def test_object_ids(self):
+        self.assertItemsEqual(self.rdb.object_ids('point'), [])
+
+        p1 = self.rdb.put_object('point', None, {'lat': 13, 'lon': 22})
+        self.assertItemsEqual(self.rdb.object_ids('point'), [p1])
+
+        p2 = self.rdb.put_object('point', None, {'lat': 13, 'lon': 22})
+        self.assertItemsEqual(self.rdb.object_ids('point'), [p1, p2])
+
+        self.rdb.del_object('point', p1)
+        self.assertItemsEqual(self.rdb.object_ids('point'), [p2])
+
+        self.rdb.del_object('point', p2)
+        self.assertItemsEqual(self.rdb.object_ids('point'), [])

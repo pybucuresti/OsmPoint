@@ -165,6 +165,7 @@ class RedisDb(object):
             data = {'%s:%d:%s' % (name, ob_id, key): flat[key]
                     for key in flat if not model[key].is_empty}
             self.r.mset(data)
+            self.r.sadd('%s:ids' % name, ob_id)
             return ob_id
         except:
             rlog.error("failed during SET %s[%d]", name, ob_id)
@@ -180,10 +181,15 @@ class RedisDb(object):
         return model.value
 
     def del_object(self, name, ob_id):
+        # TODO delete should be atomic
         model_cls = self.model[name]
         field_names = [c.name for c in model_cls().all_children]
         query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
+        self.r.srem('%s:ids' % name, ob_id)
         self.r.delete(*query)
+
+    def object_ids(self, name):
+        return set(int(ob_id) for ob_id in self.r.smembers('%s:ids' % name))
 
 
 def open_redis_db(sock_path, model_map={'point': PointModel}):
