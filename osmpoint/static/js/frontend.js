@@ -122,7 +122,6 @@ M.new_map = function(div_id) {
   };
 
   map.enable_geolocation = function() {
-    map.center_on_next_geolocation = false;
     map.geolocate_control = new OpenLayers.Control.Geolocate({
       bind: false, watch: true,
       geolocationOptions: {enableHighAccuracy: true}
@@ -131,28 +130,23 @@ M.new_map = function(div_id) {
     map.geolocation_layer = new OpenLayers.Layer.Vector('geolocation');
     map.olmap.addLayer(map.geolocation_layer);
     map.geolocate_control.events.register("locationupdated", null, function(evt) {
-        if(evt.position.coords.accuracy > M.geolocation_accuracy_threshold) {
-            return;
-        }
-        map.draw_geolocation(evt.point, evt.position.coords.accuracy);
-        if (map.center_on_next_geolocation) {
-          var bounds = map.geolocation_layer.getDataExtent();
-          var center = bounds.getCenterLonLat();
-          var zoom = Math.min(map.olmap.getZoomForExtent(bounds), M.max_gps_zoom);
-          map.olmap.setCenter(center, zoom);
-
-          map.center_on_next_geolocation = false;
-        }
+      if(evt.position.coords.accuracy > M.geolocation_accuracy_threshold) {
+        return;
+      }
+      map.draw_geolocation(evt.point, evt.position.coords.accuracy);
+      if(map.center_to_gps_control == null) {
+        map.center_to_gps_control = M.new_center_to_gps_control(center_to_gps);
+        map.olmap.addControl(map.center_to_gps_control);
+        map.center_to_gps_control.activate();
+      }
     });
     map.geolocate_control.activate();
-    map.center_to_gps_control = M.new_center_to_gps_control(center_to_gps);
-    map.olmap.addControl(map.center_to_gps_control);
-    map.center_to_gps_control.activate();
 
     function center_to_gps() {
-      map.geolocate_control.deactivate();
-      map.center_on_next_geolocation = true;
-      map.geolocate_control.activate();
+      var bounds = map.geolocation_layer.getDataExtent();
+      var center = bounds.getCenterLonLat();
+      var zoom = Math.min(map.olmap.getZoomForExtent(bounds), M.max_gps_zoom);
+      map.olmap.setCenter(center, zoom);
     };
   };
 
@@ -262,7 +256,6 @@ M.new_map = function(div_id) {
       selection_layer.show_marker(lon, lat, M.config['crosshair_icon']);
       map.olmap.panTo(M.project(lonlat));
 
-      map.center_on_next_geolocation = false;
       callback(lonlat);
     };
   };
