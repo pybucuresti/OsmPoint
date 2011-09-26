@@ -44,12 +44,11 @@ def add_point(latitude, longitude, name, url, amenity, user_open_id):
         'amenity': amenity,
         'user_open_id': user_open_id,
     })
-    rdb.r.rpush('point:index', p_id)
     return point.id
 
 def get_all_points():
     rdb = flask.current_app.rdb
-    for p_id in rdb.r.lrange('point:index', 0, -1):
+    for p_id in rdb.object_ids('point'):
         yield rdb.get_object('point', int(p_id))
 
 def migrate_to_redis():
@@ -66,7 +65,6 @@ def migrate_to_redis():
             'osm_id': p.osm_id,
             'user_open_id': p.user_open_id,
         })
-        rdb.r.rpush('point:index', p.id)
         max_id = max([max_id, p.id])
     rdb.r.set('point:last_id', max_id)
 
