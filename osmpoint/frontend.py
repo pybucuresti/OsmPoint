@@ -159,8 +159,13 @@ def homepage():
 
 @frontend.route("/points")
 def show_points():
-    local_points = Point.query.filter(Point.osm_id==None).all()
-    sent_points = Point.query.filter(Point.osm_id!=None).all()
+    local_points = []
+    sent_points = []
+    for point in database.get_all_points():
+        if point['osm_id'] is None:
+            local_points.append(point)
+        else:
+            sent_points.append(point)
 
     return flask.render_template('points.html',
                                  local_points=local_points,

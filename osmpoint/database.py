@@ -76,8 +76,15 @@ def empty_redis_db():
     rlog.info("deleted %d keys", len(all_keys))
 
 def del_point(point):
+    if isinstance(point, int):
+        p_id = point
+        point = Point.query.get(point)
+    else:
+        p_id = point.id
     db.session.delete(point)
     db.session.commit()
+    rdb = flask.current_app.rdb
+    rdb.del_object('point', p_id)
 
 def get_osm_api():
     app = flask.current_app

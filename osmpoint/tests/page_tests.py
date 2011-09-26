@@ -500,8 +500,8 @@ class UserPageTest(SetUpTests):
         self.assertEqual(client.get('/').status_code, 200)
 
     def test_show_points(self):
-        point = self.add_point(1, 2, 'location_name',
-                                'link', 'bar', 'user_name')
+        point_id = database.add_point(1, 2, 'location_name',
+                                      'link', 'bar', 'user_name')
 
         client = self.app.test_client()
 
@@ -509,7 +509,7 @@ class UserPageTest(SetUpTests):
         self.assertEquals(response.status_code, 200)
         self.assertIn('location_name', response.data)
 
-        database.del_point(point)
+        database.del_point(point_id)
 
         response = client.get('/points')
         self.assertNotIn('location_name', response.data)
