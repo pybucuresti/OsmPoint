@@ -15,8 +15,15 @@ setup(
         'redis',
         'flatland',
     ],
-    entry_points={'console_scripts': ['osmpoint = osmpoint.manage:main',
-                                      'parser = pbf_parser:main']},
+    entry_points={
+        'console_scripts': [
+            'osmpoint = osmpoint.manage:main',
+            'parser = pbf_parser:main'
+        ],
+        'nose.plugins.0.10': [
+            'redisdb = osmpoint.testing:RedisDb',
+        ],
+    },
 )
 
 # Also required for development: 'unittest2', 'mock', 'OsmApi.py' (from

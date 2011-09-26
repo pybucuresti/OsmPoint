@@ -7,6 +7,10 @@ log = logging.getLogger(__name__)
 
 
 def set_up_redis(tmp, addCleanup):
+    from osmpoint.testing import redis_sock_path
+    if redis_sock_path is not None:
+        return redis_sock_path
+
     from osmpoint.database import redis_server_process
     sock_path = tmp/'redis.sock'
     data_path = tmp/'redis.db'
