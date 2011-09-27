@@ -49,9 +49,11 @@ def get_all_points():
         yield p_id, rdb.get_object('point', int(p_id))
 
 def migrate_to_redis():
+    rlog.info("Flushing database and loading points from SQL")
     rdb = flask.current_app.rdb
     rdb.r.flushdb()
-    max_id = 0
+    last_id = 0
+    count = 0
     for p in Point.query.all():
         rdb.put_object('point', p.id, {
             'lat': p.latitude,
@@ -62,11 +64,14 @@ def migrate_to_redis():
             'osm_id': p.osm_id,
             'user_open_id': p.user_open_id,
         })
-        max_id = max([max_id, p.id])
-    rdb.r.set('point:last_id', max_id)
+        last_id = max([last_id, p.id])
+        count += 1
+    rdb.r.set('point:last_id', last_id)
+    rlog.info("Finished importing %d points, last_id is %d", count, last_id)
 
 def set_point_field(p_id, key, value):
     # TODO move to RedisDb class
+    rlog.info("SET point:%d:%s = %r", p_id, key, value)
     rdb = flask.current_app.rdb
     rdb.r.set('point:%d:%s' % (p_id, key), value)
 
@@ -156,7 +161,7 @@ class RedisDb(object):
     def put_object(self, name, ob_id, data):
         if ob_id is None:
             ob_id = self.r.incr('%s:last_id' % name)
-        rlog.info("SET %s[%d] %r", name, ob_id, data)
+        rlog.info("SET %s:%d:* = %r", name, ob_id, data)
         try:
             model_cls = self.model[name]
             model = model_cls(data)
@@ -167,7 +172,7 @@ class RedisDb(object):
             self.r.sadd('%s:ids' % name, ob_id)
             return ob_id
         except:
-            rlog.error("failed during SET %s[%d]", name, ob_id)
+            rlog.error("failed during SET %s:%d:*", name, ob_id)
             raise
 
     def get_object(self, name, ob_id):
@@ -182,6 +187,7 @@ class RedisDb(object):
 
     def del_object(self, name, ob_id):
         # TODO delete should be atomic
+        rlog.info("DEL %s:%d:*", name, ob_id)
         model_cls = self.model[name]
         field_names = [c.name for c in model_cls().all_children]
         query = ['%s:%d:%s' % (name, ob_id, key) for key in field_names]
