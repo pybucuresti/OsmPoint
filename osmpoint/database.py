@@ -95,6 +95,12 @@ def del_point(point):
     rdb = flask.current_app.rdb
     rdb.del_object('point', p_id)
 
+def get_point_or_404(p_id):
+    rdb = flask.current_app.rdb
+    if not rdb.r.sismember('point:ids', p_id):
+        flask.abort(404)
+    return rdb.get_object('point', p_id)
+
 def get_osm_api():
     app = flask.current_app
     return OsmApi.OsmApi(api=app.config['OSM_API'],

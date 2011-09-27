@@ -168,7 +168,7 @@ class DeletePointTest(SetUpTests):
         p_id = database.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
         address = flask.url_for('.delete_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id, 'confirm': 'true'})
+        response = client.post(address, data={'confirm': 'true'})
         points = self.get_all_points()
         self.assertEqual(len(points), 1)
         self.assertEqual(response.status_code, 403)
@@ -180,7 +180,7 @@ class DeletePointTest(SetUpTests):
         p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         address = flask.url_for('.delete_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id, 'confirm': 'true'})
+        response = client.post(address, data={'confirm': 'true'})
 
         self.assertEqual(response.status_code, 200)
         points = self.get_all_points()
@@ -190,7 +190,8 @@ class DeletePointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        response = client.post('/points/10/delete', data={'id': 10})
+        address = flask.url_for('.delete_point', point_id=10)
+        response = client.post(address, data={'confirm': 'true'})
         self.assertEqual(response.status_code, 404)
 
     def test_cancel_deletion(self):
@@ -200,7 +201,7 @@ class DeletePointTest(SetUpTests):
         p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
 
         address = flask.url_for('.delete_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id, 'confirm': 'false'})
+        response = client.post(address)
 
         points = self.get_all_points()
         self.assertEqual(len(points), 1)

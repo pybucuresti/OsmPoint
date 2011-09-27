@@ -174,21 +174,20 @@ def show_points():
 
 @frontend.route("/points/<int:point_id>/delete", methods=['POST'])
 def delete_point(point_id):
-    form = flask.request.form
-    point = Point.query.get_or_404(form['id'])
+    point = database.get_point_or_404(point_id)
 
     if not is_admin():
         flask.abort(403)
 
-    if form['confirm'] == "false":
-        address = flask.url_for('.show_map', point_id=point.id)
-        return flask.redirect(address)
-
+    form = flask.request.form
     if form['confirm'] == "true":
-        del_point(point)
+        del_point(point_id)
+        point['id'] = point_id
+        return flask.render_template('deleted.html', confirm=True, point=point)
 
-    return flask.render_template('deleted.html', confirm=form['confirm'],
-                                                 point=point)
+    else:
+        address = flask.url_for('.show_map', point_id=p_id)
+        return flask.redirect(address)
 
 @frontend.route("/points/<int:point_id>")
 def show_map(point_id):
