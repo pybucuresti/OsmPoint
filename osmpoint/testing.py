@@ -32,12 +32,8 @@ class RedisDb(Plugin):
     def afterTest(self, test):
         import redis
         r = redis.Redis(unix_socket_path=str(redis_sock_path))
-
-        all_keys = r.keys('*')
-        for key in all_keys:
-            r.delete(key)
-
-        log.info("cleaning up, deleted %d keys", len(all_keys))
+        r.flushdb()
+        log.info("flushed db")
 
     def finalize(self, result):
         log.info("stopping redis")

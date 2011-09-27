@@ -48,8 +48,8 @@ def get_all_points():
         yield p_id, rdb.get_object('point', int(p_id))
 
 def migrate_to_redis():
-    empty_redis_db()
     rdb = flask.current_app.rdb
+    rdb.r.flushdb()
     max_id = 0
     for p in Point.query.all():
         rdb.put_object('point', p.id, {
@@ -63,13 +63,6 @@ def migrate_to_redis():
         })
         max_id = max([max_id, p.id])
     rdb.r.set('point:last_id', max_id)
-
-def empty_redis_db():
-    rdb = flask.current_app.rdb
-    all_keys = rdb.r.keys('*')
-    for key in all_keys:
-        rdb.r.delete(key)
-    rlog.info("deleted %d keys", len(all_keys))
 
 def set_point_field(p_id, key, value):
     # TODO move to RedisDb class
