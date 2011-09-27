@@ -180,7 +180,7 @@ def delete_point(point_id):
         flask.abort(403)
 
     form = flask.request.form
-    if form['confirm'] == "true":
+    if form.get('confirm', None) == "true":
         del_point(point_id)
         point['id'] = point_id
         return flask.render_template('deleted.html', confirm=True, point=point)

@@ -260,7 +260,7 @@ class SubmitPointTest(SetUpTests):
         mock_osm.NodeCreate.return_value = {'id': 50}
 
         address = flask.url_for('.send_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id})
+        response = client.post(address)
 
         self.assertEqual(response.status_code, 200)
 
@@ -281,7 +281,7 @@ class SubmitPointTest(SetUpTests):
         p_id = database.add_point(45, 25, 'name', 'url', 'type', 'non-admin')
 
         address = flask.url_for('.send_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id})
+        response = client.post(address)
 
         self.assertFalse(mock_get_osm_api.called)
         points = self.get_all_points()
@@ -297,7 +297,7 @@ class SubmitPointTest(SetUpTests):
         database.set_point_field(p_id, 'osm_id', 100)
 
         address = flask.url_for('.send_point', point_id=p_id)
-        response = client.post(address, data={'id': p_id})
+        response = client.post(address)
 
         self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 400)
@@ -307,7 +307,7 @@ class SubmitPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        response = client.post('/points/500/send', data={'id': 500})
+        response = client.post('/points/500/send')
 
         self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 404)
