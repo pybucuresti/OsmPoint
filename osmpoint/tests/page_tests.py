@@ -336,10 +336,10 @@ class SubmitPointTest(SetUpTests):
 
         database.submit_points_to_osm([p_id])
 
-        self.assertEqual(len(self.log_records), 4)
+        self.assertEqual(len(self.log_records), 3)
         self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
-        self.assertEqual(self.log_records[2], "OSM point: {'a': 'b', 'id': 13}")
-        self.assertEqual(self.log_records[3], "OSM changeset committed")
+        self.assertEqual(self.log_records[1], "OSM point: {'a': 'b', 'id': 13}")
+        self.assertEqual(self.log_records[2], "OSM changeset committed")
 
     def test_submitted_point_url(self):
         self.app.config['OSM_API'] = 'fake.api.example.com'

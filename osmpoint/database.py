@@ -31,12 +31,8 @@ class Point(db.Model):
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
 def add_point(latitude, longitude, name, url, amenity, user_open_id):
-    point = Point(latitude, longitude, name, url, amenity, user_open_id)
-    db.session.add(point)
-    db.session.commit()
     rdb = flask.current_app.rdb
-    p_id = point.id
-    rdb.put_object('point', p_id, {
+    return rdb.put_object('point', None, {
         'lat': latitude,
         'lon': longitude,
         'name': name,
@@ -77,22 +73,10 @@ def empty_redis_db():
 
 def set_point_field(p_id, key, value):
     # TODO move to RedisDb class
-    point = Point.query.get(p_id)
-    sql_key = {'lat':'latitude', 'lon':'longitude'}.get(key, key)
-    setattr(point, sql_key, value)
-    db.session.add(point)
-    db.session.commit()
     rdb = flask.current_app.rdb
     rdb.r.set('point:%d:%s' % (p_id, key), value)
 
-def del_point(point):
-    if isinstance(point, int):
-        p_id = point
-        point = Point.query.get(point)
-    else:
-        p_id = point.id
-    db.session.delete(point)
-    db.session.commit()
+def del_point(p_id):
     rdb = flask.current_app.rdb
     rdb.del_object('point', p_id)
 
