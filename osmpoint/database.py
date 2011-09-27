@@ -113,19 +113,20 @@ def submit_points_to_osm(point_id_list):
     changeset_id = osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
     log.info("Begin OSM changeset %d", changeset_id)
 
+    rdb = flask.current_app.rdb
     for p_id in point_id_list:
-        p = Point.query.get(p_id)
+        p = rdb.get_object('point', p_id)
         tags = {
-            'name': p.name,
-            'amenity': p.amenity,
+            'name': p['name'],
+            'amenity': p['amenity'],
             'source': "poi.grep.ro",
         }
-        if p.url:
-            tags['website'] = p.url
+        if p['url']:
+            tags['website'] = p['url']
 
         node_dict = osm.NodeCreate({
-            u"lon": p.longitude,
-            u"lat": p.latitude,
+            u"lon": p['lon'],
+            u"lat": p['lat'],
             u"tag": tags,
         })
 
