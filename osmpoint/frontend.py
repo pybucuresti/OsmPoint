@@ -237,14 +237,12 @@ def send_point(point_id):
     if not is_admin():
         flask.abort(403)
 
-    form = flask.request.form
-    point = Point.query.get_or_404(form['id'])
-
-    if point.osm_id is not None:
+    point = database.get_point_or_404(point_id)
+    if point['osm_id'] is not None:
         flask.abort(400)
 
-    submit_points_to_osm([point.id])
-    return flask.render_template('sent.html', id=point.id)
+    submit_points_to_osm([point_id])
+    return flask.render_template('sent.html', id=point_id)
 
 @frontend.route("/moderate", methods=['GET', 'POST'])
 def moderate_view():
