@@ -258,18 +258,18 @@ def moderate_view():
         text = "%d points uploaded to OSM" % len(point_id_list)
         return flask.render_template('message.html', text=text)
 
-    point_dict = lambda p: {
-        'id': p.id,
-        'latitude': p.latitude,
-        'longitude': p.longitude,
-        'marker': marker_for_amenity(p.amenity),
-        'name': p.name,
-        'type': p.amenity,
+    point_dict = lambda p_id, p: {
+        'id': p_id,
+        'latitude': p['lat'],
+        'longitude': p['lon'],
+        'marker': marker_for_amenity(p['amenity']),
+        'name': p['name'],
+        'type': p['amenity'],
     }
 
     form_data = {
-        'points': [point_dict(p) for p in
-                   Point.query.filter(Point.osm_id==None)],
+        'points': [point_dict(p_id, p) for p_id, p in
+                   database.get_all_points() if p['osm_id'] is None],
     }
     return flask.render_template('moderate.html', **form_data)
 
