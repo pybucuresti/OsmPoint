@@ -78,7 +78,8 @@ def empty_redis_db():
 def set_point_field(p_id, key, value):
     # TODO move to RedisDb class
     point = Point.query.get(p_id)
-    setattr(point, key, value)
+    sql_key = {'lat':'latitude', 'lon':'longitude'}.get(key, key)
+    setattr(point, sql_key, value)
     db.session.add(point)
     db.session.commit()
     rdb = flask.current_app.rdb

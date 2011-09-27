@@ -4,7 +4,6 @@ import os
 from flaskext.openid import OpenID
 from wtforms import BooleanField, TextField, FloatField, HiddenField
 from wtforms import SelectField, Form, validators
-from .database import db, Point
 from .database import add_point, del_point, submit_points_to_osm
 import database
 
@@ -200,8 +199,9 @@ def show_map(point_id):
 
 @frontend.route("/points/<int:point_id>/edit", methods=['POST'])
 def edit_point(point_id):
+
     form = EditPointForm(flask.request.form)
-    point = Point.query.get_or_404(form.id.data)
+    point = database.get_point_or_404(point_id)
 
     if not is_admin():
         flask.abort(403)
@@ -212,14 +212,12 @@ def edit_point(point_id):
         else:
             if form.amenity.data == '_other':
                 form.amenity.data = form.new_amenity.data
-            form.populate_obj(point)
-            point.latitude = form.lat.data
-            point.longitude = form.lon.data
 
-            db.session.add(point)
-            db.session.commit()
+            for k in ['name', 'url', 'lat', 'lon', 'amenity']:
+                database.set_point_field(point_id, k, form.data[k])
+
             return flask.render_template('edit.html', ok_coords=1,
-                                         ok_name=1, ok_type=1, id=point.id)
+                                         ok_name=1, ok_type=1, id=point_id)
 
     try:
         if ok_type is False:
