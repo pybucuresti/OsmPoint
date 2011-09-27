@@ -11,8 +11,8 @@
     <div id="edit-poi-box" onLoad="document.form.amenity">
       <form method="post" action="{{ url_for('.edit_point',
                                      point_id=point.id) }}">
-        <input type="hidden" name="lat" value="{{ point.latitude }}">
-        <input type="hidden" name="lon" value="{{ point.longitude }}">
+        <input type="hidden" name="lat" value="{{ point.lat }}">
+        <input type="hidden" name="lon" value="{{ point.lon }}">
         <input type="hidden" name="id" value="{{ point.id }}">
         Name: <input name="name" size="15" value="{{ point.name }}"
                autocorrect="off" autocomplete="off"><br>
@@ -75,8 +75,8 @@
 <script>
   $(document).ready(function() {
     var map = M.init_map();
-    M.show_one_point(map, {{ point.longitude|tojson }},
-                          {{ point.latitude|tojson }});
+    M.show_one_point(map, {{ point.lon|tojson }},
+                          {{ point.lat|tojson }});
 
     if($('#edit-poi-box').length > 0) {
       M.enable_editing_point(map);

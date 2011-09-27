@@ -191,7 +191,8 @@ def delete_point(point_id):
 
 @frontend.route("/points/<int:point_id>")
 def show_map(point_id):
-    point = Point.query.get_or_404(point_id)
+    point = database.get_point_or_404(point_id)
+    point['id'] = point_id
 
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
