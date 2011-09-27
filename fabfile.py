@@ -34,6 +34,9 @@ OSM_API = "www.openstreetmap.org"
 
 IMPORTED_POINTS_PATH = os.path.join(workdir, 'points.yaml')
 
+REDIS_SOCKET_PATH = os.path.join(workdir, 'redis.sock')
+REDIS_DATA_PATH = os.path.join(workdir, 'redis.db')
+
 OSMPOINT_ADMINS = [
     # Alex Morega:
     'http://grep.ro/openid',
@@ -119,6 +122,7 @@ def start():
     with cd(server_var):
         run("OSMPOINT_WORKDIR=. "
             "../virtualenv/bin/osmpoint runfcgi "
+            "--redis-server "
             "--socket run/fcgi.socket "
             "--pidfile run/fcgi.pid "
             "--daemonize")
