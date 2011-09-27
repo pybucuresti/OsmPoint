@@ -91,13 +91,14 @@ def get_osm_api():
     return OsmApi.OsmApi(api=app.config['OSM_API'],
                          passwordfile=app.config['OSM_PASSWORD_PATH'])
 
-def submit_points_to_osm(point_to_submit):
+def submit_points_to_osm(point_id_list):
     osm = get_osm_api()
     osm._api = flask.current_app.config['OSM_API']
     changeset_id = osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
     log.info("Begin OSM changeset %d", changeset_id)
 
-    for p in point_to_submit:
+    for p_id in point_id_list:
+        p = Point.query.get(p_id)
         tags = {
             'name': p.name,
             'amenity': p.amenity,

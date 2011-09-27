@@ -243,7 +243,7 @@ def send_point(point_id):
     if point.osm_id is not None:
         flask.abort(400)
 
-    submit_points_to_osm([point])
+    submit_points_to_osm([point.id])
     return flask.render_template('sent.html', id=point.id)
 
 @frontend.route("/moderate", methods=['GET', 'POST'])
@@ -253,11 +253,10 @@ def moderate_view():
 
     if flask.request.method == 'POST':
         point_id_list = flask.request.form.getlist('point_id')
-        point_list = [Point.query.get_or_404(i) for i in point_id_list]
 
-        submit_points_to_osm(point_list)
+        submit_points_to_osm(point_id_list)
 
-        text = "%d points uploaded to OSM" % len(point_list)
+        text = "%d points uploaded to OSM" % len(point_id_list)
         return flask.render_template('message.html', text=text)
 
     point_dict = lambda p: {

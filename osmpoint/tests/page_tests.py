@@ -155,7 +155,7 @@ class DeletePointTest(SetUpTests):
     def test_del_point(self):
         p_id = database.add_point(1, 2, 'X', 'Y', 'Z', 'W')
 
-        database.del_point(database.Point.query.get(p_id))
+        database.del_point(p_id)
 
         points = self.get_all_points()
         self.assertEquals(len(points), 0)
@@ -228,11 +228,11 @@ class SubmitPointTest(SetUpTests):
         mock_osm.ChangesetCreate.return_value = 13
         mock_osm.NodeCreate.side_effect = lambda *args, **kwargs: {'id': values.pop(0)}
 
-        p1 = database.Point.query.get(p1_id)
-        p2 = database.Point.query.get(p2_id)
-        database.submit_points_to_osm([p1, p2])
+        database.submit_points_to_osm([p1_id, p2_id])
         self.db.session.commit()
 
+        p1 = database.Point.query.get(p1_id)
+        p2 = database.Point.query.get(p2_id)
         self.assertEquals(p1.osm_id, 13)
         self.assertEquals(p2.osm_id, 45)
         self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
@@ -333,7 +333,7 @@ class SubmitPointTest(SetUpTests):
                                   'link1', 'pub', 'my-open-id')
         log_records[:] = []
 
-        database.submit_points_to_osm([database.Point.query.get(p_id)])
+        database.submit_points_to_osm([p_id])
 
         self.assertEqual(len(self.log_records), 4)
         self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
