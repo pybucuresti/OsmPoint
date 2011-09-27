@@ -23,5 +23,5 @@ class DataTest(unittest.TestCase):
                 break
         else:
             self.fail('point "zebar" not found')
-        self.assertEqual(p['latitude'], 13)
-        self.assertEqual(p['longitude'], 22)
+        self.assertEqual(p['lat'], 13)
+        self.assertEqual(p['lon'], 22)

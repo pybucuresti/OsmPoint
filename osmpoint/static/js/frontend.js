@@ -288,7 +288,7 @@ M.show_location = function(map, collection, point_info) {
   var icon = M.new_icon(icon_url, 18, 18, 'center');
   var popup_html = point_info['name'] + ' (' + point_info['type'] + ')';
   collection.show_marker_with_popup(
-      point_info['longitude'], point_info['latitude'], icon, popup_html);
+      point_info['lon'], point_info['lat'], icon, popup_html);
 };
 
 M.show_one_point = function(map, lon, lat) {

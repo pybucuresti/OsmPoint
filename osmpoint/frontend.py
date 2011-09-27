@@ -90,8 +90,8 @@ def save_poi():
 
             add_point(form.lat.data, form.lon.data, form.name.data,
                       form.url.data, amenity, flask.g.user)
-            new_point = { 'latitude': form.lat.data,
-                          'longitude': form.lon.data,
+            new_point = { 'lat': form.lat.data,
+                          'lon': form.lon.data,
                           'marker': marker_for_amenity(amenity),
                           'name': form.name.data,
                           'type': amenity }
@@ -128,8 +128,8 @@ def points_for_homepage():
 
     for p_id, p in database.get_all_points():
         point_data.append({
-            'latitude': p['lat'],
-            'longitude': p['lon'],
+            'lat': p['lat'],
+            'lon': p['lon'],
             'marker': marker_for_amenity(p['amenity']),
             'name': p['name'],
             'type': p['amenity'],
@@ -142,8 +142,8 @@ def points_for_homepage():
             continue
         osm_point_ids.add(p['osm_id'])
         point_data.append({
-            'latitude': p['lat'],
-            'longitude': p['lon'],
+            'lat': p['lat'],
+            'lon': p['lon'],
             'marker': marker_for_amenity(p['amenity']),
             'name': p['name'],
             'type': p['amenity'],
@@ -258,8 +258,8 @@ def moderate_view():
 
     point_dict = lambda p_id, p: {
         'id': p_id,
-        'latitude': p['lat'],
-        'longitude': p['lon'],
+        'lat': p['lat'],
+        'lon': p['lon'],
         'marker': marker_for_amenity(p['amenity']),
         'name': p['name'],
         'type': p['amenity'],
