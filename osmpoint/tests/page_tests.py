@@ -46,7 +46,8 @@ class SetUpTests(unittest2.TestCase):
         self.db.session.remove()
 
     def get_all_points(self):
-        return database.Point.query.all()
+        return [point for p_id, point in database.get_all_points()]
+
 
 class SavePointTest(SetUpTests):
 
@@ -66,12 +67,12 @@ class SavePointTest(SetUpTests):
         self.assertEqual(response.status_code, 200)
 
         point = self.get_all_points()[0]
-        self.assertEquals(point.latitude, point_data['lat'])
-        self.assertEquals(point.longitude, point_data['lon'])
-        self.assertEquals(point.name, point_data['name'])
-        self.assertEquals(point.url, point_data['url'])
-        self.assertEquals(point.amenity, point_data['amenity'])
-        self.assertEquals(point.user_open_id, 'my-open-id')
+        self.assertEquals(point['lat'], point_data['lat'])
+        self.assertEquals(point['lon'], point_data['lon'])
+        self.assertEquals(point['name'], point_data['name'])
+        self.assertEquals(point['url'], point_data['url'])
+        self.assertEquals(point['amenity'], point_data['amenity'])
+        self.assertEquals(point['user_open_id'], 'my-open-id')
 
     def test_point_is_stored(self):
         database.add_point(46.06, 24.10, 'Eau de Web',
@@ -81,12 +82,12 @@ class SavePointTest(SetUpTests):
         self.assertEquals(len(points), 1)
 
         point = points[0]
-        self.assertEquals(point.latitude, 46.06)
-        self.assertEquals(point.longitude, 24.10)
-        self.assertEquals(point.name, 'Eau de Web')
-        self.assertEquals(point.url, 'website')
-        self.assertEquals(point.amenity, 'business')
-        self.assertEquals(point.user_open_id, 'my-open-id')
+        self.assertEquals(point['lat'], 46.06)
+        self.assertEquals(point['lon'], 24.10)
+        self.assertEquals(point['name'], 'Eau de Web')
+        self.assertEquals(point['url'], 'website')
+        self.assertEquals(point['amenity'], 'business')
+        self.assertEquals(point['user_open_id'], 'my-open-id')
 
     def test_amenity_is_mandatory(self):
         client = self.app.test_client()
@@ -109,8 +110,8 @@ class SavePointTest(SetUpTests):
         self.assertEqual(len(all_points), 1)
 
         point = all_points[0]
-        self.assertEqual(point.name, 'no-type')
-        self.assertEqual(point.amenity, '#new_type')
+        self.assertEqual(point['name'], 'no-type')
+        self.assertEqual(point['amenity'], '#new_type')
 
     def test_name_is_mandatory(self):
         client = self.app.test_client()
@@ -285,7 +286,7 @@ class SubmitPointTest(SetUpTests):
 
         self.assertFalse(mock_get_osm_api.called)
         points = self.get_all_points()
-        self.assertEqual(points[0].osm_id, None)
+        self.assertEqual(points[0]['osm_id'], None)
         self.assertEqual(response.status_code, 403)
 
     @patch('osmpoint.database.get_osm_api')
@@ -405,11 +406,11 @@ class EditPointTest(SetUpTests):
         address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
-        self.assertEqual(point.latitude, 40)
-        self.assertEqual(point.longitude, 20)
-        self.assertEqual(point.name, 'new_name')
-        self.assertEqual(point.url, 'new_url')
-        self.assertEqual(point.amenity, 'pub')
+        self.assertEqual(point['lat'], 40)
+        self.assertEqual(point['lon'], 20)
+        self.assertEqual(point['name'], 'new_name')
+        self.assertEqual(point['url'], 'new_url')
+        self.assertEqual(point['amenity'], 'pub')
 
     def test_edit_nonexistent_point(self):
         client = self.app.test_client()
@@ -444,8 +445,8 @@ class EditPointTest(SetUpTests):
         address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
-        self.assertEqual(point.latitude, 45)
-        self.assertEqual(point.longitude, 25)
+        self.assertEqual(point['lat'], 45)
+        self.assertEqual(point['lon'], 25)
 
     def test_edit_point_with_no_amenity(self):
         client = self.app.test_client()
@@ -458,7 +459,7 @@ class EditPointTest(SetUpTests):
         address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
-        self.assertEqual(point.amenity, 'old_type')
+        self.assertEqual(point['amenity'], 'old_type')
 
     def test_edit_point_with_another_amenity(self):
         client = self.app.test_client()
@@ -471,7 +472,7 @@ class EditPointTest(SetUpTests):
         address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
-        self.assertEqual(point.amenity, 'new')
+        self.assertEqual(point['amenity'], 'new')
 
     def test_edit_point_with_no_name(self):
         client = self.app.test_client()
@@ -484,7 +485,7 @@ class EditPointTest(SetUpTests):
         address = flask.url_for('.edit_point', point_id=p_id)
         response = client.post(address, data=point_data)
         point = self.get_all_points()[0]
-        self.assertEqual(point.name, 'old_name')
+        self.assertEqual(point['name'], 'old_name')
 
 class UserPageTest(SetUpTests):
 
