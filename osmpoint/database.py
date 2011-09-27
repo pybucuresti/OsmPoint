@@ -75,6 +75,15 @@ def empty_redis_db():
         rdb.r.delete(key)
     rlog.info("deleted %d keys", len(all_keys))
 
+def set_point_field(p_id, key, value):
+    # TODO move to RedisDb class
+    point = Point.query.get(p_id)
+    setattr(point, key, value)
+    db.session.add(point)
+    db.session.commit()
+    rdb = flask.current_app.rdb
+    rdb.r.set('point:%d:%s' % (p_id, key), value)
+
 def del_point(point):
     if isinstance(point, int):
         p_id = point
@@ -113,12 +122,10 @@ def submit_points_to_osm(point_id_list):
             u"tag": tags,
         })
 
-        p.osm_id = node_dict['id']
-        db.session.add(p)
+        set_point_field(p_id, 'osm_id', node_dict['id'])
         log.info("OSM point: %r", node_dict)
 
     osm.ChangesetClose()
-    db.session.commit()
     log.info("OSM changeset committed")
 
 

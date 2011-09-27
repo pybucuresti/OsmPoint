@@ -252,7 +252,8 @@ def moderate_view():
         flask.abort(403)
 
     if flask.request.method == 'POST':
-        point_id_list = flask.request.form.getlist('point_id')
+        point_id_list = [int(p_id) for p_id in
+                         flask.request.form.getlist('point_id')]
 
         submit_points_to_osm(point_id_list)
 

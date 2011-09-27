@@ -231,10 +231,11 @@ class SubmitPointTest(SetUpTests):
         database.submit_points_to_osm([p1_id, p2_id])
         self.db.session.commit()
 
-        p1 = database.Point.query.get(p1_id)
-        p2 = database.Point.query.get(p2_id)
-        self.assertEquals(p1.osm_id, 13)
-        self.assertEquals(p2.osm_id, 45)
+        rdb = flask.current_app.rdb
+        p1 = rdb.get_object('point', p1_id)
+        p2 = rdb.get_object('point', p2_id)
+        self.assertEquals(p1['osm_id'], 13)
+        self.assertEquals(p2['osm_id'], 45)
         self.assertEquals(mock_osm.ChangesetCreate.call_count, 1)
         tags1 = {'name': 'Eau de Web', 'website': 'link1',
                  'amenity': 'pub', 'source': 'poi.grep.ro'}
@@ -291,13 +292,11 @@ class SubmitPointTest(SetUpTests):
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
 
-        point = database.Point(45, 25, 'name', 'url', 'type', 'admin-user')
-        point.osm_id = 100
-        self.db.session.add(point)
-        self.db.session.commit()
+        p_id = database.add_point(45, 25, 'name', 'url', 'type', 'admin-user')
+        database.set_point_field(p_id, 'osm_id', 100)
 
-        address = flask.url_for('.send_point', point_id=point.id)
-        response = client.post(address, data={'id': point.id})
+        address = flask.url_for('.send_point', point_id=p_id)
+        response = client.post(address, data={'id': p_id})
 
         self.assertFalse(mock_get_osm_api.called)
         self.assertEqual(response.status_code, 400)
@@ -337,17 +336,14 @@ class SubmitPointTest(SetUpTests):
 
         self.assertEqual(len(self.log_records), 4)
         self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
-        self.assertEqual(self.log_records[1], "OSM point: {'a': 'b', 'id': 13}")
+        self.assertEqual(self.log_records[2], "OSM point: {'a': 'b', 'id': 13}")
         self.assertEqual(self.log_records[3], "OSM changeset committed")
 
     def test_submitted_point_url(self):
         self.app.config['OSM_API'] = 'fake.api.example.com'
 
         p_id = database.add_point(46.06, 24.10, 'EdW', '', 'pub', 'my-open-id')
-        p = database.Point.query.get(p_id)
-        p.osm_id = 1234
-        self.db.session.add(p)
-        self.db.session.commit()
+        database.set_point_field(p_id, 'osm_id', 1234)
 
         client = self.app.test_client()
         client.post('/test_login', data={'user_id': 'admin-user'})
