@@ -321,7 +321,7 @@ class SubmitPointTest(SetUpTests):
             def emit(self, record):
                 log_records.append(self.format(record))
         self.log_handler = TestingHandler()
-        self.db_logger = logging.getLogger('osmpoint.database')
+        self.db_logger = logging.getLogger('osmpoint.database.osm')
         self.db_logger.addHandler(self.log_handler)
         self.addCleanup(self.db_logger.removeHandler, self.log_handler)
 
@@ -336,10 +336,11 @@ class SubmitPointTest(SetUpTests):
 
         database.submit_points_to_osm([p_id])
 
-        self.assertEqual(len(self.log_records), 3)
-        self.assertEqual(self.log_records[0], "Begin OSM changeset 999")
-        self.assertEqual(self.log_records[1], "OSM point: {'a': 'b', 'id': 13}")
-        self.assertEqual(self.log_records[2], "OSM changeset committed")
+        self.assertEqual(self.log_records, [
+            "Begin OSM changeset 999",
+            "OSM point: {'a': 'b', 'id': 13}",
+            "OSM changeset committed",
+        ])
 
     def test_submitted_point_url(self):
         self.app.config['OSM_API'] = 'fake.api.example.com'

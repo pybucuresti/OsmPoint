@@ -7,6 +7,7 @@ import flatland as fl
 
 log = logging.getLogger(__name__)
 rlog = logging.getLogger(__name__ + '.redis')
+osmlog = logging.getLogger(__name__ + '.osm')
 db = SQLAlchemy()
 
 class Point(db.Model):
@@ -88,7 +89,7 @@ def submit_points_to_osm(point_id_list):
     osm = get_osm_api()
     osm._api = flask.current_app.config['OSM_API']
     changeset_id = osm.ChangesetCreate({u"comment": u"Submitted by OsmPoint"})
-    log.info("Begin OSM changeset %d", changeset_id)
+    osmlog.info("Begin OSM changeset %d", changeset_id)
 
     rdb = flask.current_app.rdb
     for p_id in point_id_list:
@@ -108,10 +109,10 @@ def submit_points_to_osm(point_id_list):
         })
 
         set_point_field(p_id, 'osm_id', node_dict['id'])
-        log.info("OSM point: %r", node_dict)
+        osmlog.info("OSM point: %r", node_dict)
 
     osm.ChangesetClose()
-    log.info("OSM changeset committed")
+    osmlog.info("OSM changeset committed")
 
 
 # monkey patch SQLite so we can log statemets just as we like
