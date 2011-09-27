@@ -19,4 +19,7 @@ IMPORTED_POINTS_PATH = os.path.join(workdir, 'points.yaml')
 #OSM_API = "www.openstreetmap.org" #main api
 OSM_API = "api06.dev.openstreetmap.org" #development
 
+REDIS_DATA_PATH = os.path.join(workdir, 'redis.db')
+REDIS_SOCKET_PATH = os.path.join(workdir, 'redis.sock')
+
 logging.basicConfig()

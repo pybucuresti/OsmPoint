@@ -15,6 +15,12 @@ def load_imported_points(file_path_cfg):
                 return yaml.load(f)
     return []
 
+def connect_to_redis(app):
+    redis_socket_path = app.config.get('REDIS_SOCKET_PATH')
+    if redis_socket_path is not None:
+        from database import open_redis_db
+        app.rdb = open_redis_db(redis_socket_path)
+
 def configure_app(app, workdir):
     import os.path
     workdir = os.path.abspath(workdir)
@@ -30,6 +36,8 @@ def configure_app(app, workdir):
 
     with app.test_request_context():
         db.create_all()
+
+    app.before_first_request(lambda: connect_to_redis(app))
 
 def create_app(workdir):
     app = flask.Flask(__name__)

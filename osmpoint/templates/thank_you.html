@@ -16,8 +16,8 @@
 <script>
   $(document).ready(function() {
     var map = M.init_map();
-    M.show_one_point(map, {{ new_point.longitude|tojson }},
-                          {{ new_point.latitude|tojson }});
+    M.show_one_point(map, {{ new_point.lon|tojson }},
+                          {{ new_point.lat|tojson }});
   });
 </script>
 {% endblock %}

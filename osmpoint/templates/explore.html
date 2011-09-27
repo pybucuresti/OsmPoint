@@ -90,8 +90,8 @@ $(document).ready(function() {
 
       if (found_points.length == 1) {
         $.each(found_points, function(i, point) {
-          map.olmap.panTo(M.project(new OpenLayers.LonLat(point['longitude'],
-                                                          point['latitude'])));
+          map.olmap.panTo(M.project(new OpenLayers.LonLat(point['lon'],
+                                                          point['lat'])));
         });
       }
 

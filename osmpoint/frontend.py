@@ -4,8 +4,8 @@ import os
 from flaskext.openid import OpenID
 from wtforms import BooleanField, TextField, FloatField, HiddenField
 from wtforms import SelectField, Form, validators
-from .database import db, Point
 from .database import add_point, del_point, submit_points_to_osm
+import database
 
 
 oid = OpenID()
@@ -90,8 +90,8 @@ def save_poi():
 
             add_point(form.lat.data, form.lon.data, form.name.data,
                       form.url.data, amenity, flask.g.user)
-            new_point = { 'latitude': form.lat.data,
-                          'longitude': form.lon.data,
+            new_point = { 'lat': form.lat.data,
+                          'lon': form.lon.data,
                           'marker': marker_for_amenity(amenity),
                           'name': form.name.data,
                           'type': amenity }
@@ -121,41 +121,51 @@ def marker_for_amenity(amenity):
     else:
         return 'marker-blue.png'
 
-@frontend.route("/")
-def homepage():
+def points_for_homepage():
     point_data = []
 
     osm_point_ids = set()
 
-    for p in Point.query.all():
+    for p_id, p in database.get_all_points():
         point_data.append({
-            'latitude': p.latitude,
-            'longitude': p.longitude,
-            'marker': marker_for_amenity(p.amenity),
-            'name': p.name,
-            'type': p.amenity,
+            'lat': p['lat'],
+            'lon': p['lon'],
+            'marker': marker_for_amenity(p['amenity']),
+            'name': p['name'],
+            'type': p['amenity'],
         })
-        if p.osm_id is not None:
-            osm_point_ids.add(p.osm_id)
+        if p['osm_id'] is not None:
+            osm_point_ids.add(p['osm_id'])
 
     for p in flask.current_app.config['IMPORTED_POINTS']:
         if p['osm_id'] in osm_point_ids:
             continue
         osm_point_ids.add(p['osm_id'])
         point_data.append({
-            'latitude': p['lat'],
-            'longitude': p['lon'],
+            'lat': p['lat'],
+            'lon': p['lon'],
             'marker': marker_for_amenity(p['amenity']),
             'name': p['name'],
             'type': p['amenity'],
         })
 
+    return point_data
+
+@frontend.route("/")
+def homepage():
+    point_data = points_for_homepage()
     return flask.render_template('explore.html', point_data=point_data)
 
 @frontend.route("/points")
 def show_points():
-    local_points = Point.query.filter(Point.osm_id==None).all()
-    sent_points = Point.query.filter(Point.osm_id!=None).all()
+    local_points = []
+    sent_points = []
+    for p_id, point in database.get_all_points():
+        point['id'] = p_id
+        if point['osm_id'] is None:
+            local_points.append(point)
+        else:
+            sent_points.append(point)
 
     return flask.render_template('points.html',
                                  local_points=local_points,
@@ -163,25 +173,25 @@ def show_points():
 
 @frontend.route("/points/<int:point_id>/delete", methods=['POST'])
 def delete_point(point_id):
-    form = flask.request.form
-    point = Point.query.get_or_404(form['id'])
+    point = database.get_point_or_404(point_id)
 
     if not is_admin():
         flask.abort(403)
 
-    if form['confirm'] == "false":
-        address = flask.url_for('.show_map', point_id=point.id)
+    form = flask.request.form
+    if form.get('confirm', None) == "true":
+        del_point(point_id)
+        point['id'] = point_id
+        return flask.render_template('deleted.html', confirm=True, point=point)
+
+    else:
+        address = flask.url_for('.show_map', point_id=p_id)
         return flask.redirect(address)
-
-    if form['confirm'] == "true":
-        del_point(point)
-
-    return flask.render_template('deleted.html', confirm=form['confirm'],
-                                                 point=point)
 
 @frontend.route("/points/<int:point_id>")
 def show_map(point_id):
-    point = Point.query.get_or_404(point_id)
+    point = database.get_point_or_404(point_id)
+    point['id'] = point_id
 
     return flask.render_template('view.html', point=point,
                                   is_admin=is_admin())
@@ -189,8 +199,9 @@ def show_map(point_id):
 
 @frontend.route("/points/<int:point_id>/edit", methods=['POST'])
 def edit_point(point_id):
+
     form = EditPointForm(flask.request.form)
-    point = Point.query.get_or_404(form.id.data)
+    point = database.get_point_or_404(point_id)
 
     if not is_admin():
         flask.abort(403)
@@ -201,14 +212,12 @@ def edit_point(point_id):
         else:
             if form.amenity.data == '_other':
                 form.amenity.data = form.new_amenity.data
-            form.populate_obj(point)
-            point.latitude = form.lat.data
-            point.longitude = form.lon.data
 
-            db.session.add(point)
-            db.session.commit()
+            for k in ['name', 'url', 'lat', 'lon', 'amenity']:
+                database.set_point_field(point_id, k, form.data[k])
+
             return flask.render_template('edit.html', ok_coords=1,
-                                         ok_name=1, ok_type=1, id=point.id)
+                                         ok_name=1, ok_type=1, id=point_id)
 
     try:
         if ok_type is False:
@@ -226,14 +235,12 @@ def send_point(point_id):
     if not is_admin():
         flask.abort(403)
 
-    form = flask.request.form
-    point = Point.query.get_or_404(form['id'])
-
-    if point.osm_id is not None:
+    point = database.get_point_or_404(point_id)
+    if point['osm_id'] is not None:
         flask.abort(400)
 
-    submit_points_to_osm([point])
-    return flask.render_template('sent.html', id=point.id)
+    submit_points_to_osm([point_id])
+    return flask.render_template('sent.html', id=point_id)
 
 @frontend.route("/moderate", methods=['GET', 'POST'])
 def moderate_view():
@@ -241,26 +248,26 @@ def moderate_view():
         flask.abort(403)
 
     if flask.request.method == 'POST':
-        point_id_list = flask.request.form.getlist('point_id')
-        point_list = [Point.query.get_or_404(i) for i in point_id_list]
+        point_id_list = [int(p_id) for p_id in
+                         flask.request.form.getlist('point_id')]
 
-        submit_points_to_osm(point_list)
+        submit_points_to_osm(point_id_list)
 
-        text = "%d points uploaded to OSM" % len(point_list)
+        text = "%d points uploaded to OSM" % len(point_id_list)
         return flask.render_template('message.html', text=text)
 
-    point_dict = lambda p: {
-        'id': p.id,
-        'latitude': p.latitude,
-        'longitude': p.longitude,
-        'marker': marker_for_amenity(p.amenity),
-        'name': p.name,
-        'type': p.amenity,
+    point_dict = lambda p_id, p: {
+        'id': p_id,
+        'lat': p['lat'],
+        'lon': p['lon'],
+        'marker': marker_for_amenity(p['amenity']),
+        'name': p['name'],
+        'type': p['amenity'],
     }
 
     form_data = {
-        'points': [point_dict(p) for p in
-                   Point.query.filter(Point.osm_id==None)],
+        'points': [point_dict(p_id, p) for p_id, p in
+                   database.get_all_points() if p['osm_id'] is None],
     }
     return flask.render_template('moderate.html', **form_data)
 

@@ -32,9 +32,8 @@ class MailTesting(object):
 class MailTests(unittest2.TestCase):
 
     def setUp(self):
-        from page_tests import app_for_testing
-        self.app, _cleanup = app_for_testing()
-        self.addCleanup(_cleanup)
+        from page_tests import _app_for_testing
+        self.app = _app_for_testing(self.addCleanup)
         self._ctx = self.app.test_request_context()
         self._ctx.push()
         self.addCleanup(self._ctx.pop)

@@ -2,7 +2,7 @@
 
 {% block content %}
 
-  {% if confirm|string == "true" %}
+  {% if confirm %}
 
     <h2>Point deleted successfully</h2>
 
@@ -11,13 +11,10 @@
     <p>Are you sure you want to delete {{ point.name }}?</p>
     <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
        <input type="submit" value="Yes">
-       <input type="hidden" name="id" value={{ point.id }} >
        <input type="hidden" name="confirm" value="true">
     </form>
     <form action="{{ url_for('.delete_point', point_id=point.id) }}" method="post">
        <input type="submit" value="No">
-       <input type="hidden" name="id" value={{ point.id }} >
-       <input type="hidden" name="confirm" value="false">
     </form>
 
   {% endif %}
