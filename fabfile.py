@@ -65,6 +65,17 @@ data_log_handler = logging.FileHandler(os.path.join(logdir, 'data.log'))
 logging.getLogger('osmpoint.database').addHandler(data_log_handler)
 """
 
+PRODUCTION_REDIS_CONFIG = """\
+daemonize yes
+port 0
+unixsocket %(server_var)s/redis.sock
+dir %(server_var)s/redis.db
+logfile %(server_var)s/redis.log
+loglevel notice
+appendonly yes
+appendfsync always
+""" % {'server_var': server_var}
+
 
 def _push_code():
     local("git push -f '%s:%s' HEAD:incoming" % (server_name, server_repo))
@@ -76,6 +87,7 @@ def configure():
             run("OSMPOINT_WORKDIR=. ../virtualenv/bin/osmpoint "
                 "generate_secret_key > secret")
         put(StringIO(PRODUCTION_CONFIG), "config.py")
+        put(StringIO(PRODUCTION_REDIS_CONFIG), "redis.conf")
         if osm_login is not None:
             put(StringIO("%s:%s\n" % osm_login), 'osm-login.txt')
 
@@ -96,7 +108,7 @@ def install_server():
     _push_code()
 
     if not exists(server_virtualenv):
-        run("virtualenv -p /usr/bin/python --distribute '%s'" %
+        run("virtualenv -p python2.7 --distribute '%s'" %
             server_virtualenv)
 
     with cd(server_virtualenv):
@@ -118,11 +130,20 @@ def push():
     with cd(server_virtualenv):
         run("bin/pip install -e '%s'" % server_repo)
 
+def migrate_to_redis():
+    with cd(server_var):
+        run("OSMPOINT_WORKDIR=. "
+            "../virtualenv/bin/osmpoint migrate_to_redis "
+            "--redis-server")
+
+def start_redis():
+    with cd(server_var):
+        run("redis-server redis.conf")
+
 def start():
     with cd(server_var):
         run("OSMPOINT_WORKDIR=. "
             "../virtualenv/bin/osmpoint runfcgi "
-            "--redis-server "
             "--socket run/fcgi.socket "
             "--pidfile run/fcgi.pid "
             "--daemonize")
