@@ -80,3 +80,9 @@ class RedisDataTest(unittest.TestCase):
         p_id = self.rdb.put_object('point', None, {'name': u"♣"})
         p = self.rdb.get_object('point', p_id)
         self.assertEqual(p['name'], u"♣")
+
+    def test_empty_fields(self):
+        p_id = self.rdb.put_object('point', None, {'name': 'X', 'lat': None})
+        p = self.rdb.get_object('point', p_id)
+        self.assertEqual(p['lat'], None)
+        self.assertEqual(p['lon'], None)
