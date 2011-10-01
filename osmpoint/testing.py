@@ -1,8 +1,17 @@
 import logging
+import flask
 from nose.plugins import Plugin
 
 
 log = logging.getLogger(__name__)
+
+
+testing_blueprint = flask.Blueprint('testing', __name__)
+
+@testing_blueprint.route('/jstests')
+def jstests():
+    return flask.render_template('jstests.html')
+
 
 
 redis_sock_path = None

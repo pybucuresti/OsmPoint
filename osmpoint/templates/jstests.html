@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Front-end unit tests</title>
+  <link rel="stylesheet" href={{
+    url_for('static', filename='jasmine/jasmine.css') }}>
+</head>
+
+<body>
+
+  <script src="{{
+    url_for('static', filename='openlayers/OpenLayers.js') }}"></script>
+  <script src="{{
+    url_for('static', filename='js/frontend.js') }}"></script>
+  <script src="{{
+    url_for('static', filename='jasmine/jasmine.js') }}"></script>
+  <script src="{{
+    url_for('static', filename='jasmine/jasmine-html.js') }}"></script>
+  <script src="{{
+    url_for('static', filename='js/unittests.js') }}"></script>
+
+  <script>
+    MT.run_tests();
+  </script>
+
+</body>
+</html>
