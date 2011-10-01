@@ -62,6 +62,7 @@ logging.basicConfig(filename=os.path.join(logdir, 'osmpoint.log'),
                     level=logging.INFO, format=_log_format)
 logging.getLogger('osmpoint').setLevel(logging.INFO)
 data_log_handler = logging.FileHandler(os.path.join(logdir, 'data.log'))
+data_log_handler.setFormatter(logging.Formatter(_log_format))
 logging.getLogger('osmpoint.database').addHandler(data_log_handler)
 """
 
