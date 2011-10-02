@@ -23,3 +23,5 @@ REDIS_DATA_PATH = os.path.join(workdir, 'redis.db')
 REDIS_SOCKET_PATH = os.path.join(workdir, 'redis.sock')
 
 logging.basicConfig()
+logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.getLogger('osmpoint.database').setLevel(logging.INFO)
