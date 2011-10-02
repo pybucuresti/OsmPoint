@@ -2,15 +2,6 @@
 
 var MT = window.MT = {};
 
-describe("Thingie one", function() {
-    it('can say hi', function() {
-        console.log('hi');
-    });
-    it('will fail', function() {
-        expect(11).toEqual(11);
-    });
-});
-
 MT.run_tests = function() {
     var jasmineEnv = jasmine.getEnv();
     jasmineEnv.updateInterval = 1000;
@@ -25,5 +16,40 @@ MT.run_tests = function() {
 
     jasmineEnv.execute();
 };
+
+MT.ajax = function(url, data, type) {
+    if(type == null) type = 'GET';
+    var req = $.ajax(url, {async: false, type: type, data: data});
+    if(req.status != 200) console.log('error:', req);
+    return req;
+};
+
+MT.log_in_as = function(user_id) {
+    MT.ajax('/log_in_as', {user_id: user_id}, 'POST');
+};
+
+MT.add_point = function(data) {
+    MT.ajax('/save_poi', data, 'POST');
+};
+
+MT.load_points = function() {
+    return JSON.parse(MT.ajax('/points.json').responseText).points;
+    //return JSON.parse(resp).points;
+};
+
+describe("Load points from server", function() {
+
+    MT.log_in_as('some-test-user');
+    MT.add_point({lat: 13, lon: 22, name: "ze pub", amenity: "bar"});
+
+    it('loads the point', function() {
+        var points = MT.load_points();
+        expect(points.length).toEqual(1);
+        var point = points[0];
+        expect(points[0]['lat']).toEqual(13);
+        expect(points[0]['lon']).toEqual(22);
+        expect(points[0]['type']).toEqual('bar');
+    });
+});
 
 })();

@@ -19,6 +19,12 @@ def points_json():
         'points': frontend.points_for_homepage(),
     })
 
+@testing_blueprint.route('/log_in_as', methods=['POST'])
+def log_in_as():
+    # log in with any user ID, for testing purposes
+    flask.session['openid'] = flask.request.form['user_id']
+    return "ok"
+
 
 
 redis_sock_path = None
