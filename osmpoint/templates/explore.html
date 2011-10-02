@@ -1,5 +1,9 @@
 {% extends "layout-fullmap.html" %}
 
+{% block head_tag -%}
+manifest="{{ url_for('.cache_manifest') }}"
+{%- endblock %}
+
 {% block after_menu %}
 <div>
   OSM points of interest

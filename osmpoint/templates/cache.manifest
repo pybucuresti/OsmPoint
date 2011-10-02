@@ -1,0 +1,12 @@
+CACHE MANIFEST
+CACHE:
+{{ url_for('static', filename='style.css') }}
+{{ url_for('static', filename='js/jquery-1.5.2.min.js') }}
+{{ url_for('static', filename='openlayers/OpenLayers.js') }}
+{{ url_for('static', filename='openlayers/theme/default/style.css') }}
+{{ url_for('static', filename='mobile-zoombar.png') }}
+{{ url_for('static', filename='satellite.png') }}
+{{ url_for('static', filename='js/frontend.js') }}
+{{ url_for('static', filename='js/debug.js') }}
+NETWORK:
+*

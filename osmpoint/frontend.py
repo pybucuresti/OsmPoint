@@ -151,6 +151,12 @@ def points_for_homepage():
 
     return point_data
 
+@frontend.route("/cache.manifest")
+def cache_manifest():
+    resp = flask.make_response(flask.render_template('cache.manifest'))
+    resp.mimetype = "text/cache-manifest"
+    return resp
+
 @frontend.route("/")
 def homepage():
     point_data = points_for_homepage()
