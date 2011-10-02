@@ -1,0 +1,15 @@
+Flask==0.8
+Flask-Actions==0.6.5
+Flask-OpenID==1.0.1
+Flask-SQLAlchemy==0.15
+Jinja2==2.6
+PyYAML==3.10
+SQLAlchemy==0.7.2
+WTForms==0.6.3
+Werkzeug==0.8.1
+blinker==1.1
+flatland==dev
+py==1.4.5
+pytest==2.1.2
+python-openid==2.2.5
+redis==2.4.9
