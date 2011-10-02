@@ -1,0 +1,7 @@
+-r requirements.txt
+Fabric==1.2.2
+mock==0.7.2
+nose==1.1.2
+paramiko==1.7.7.1
+pycrypto==2.3
+unittest2==0.5.1
