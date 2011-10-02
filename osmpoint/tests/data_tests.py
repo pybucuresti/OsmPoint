@@ -5,8 +5,8 @@ from osmpoint import database
 class DataTest(unittest.TestCase):
 
     def setUp(self):
-        from page_tests import _app_for_testing
-        self.app = _app_for_testing(self.addCleanup)
+        from osmpoint.testing import app_for_testing
+        self.app = app_for_testing(self.addCleanup)
         self.db = database.db
         self._ctx = self.app.test_request_context()
         self._ctx.push()

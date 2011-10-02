@@ -7,27 +7,14 @@ import string
 log = logging.getLogger(__name__)
 
 
-def set_up_redis(tmp, addCleanup):
-    from osmpoint.testing import redis_sock_path
-    if redis_sock_path is not None:
-        return redis_sock_path
-
-    from osmpoint.database import redis_server_process
-    sock_path = tmp/'redis.sock'
-    data_path = tmp/'redis.db'
-    p = redis_server_process(str(sock_path), str(data_path), persist=False)
-    p.__enter__()
-    addCleanup(lambda: p.__exit__(None, None, None))
-    return sock_path
-
-
 class RedisDataTest(unittest.TestCase):
 
     def setUp(self):
+        from osmpoint.testing import redis_for_testing
         tmp = py.path.local.mkdtemp()
         log.info("temp folder %r", tmp)
         self.addCleanup(tmp.remove)
-        redis_socket_path = set_up_redis(tmp, self.addCleanup)
+        redis_socket_path = redis_for_testing(tmp, self.addCleanup)
         from osmpoint.database import open_redis_db
         self.rdb = open_redis_db(str(redis_socket_path))
 
