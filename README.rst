@@ -9,7 +9,15 @@ Installation
 * Set a random value to the ``SECRET_KEY`` configuration option.
 * Set an environment variable ``OSMPOINT_WORKDIR`` to point to the
   runtime folder created above.
-* Run tests with ``nosetests``, or ``nosetests --with-redis`` (which
-  starts a single shared Redis process for all the tests)
+
+
+Running server and unit tests
+=============================
+
 * Run the server with ``osmpoint runserver``, or ``osmpoint runserver
   --with-redis`` (which starts a Redis server in the background).
+* Run python unit tests with ``nosetests``, or ``nosetests
+  --with-redis`` (which starts a single shared Redis process for all the
+  tests).
+* To run JavaScript tests, start the server with ``osmpoint
+  runserver_testing``, and load the page ``/jstests`` in the browser.
