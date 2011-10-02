@@ -14,6 +14,7 @@ setup(
         'PyYAML',
         'redis',
         'flatland',
+        'simplejson',
     ],
     entry_points={
         'console_scripts': [
