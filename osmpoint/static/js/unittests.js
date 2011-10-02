@@ -20,8 +20,12 @@ MT.run_tests = function() {
 MT.ajax = function(url, data, type) {
     if(type == null) type = 'GET';
     var req = $.ajax(url, {async: false, type: type, data: data});
-    if(req.status != 200) console.log('error:', req);
+    if(req.status != 200) console.log(url, 'error:', req);
     return req;
+};
+
+MT.reset_database = function() {
+    MT.ajax('/reset_database', {}, 'POST');
 };
 
 MT.log_in_as = function(user_id) {
@@ -39,6 +43,7 @@ MT.load_points = function() {
 
 describe("Load points from server", function() {
 
+    MT.reset_database();
     MT.log_in_as('some-test-user');
     MT.add_point({lat: 13, lon: 22, name: "ze pub", amenity: "bar"});
 

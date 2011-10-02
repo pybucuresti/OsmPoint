@@ -21,6 +21,12 @@ def points_json():
         'points': frontend.points_for_homepage(),
     })
 
+@testing_blueprint.route('/reset_database', methods=['POST'])
+def reset_database():
+    rdb = flask.current_app.rdb
+    rdb.r.flushdb()
+    return "ok"
+
 @testing_blueprint.route('/log_in_as', methods=['POST'])
 def log_in_as():
     # log in with any user ID, for testing purposes
