@@ -27,9 +27,9 @@ def maybe_redis_server(app, redis_requested):
 
 
 def main():
-    if '--redis-server' in sys.argv:
+    if '--with-redis' in sys.argv:
         redis_requested = True
-        sys.argv.remove('--redis-server')
+        sys.argv.remove('--with-redis')
     else:
         redis_requested = False
 
