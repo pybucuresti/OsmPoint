@@ -27,7 +27,8 @@ def runserver_testing(app):
             from testing import app_for_testing
             return app_for_testing(_cleanup.append)
 
-    return make_runserver(make_testing_app, use_reloader=True,
+    return make_runserver(make_testing_app,
+                          use_reloader=True, use_debugger=True,
                           hostname='0.0.0.0', port=7777)
 
 

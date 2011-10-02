@@ -55,6 +55,7 @@ def app_for_testing(addCleanup):
     tmp_dir = py.path.local.mkdtemp()
     redis_socket_path = redis_for_testing(tmp_dir, addCleanup)
     config_for_tests = ("OSM_API = 'api06.dev.openstreetmap.org'\n"
+                        "DEBUG = True\n"
                         "SECRET_KEY = 'my-secret-key'\n"
                         "SQLALCHEMY_DATABASE_URI = 'sqlite:///%s/db.sqlite'\n"
                         "MAIL_SERVER = 'my_mailhost'\n"
