@@ -46,9 +46,6 @@ def create_app(workdir):
 
     app.register_blueprint(frontend)
 
-    from testing import testing_blueprint
-    app.register_blueprint(testing_blueprint)
-
     configure_app(app, workdir)
 
     return app

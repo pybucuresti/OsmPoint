@@ -67,6 +67,8 @@ def app_for_testing(addCleanup):
     addCleanup(tmp_dir.remove)
 
     app = create_app(str(tmp_dir))
+    app.register_blueprint(testing_blueprint)
+
     app.try_trigger_before_first_request_functions()
     return app
 
